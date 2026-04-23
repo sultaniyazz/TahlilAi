@@ -1,48 +1,123 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import type { Page } from '@/types';
+import pptxgen from 'pptxgenjs';
+import type { Page, CanvasSettings } from '@/types';
 
-export async function exportElementAsPNG(element: HTMLElement): Promise<string> {
-  const canvas = await html2canvas(element, { backgroundColor: '#ffffff' });
-  return canvas.toDataURL('image/png');
+const SLIDE_W = 1920;
+const SLIDE_H = 1080;
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
-export async function exportElementAsPDF(element: HTMLElement): Promise<Blob> {
-  const canvas = await html2canvas(element, { backgroundColor: '#ffffff' });
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF({ unit: 'px', format: [canvas.width, canvas.height] });
-  pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-  const blob = pdf.output('blob');
-  return blob;
+export function downloadFile(blob: Blob, filename: string) {
+  downloadBlob(blob, filename);
 }
 
-export async function exportPagesAsPDF(pages: Page[], canvasElement: HTMLElement): Promise<Blob> {
-  const pdf = new jsPDF({ unit: 'px', format: [1080, 1080] });
+export function estimateFileSize(pages: Page[], format: 'png' | 'pdf' | 'pptx'): string {
+  const base = pages.length;
+  const kb = format === 'pdf' ? base * 280 : format === 'pptx' ? base * 320 : base * 180;
+  return kb < 1024 ? `~${kb} KB` : `~${(kb / 1024).toFixed(1)} MB`;
+}
 
-  for (let i = 0; i < pages.length; i++) {
-    // For now, export the current canvas for each page
-    // In a real implementation, you'd render each page separately
-    const canvas = await html2canvas(canvasElement, { backgroundColor: '#ffffff' });
+async function snapshotElement(element: HTMLElement, scale = 2): Promise<HTMLCanvasElement> {
+  return html2canvas(element, {
+    backgroundColor: null,
+    scale,
+    useCORS: true,
+    logging: false,
+  });
+}
+
+export async function exportAsPNG(element: HTMLElement, filename = 'slide.png') {
+  const canvas = await snapshotElement(element);
+  canvas.toBlob((blob) => {
+    if (blob) downloadBlob(blob, filename);
+  }, 'image/png');
+}
+
+export async function exportPagesAsPNG(slideElements: HTMLElement[], baseName = 'slide') {
+  for (let i = 0; i < slideElements.length; i++) {
+    const canvas = await snapshotElement(slideElements[i]);
+    await new Promise<void>((resolve) => {
+      canvas.toBlob((blob) => {
+        if (blob) downloadBlob(blob, `${baseName}-${i + 1}.png`);
+        resolve();
+      }, 'image/png');
+    });
+  }
+}
+
+export async function exportPagesAsPDF(
+  slideElements: HTMLElement[],
+  filename = 'presentation.pdf',
+  canvasSettings?: CanvasSettings
+) {
+  const w = canvasSettings?.width ?? SLIDE_W;
+  const h = canvasSettings?.height ?? SLIDE_H;
+
+  const pdf = new jsPDF({
+    unit: 'px',
+    format: [w, h],
+    orientation: w >= h ? 'landscape' : 'portrait',
+    hotfixes: ['px_scaling'],
+  });
+
+  for (let i = 0; i < slideElements.length; i++) {
+    const canvas = await snapshotElement(slideElements[i]);
     const imgData = canvas.toDataURL('image/png');
-
-    if (i > 0) {
-      pdf.addPage();
-    }
-    pdf.addImage(imgData, 'PNG', 0, 0, 1080, 1080);
+    if (i > 0) pdf.addPage([w, h], w >= h ? 'landscape' : 'portrait');
+    pdf.addImage(imgData, 'PNG', 0, 0, w, h, undefined, 'FAST');
   }
 
-  const blob = pdf.output('blob');
-  return blob;
+  pdf.save(filename);
 }
 
-export async function exportPagesAsPPTX(pages: Page[]): Promise<Blob> {
-  // For now, return a placeholder
-  // In a real implementation, use pptxgenjs
-  const pptxContent = `PPTX export for ${pages.length} pages`;
-  return new Blob([pptxContent], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
-}
+export async function exportPagesAsPPTX(
+  pages: Page[],
+  slideElements: HTMLElement[],
+  filename = 'presentation.pptx',
+  canvasSettings?: CanvasSettings
+) {
+  const pptx = new pptxgen();
+  pptx.layout = 'LAYOUT_WIDE';
+  pptx.title = 'AI Presentation';
 
-export async function exportElementAsSVG(element: HTMLElement): Promise<string> {
-  const serialized = new XMLSerializer().serializeToString(element.cloneNode(true) as Node);
-  return `data:image/svg+xml;base64,${window.btoa(serialized)}`;
+  const w = canvasSettings?.width ?? SLIDE_W;
+  const h = canvasSettings?.height ?? SLIDE_H;
+  const ratio = h / w;
+  const slideW = 13.333;
+  const slideH = slideW * ratio;
+
+  pptx.defineLayout({ name: 'CUSTOM', width: slideW, height: slideH });
+  pptx.layout = 'CUSTOM';
+
+  for (let i = 0; i < slideElements.length; i++) {
+    const slide = pptx.addSlide();
+    const canvas = await snapshotElement(slideElements[i]);
+    const imgData = canvas.toDataURL('image/png');
+
+    slide.background = { color: '0F0F11' };
+    slide.addImage({
+      data: imgData,
+      x: 0,
+      y: 0,
+      w: slideW,
+      h: slideH,
+    });
+
+    const page = pages[i];
+    if (page?.heading) {
+      slide.addNotes(`${page.heading}\n\n${page.content || ''}`);
+    }
+  }
+
+  await pptx.writeFile({ fileName: filename });
 }
