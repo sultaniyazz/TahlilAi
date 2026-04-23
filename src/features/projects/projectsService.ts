@@ -110,14 +110,23 @@ export const projectService = {
   },
 
   async save(id: string, updates: Partial<Project>): Promise<boolean> {
-    const payload: Record<string, unknown> = {};
+    const payload: {
+      title?: string;
+      subtitle?: string | null;
+      pages?: Page[];
+      canvas_settings?: CanvasSettings;
+      thumbnail_url?: string | null;
+    } = {};
     if (updates.title !== undefined) payload.title = updates.title;
-    if (updates.subtitle !== undefined) payload.subtitle = updates.subtitle;
+    if (updates.subtitle !== undefined) payload.subtitle = updates.subtitle ?? null;
     if (updates.pages !== undefined) payload.pages = updates.pages;
     if (updates.canvasSettings !== undefined) payload.canvas_settings = updates.canvasSettings;
-    if (updates.thumbnail !== undefined) payload.thumbnail_url = updates.thumbnail;
+    if (updates.thumbnail !== undefined) payload.thumbnail_url = updates.thumbnail ?? null;
 
-    const { error } = await supabase.from('projects').update(payload).eq('id', id);
+    const { error } = await supabase
+      .from('projects')
+      .update(payload as never)
+      .eq('id', id);
     if (error) {
       console.error('save project error', error);
       return false;
