@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useShallow } from 'zustand/shallow';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const initialize = useAuthStore((state) => state.initialize);
@@ -12,7 +13,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-export const useAuth = () => useAuthStore((state) => ({
+export const useAuth = () => useAuthStore(useShallow((state) => ({
   user: state.user,
   session: state.session,
   isAuthenticated: state.isAuthenticated,
@@ -24,4 +25,4 @@ export const useAuth = () => useAuthStore((state) => ({
   resetPassword: state.resetPassword,
   updateProfile: state.updateProfile,
   updateBrandKit: state.updateBrandKit,
-}));
+})));
