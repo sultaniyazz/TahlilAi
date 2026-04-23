@@ -56,65 +56,6 @@ export interface GradientSettings {
   angle?: number;
 }
 
-export interface InfographicElement {
-  id: string;
-  type: 'text' | 'heading' | 'stat' | 'chart' | 'icon' | 'image' | 'shape' | 'divider';
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  content: string;
-  style: ElementStyle;
-  data?: ChartData | StatData;
-  iconName?: string;
-  zIndex: number;
-}
-
-export interface ElementStyle {
-  fontSize?: number;
-  fontFamily?: string;
-  fontWeight?: string;
-  color?: string;
-  backgroundColor?: string;
-  borderRadius?: number;
-  padding?: number;
-  textAlign?: 'left' | 'center' | 'right';
-  opacity?: number;
-  lineHeight?: number;
-  border?: string;
-  height?: number | string;
-}
-
-export interface ChartData {
-  type: 'bar' | 'line' | 'pie' | 'doughnut';
-  labels: string[];
-  values: number[];
-  colors?: string[];
-}
-
-export interface StatData {
-  value: number;
-  prefix?: string;
-  suffix?: string;
-  label: string;
-  trend?: 'up' | 'down' | 'neutral';
-  trendValue?: string;
-}
-
-export interface CanvasSettings {
-  width: number;
-  height: number;
-  backgroundColor: string;
-  backgroundGradient?: GradientSettings;
-  aspectRatio: '1:1' | '9:16' | '16:9' | '4:5';
-}
-
-export interface GradientSettings {
-  type: 'linear' | 'radial';
-  colors: string[];
-  angle?: number;
-}
-
 export type LayoutType = 'timeline' | 'comparison' | 'list' | 'stats' | 'process' | 'hierarchy';
 
 export interface InfographicElement {
@@ -237,13 +178,12 @@ export interface PricingPlan {
 }
 
 export interface ExportOptions {
-  format: 'png' | 'pdf' | 'svg';
+  format: 'png' | 'pdf' | 'svg' | 'pptx';
   dpi: number;
   quality: number;
   includeBleed?: boolean;
 }
 
-// Visual Hierarchy Types
 export interface VisualHierarchy {
   level: 1 | 2 | 3 | 4 | 5;
   fontSize: number;
@@ -254,7 +194,6 @@ export interface VisualHierarchy {
   color: string;
 }
 
-// Animation Types
 export interface AnimationConfig {
   duration: number;
   easing: string;

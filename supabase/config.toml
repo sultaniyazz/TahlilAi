@@ -1,0 +1,4 @@
+project_id = "ltyybecobrqvlkmiqooo"
+
+[functions.generate-presentation]
+verify_jwt = false

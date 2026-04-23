@@ -1,78 +1,76 @@
+import { supabase } from '@/integrations/supabase/client';
 import type { PresentationData, AIAnalysisResult } from '@/types';
 
 export type { PresentationData, AIAnalysisResult };
 
-export const aiService = {
-  async generatePresentation(prompt: string): Promise<PresentationData> {
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [
-            {
-              role: 'system',
-              content: `You are an AI presentation generator. Generate a structured presentation with title and pages. Each page should have a heading and content. Return ONLY valid JSON in this format:
-{
-  "title": "Presentation Title",
-  "pages": [
-    {
-      "heading": "Slide Heading",
-      "content": "Slide content here"
-    }
-  ]
+export interface GeneratedSlide {
+  heading: string;
+  content: string;
+  bullets?: string[];
+  layout?: string;
+  notes?: string;
 }
-Keep content concise, professional, and engaging. Generate 5-8 pages for a complete presentation.`,
-            },
-            {
-              role: 'user',
-              content: `Create a presentation about: ${prompt}`,
-            },
-          ],
-          temperature: 0.7,
-          max_tokens: 2000,
-        }),
-      });
 
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
-      }
+export interface GeneratedPresentation {
+  title: string;
+  subtitle?: string;
+  pages: GeneratedSlide[];
+  suggestedTheme?: {
+    primaryColor: string;
+    accentColor: string;
+    backgroundColor: string;
+    fontHeading: string;
+    fontBody: string;
+  };
+}
 
-      const data = await response.json();
-      const content = data.choices[0]?.message?.content;
+export interface GenerateOptions {
+  slideCount?: number;
+  tone?: 'professional' | 'casual' | 'academic' | 'creative' | 'persuasive';
+  language?: string;
+  audience?: string;
+}
 
-      if (!content) {
-        throw new Error('No content received from OpenAI');
-      }
+export const aiService = {
+  async generatePresentation(
+    prompt: string,
+    options: GenerateOptions = {}
+  ): Promise<GeneratedPresentation> {
+    const { data, error } = await supabase.functions.invoke('generate-presentation', {
+      body: {
+        prompt,
+        slideCount: options.slideCount ?? 8,
+        tone: options.tone ?? 'professional',
+        language: options.language,
+        audience: options.audience,
+      },
+    });
 
-      // Parse the JSON response
-      const presentationData: PresentationData = JSON.parse(content);
-
-      // Validate the structure
-      if (!presentationData.title || !Array.isArray(presentationData.pages)) {
-        throw new Error('Invalid presentation structure');
-      }
-
-      return presentationData;
-    } catch (error) {
-      console.error('Error generating presentation:', error);
-      throw new Error('Failed to generate presentation. Please try again.');
+    if (error) {
+      throw new Error(error.message || 'Failed to generate presentation');
     }
+    if (!data || data.error) {
+      throw new Error(data?.error || 'Failed to generate presentation');
+    }
+    if (!data.title || !Array.isArray(data.pages)) {
+      throw new Error('Invalid presentation structure returned');
+    }
+
+    return data as GeneratedPresentation;
   },
 
   async analyzeContent(content: string): Promise<AIAnalysisResult> {
-    const numericMatches = Array.from(content.matchAll(/(\d[\d,\.]*)/g)).slice(0, 3);
+    // Lightweight client-side heuristic. Heavy AI moved to edge functions.
+    const numericMatches = Array.from(content.matchAll(/(\d[\d,.]*)/g)).slice(0, 3);
     const stats = numericMatches.map((match) => ({
       value: parseFloat(match[1].replace(/,/g, '')) || 0,
       originalText: match[0],
       context: 'Detected value',
     }));
 
-    const dateMatches = Array.from(content.matchAll(/\b(\d{1,2}\/\d{1,2}\/\d{2,4}|\d{4})\b/g)).slice(0, 2);
+    const dateMatches = Array.from(
+      content.matchAll(/\b(\d{1,2}\/\d{1,2}\/\d{2,4}|\d{4})\b/g)
+    ).slice(0, 2);
     const dates = dateMatches
       .map((match) => ({ date: new Date(match[1]), originalText: match[0] }))
       .filter((entry) => !isNaN(entry.date.getTime()));
