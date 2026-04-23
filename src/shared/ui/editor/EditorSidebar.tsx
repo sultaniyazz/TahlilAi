@@ -107,26 +107,26 @@ export function EditorSidebar() {
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      const canvasElement = document.querySelector('[data-infographic-canvas]') as HTMLElement;
+      const canvasElement = document.querySelector('[data-infographic-canvas]') as HTMLElement | null;
       if (!canvasElement) {
         toast.error('Canvas not found');
         return;
       }
 
+      const baseName = currentProject?.title || 'presentation';
+
       if (exportFormat === 'png') {
-        const url = await exportAsPNG(canvasElement, { format: 'png', dpi: exportDpi, quality: 1 }, canvasSettings);
-        downloadFile(url, `${currentProject?.title || 'presentation'}.png`);
+        await exportAsPNG(canvasElement, `${baseName}.png`);
         toast.success('Exported as PNG');
       } else if (exportFormat === 'pdf') {
-        const url = await exportPagesAsPDF(pages, canvasElement, { format: 'pdf', dpi: exportDpi, quality: 1 }, canvasSettings);
-        downloadFile(url, `${currentProject?.title || 'presentation'}.pdf`);
+        await exportPagesAsPDF([canvasElement], `${baseName}.pdf`, canvasSettings);
         toast.success('Exported as PDF');
       } else if (exportFormat === 'pptx') {
-        const url = await exportPagesAsPPTX(pages);
-        downloadFile(url, `${currentProject?.title || 'presentation'}.pptx`);
+        await exportPagesAsPPTX(pages, [canvasElement], `${baseName}.pptx`, canvasSettings);
         toast.success('Exported as PPTX');
       }
     } catch (error) {
+      console.error('Export failed', error);
       toast.error('Export failed');
     } finally {
       setIsExporting(false);
@@ -364,7 +364,7 @@ export function EditorSidebar() {
               <div className="p-4 rounded-xl bg-white/5">
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-white/60">Estimated size:</span>
-                  <span className="text-white">{estimateFileSize(canvasSettings, exportFormat, exportDpi)}</span>
+                  <span className="text-white">{estimateFileSize(pages, exportFormat)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-white/60">Dimensions:</span>
