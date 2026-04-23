@@ -20,7 +20,7 @@ import {
 import { useEditorStore } from '@/store/useEditorStore';
 import { useProjectStore } from '@/store/useProjectStore';
 import { useAI } from '@/features/ai/useAI';
-import { exportAsPNG, exportPagesAsPDF, exportPagesAsPPTX, downloadFile, estimateFileSize } from '@/shared/services/export/exportService';
+import { exportAsPNG, exportPagesAsPDF, exportPagesAsPPTX, estimateFileSize } from '@/shared/services/export/exportService';
 import { Slider } from '@/shared/ui/slider';
 import { Switch } from '@/shared/ui/switch';
 import { toast } from 'sonner';
