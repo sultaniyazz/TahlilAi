@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { useProjectStore } from '@/store/useProjectStore';
+import type { Project } from '@/types';
 
 export function useProjects() {
   const { user, isAuthenticated } = useAuth();
@@ -10,14 +11,14 @@ export function useProjects() {
     isLoading,
     error,
     fetchProjects,
-    createProject,
     loadProject,
     saveProject,
     updateProjectTitle,
     deleteProject,
-    duplicateProject,
     setProjectPublic,
     getPublicProject,
+    createProject: createProjectInStore,
+    duplicateProject: duplicateProjectInStore,
   } = useProjectStore();
 
   useEffect(() => {
@@ -27,6 +28,16 @@ export function useProjects() {
       useProjectStore.setState({ projects: [], currentProject: null });
     }
   }, [isAuthenticated, user, fetchProjects]);
+
+  const createProject = async (init?: Partial<Project>) => {
+    if (!user) return null;
+    return createProjectInStore(user.id, init);
+  };
+
+  const duplicateProject = async (id: string) => {
+    if (!user) return null;
+    return duplicateProjectInStore(id, user.id);
+  };
 
   return {
     projects,
