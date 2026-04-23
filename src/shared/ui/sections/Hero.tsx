@@ -65,17 +65,27 @@ export function Hero() {
   const handleGenerate = async () => {
     if (!inputText.trim()) return;
     
-    // Create new project
-    const project = await createProject(inputText);
-    
+    // Create new project with initial slide containing the input as content
+    const project = await createProject({
+      title: inputText.slice(0, 80) || 'Untitled presentation',
+      pages: [
+        {
+          id: crypto.randomUUID(),
+          heading: 'Slide 1',
+          content: inputText,
+          elements: [],
+        },
+      ],
+    });
+
     if (!project) {
       console.error('Failed to create project');
       return;
     }
-    
+
     // Analyze content
     const analysis = await analyzeContent(inputText);
-    
+
     // Generate layout elements
     const elements = generateLayout(
       (analysis.detectedLayout as LayoutType) || 'list',
@@ -83,17 +93,17 @@ export function Hero() {
       project.canvasSettings,
       brandColors
     );
-    
+
     // Add elements to project
     elements.forEach((element) => {
       addElement(element);
     });
-    
+
     // Save project
     saveProject();
-    
+
     // Navigate to editor
-    window.location.href = '/editor';
+    window.location.href = `/editor/${project.id}`;
   };
 
   const exampleTexts = [
