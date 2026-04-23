@@ -1,268 +1,214 @@
-﻿import { create } from 'zustand';
-import type { InfographicElement, CanvasSettings, Project, Page, EditHistory } from '@/types';
+import { create } from 'zustand';
+import type { Slide, SlideElement, CanvasSettings, Theme, Project } from '@/types';
+import { DEFAULT_CANVAS, DEFAULT_THEME } from '@/types';
 
-const defaultCanvasSettings: CanvasSettings = {
-  width: 1080,
-  height: 1080,
-  backgroundColor: '#ffffff',
-  aspectRatio: '16:9',
-};
+const uid = () =>
+  typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2);
 
-const generateId = () => {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
-  }
-  return `${Math.random().toString(36).substring(2, 15)}`;
-};
+interface HistoryEntry {
+  slides: Slide[];
+}
 
 interface EditorState {
   project: Project | null;
-  pages: Page[];
-  activePageIndex: number;
+  slides: Slide[];
+  activeSlideIndex: number;
   selectedElementId: string | null;
   canvasSettings: CanvasSettings;
-  history: EditHistory[];
-  historyIndex: number;
-  canUndo: boolean;
-  canRedo: boolean;
+  theme: Theme;
   zoom: number;
-  addPage: (page?: Partial<Page>) => void;
-  updatePage: (index: number, updates: Partial<Page>) => void;
-  deletePage: (index: number) => void;
-  duplicatePage: (index: number) => void;
-  reorderPages: (pageIds: string[]) => void;
-  setActivePage: (index: number) => void;
-  addElement: (element: Omit<InfographicElement, 'id' | 'zIndex'>) => void;
-  updateElement: (id: string, updates: Partial<InfographicElement>) => void;
+  history: HistoryEntry[];
+  historyIndex: number;
+
+  setProject: (p: Project | null) => void;
+  setSlides: (slides: Slide[]) => void;
+  setTheme: (theme: Theme) => void;
+  setActiveSlide: (i: number) => void;
+  setZoom: (z: number) => void;
+
+  addSlide: (slide?: Partial<Slide>) => void;
+  duplicateSlide: (i: number) => void;
+  deleteSlide: (i: number) => void;
+  reorderSlides: (ids: string[]) => void;
+  updateSlide: (i: number, updates: Partial<Slide>) => void;
+
+  selectElement: (id: string | null) => void;
+  addElement: (element: Omit<SlideElement, 'id' | 'zIndex'>) => void;
+  updateElement: (id: string, updates: Partial<SlideElement>) => void;
   removeElement: (id: string) => void;
-  reorderElements: (elementIds: string[]) => void;
-  moveElement: (id: string, x: number, y: number) => void;
-  resizeElement: (id: string, width: number, height: number) => void;
-  setSelectedElement: (id: string | null) => void;
-  updateCanvasSettings: (settings: Partial<CanvasSettings>) => void;
+
   undo: () => void;
   redo: () => void;
-  addToHistory: (action: string) => void;
-  clearHistory: () => void;
-  setZoom: (zoom: number) => void;
-  setProject: (project: Project) => void;
-  setPages: (pages: Page[]) => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
+  pushHistory: () => void;
 }
+
+const cloneSlides = (s: Slide[]) => JSON.parse(JSON.stringify(s)) as Slide[];
 
 export const useEditorStore = create<EditorState>((set, get) => ({
   project: null,
-  pages: [],
-  activePageIndex: 0,
+  slides: [],
+  activeSlideIndex: 0,
   selectedElementId: null,
-  canvasSettings: defaultCanvasSettings,
+  canvasSettings: DEFAULT_CANVAS,
+  theme: DEFAULT_THEME,
+  zoom: 60,
   history: [],
   historyIndex: -1,
-  canUndo: false,
-  canRedo: false,
-  zoom: 100,
 
-  setProject: (project) => set({ project, pages: project.pages }),
-
-  addPage: (page = {}) => {
-    const newPage: Page = {
-      id: generateId(),
-      heading: page.heading || 'New Slide',
-      content: page.content || '',
-      elements: page.elements || [],
-    };
-    set((state) => ({
-      pages: [...state.pages, newPage],
-      activePageIndex: state.pages.length,
-    }));
-    get().addToHistory('Add page');
-  },
-
-  updatePage: (index, updates) => {
-    set((state) => ({
-      pages: state.pages.map((page, i) => i === index ? { ...page, ...updates } : page),
-    }));
-    get().addToHistory('Update page');
-  },
-
-  deletePage: (index) => {
-    set((state) => {
-      const newPages = state.pages.filter((_, i) => i !== index);
-      const newIndex = Math.min(state.activePageIndex, newPages.length - 1);
-      return {
-        pages: newPages,
-        activePageIndex: newIndex >= 0 ? newIndex : 0,
-      };
-    });
-    get().addToHistory('Delete page');
-  },
-
-  duplicatePage: (index) => {
-    const page = get().pages[index];
-    if (page) {
-      const newPage: Page = {
-        ...page,
-        id: generateId(),
-        heading: `${page.heading} (Copy)`,
-      };
-      set((state) => ({
-        pages: [...state.pages.slice(0, index + 1), newPage, ...state.pages.slice(index + 1)],
-        activePageIndex: index + 1,
-      }));
-      get().addToHistory('Duplicate page');
+  setProject: (project) => {
+    if (project) {
+      set({
+        project,
+        slides: project.slides ?? [],
+        canvasSettings: project.canvasSettings ?? DEFAULT_CANVAS,
+        theme: project.theme ?? DEFAULT_THEME,
+        activeSlideIndex: 0,
+        history: [{ slides: cloneSlides(project.slides ?? []) }],
+        historyIndex: 0,
+      });
+    } else {
+      set({ project: null, slides: [], history: [], historyIndex: -1 });
     }
   },
 
-  reorderPages: (pageIds) => {
-    set((state) => ({
-      pages: pageIds
-        .map((id) => state.pages.find((page) => page.id === id))
-        .filter(Boolean) as Page[],
-    }));
-    get().addToHistory('Reorder pages');
+  setSlides: (slides) => {
+    set({ slides });
+    get().pushHistory();
   },
 
-  setActivePage: (index) => set({ activePageIndex: index }),
+  setTheme: (theme) => set({ theme }),
+  setActiveSlide: (i) => set({ activeSlideIndex: i, selectedElementId: null }),
+  setZoom: (zoom) => set({ zoom: Math.max(20, Math.min(200, zoom)) }),
+
+  addSlide: (slide) => {
+    const newSlide: Slide = {
+      id: uid(),
+      title: slide?.title ?? 'New slide',
+      layout: slide?.layout ?? 'content',
+      background: slide?.background ?? get().theme.background,
+      elements: slide?.elements ?? [],
+      notes: slide?.notes,
+    };
+    set((s) => ({
+      slides: [...s.slides, newSlide],
+      activeSlideIndex: s.slides.length,
+    }));
+    get().pushHistory();
+  },
+
+  duplicateSlide: (i) => {
+    const original = get().slides[i];
+    if (!original) return;
+    const copy: Slide = {
+      ...JSON.parse(JSON.stringify(original)),
+      id: uid(),
+      elements: original.elements.map((e) => ({ ...e, id: uid() })),
+    };
+    set((s) => ({
+      slides: [...s.slides.slice(0, i + 1), copy, ...s.slides.slice(i + 1)],
+      activeSlideIndex: i + 1,
+    }));
+    get().pushHistory();
+  },
+
+  deleteSlide: (i) => {
+    set((s) => {
+      const slides = s.slides.filter((_, idx) => idx !== i);
+      return {
+        slides,
+        activeSlideIndex: Math.max(0, Math.min(s.activeSlideIndex, slides.length - 1)),
+      };
+    });
+    get().pushHistory();
+  },
+
+  reorderSlides: (ids) => {
+    set((s) => ({
+      slides: ids
+        .map((id) => s.slides.find((sl) => sl.id === id))
+        .filter(Boolean) as Slide[],
+    }));
+    get().pushHistory();
+  },
+
+  updateSlide: (i, updates) => {
+    set((s) => ({
+      slides: s.slides.map((sl, idx) => (idx === i ? { ...sl, ...updates } : sl)),
+    }));
+    get().pushHistory();
+  },
+
+  selectElement: (id) => set({ selectedElementId: id }),
 
   addElement: (element) => {
-    set((state) => {
-      const currentPage = state.pages[state.activePageIndex];
-      if (!currentPage) return state;
-      const newElement = { ...element, id: generateId(), zIndex: currentPage.elements.length + 1 };
-      const updatedPages = state.pages.map((page, i) =>
-        i === state.activePageIndex
-          ? { ...page, elements: [...page.elements, newElement] }
-          : page
-      );
-      return { pages: updatedPages };
+    set((s) => {
+      const slides = [...s.slides];
+      const slide = slides[s.activeSlideIndex];
+      if (!slide) return s;
+      const newElement: SlideElement = {
+        ...element,
+        id: uid(),
+        zIndex: slide.elements.length + 1,
+      };
+      slides[s.activeSlideIndex] = { ...slide, elements: [...slide.elements, newElement] };
+      return { slides, selectedElementId: newElement.id };
     });
-    get().addToHistory('Add element');
+    get().pushHistory();
   },
 
   updateElement: (id, updates) => {
-    set((state) => ({
-      pages: state.pages.map((page, i) =>
-        i === state.activePageIndex
-          ? { ...page, elements: page.elements.map((el) => el.id === id ? { ...el, ...updates } : el) }
-          : page
-      ),
-    }));
-    get().addToHistory('Update element');
-  },
-
-  removeElement: (id) => {
-    set((state) => ({
-      pages: state.pages.map((page, i) =>
-        i === state.activePageIndex
-          ? { ...page, elements: page.elements.filter((el) => el.id !== id) }
-          : page
-      ),
-    }));
-    get().addToHistory('Remove element');
-  },
-
-  reorderElements: (elementIds) => {
-    set((state) => ({
-      pages: state.pages.map((page, i) =>
-        i === state.activePageIndex
-          ? {
-              ...page,
-              elements: elementIds
-                .map((id) => page.elements.find((el) => el.id === id))
-                .filter(Boolean) as InfographicElement[],
-            }
-          : page
-      ),
-    }));
-    get().addToHistory('Reorder elements');
-  },
-
-  moveElement: (id, x, y) => {
-    set((state) => ({
-      pages: state.pages.map((page, i) =>
-        i === state.activePageIndex
-          ? {
-              ...page,
-              elements: page.elements.map((el) =>
-                el.id === id ? { ...el, x, y } : el
-              ),
-            }
-          : page
-      ),
-    }));
-    get().addToHistory('Move element');
-  },
-
-  resizeElement: (id, width, height) => {
-    set((state) => ({
-      pages: state.pages.map((page, i) =>
-        i === state.activePageIndex
-          ? {
-              ...page,
-              elements: page.elements.map((el) =>
-                el.id === id ? { ...el, width, height } : el
-              ),
-            }
-          : page
-      ),
-    }));
-    get().addToHistory('Resize element');
-  },
-
-  setSelectedElement: (id) => set({ selectedElementId: id }),
-
-  updateCanvasSettings: (settings) => {
-    set((state) => ({
-      canvasSettings: { ...state.canvasSettings, ...settings },
-    }));
-    get().addToHistory('Update canvas settings');
-  },
-
-  undo: () => {
-    const state = get();
-    if (state.historyIndex > 0) {
-      const prevHistory = state.history[state.historyIndex - 1];
-      set({
-        pages: prevHistory.pages,
-        historyIndex: state.historyIndex - 1,
-        canUndo: state.historyIndex - 1 > 0,
-        canRedo: true,
-      });
-    }
-  },
-
-  redo: () => {
-    const state = get();
-    if (state.historyIndex < state.history.length - 1) {
-      const nextHistory = state.history[state.historyIndex + 1];
-      set({
-        pages: nextHistory.pages,
-        historyIndex: state.historyIndex + 1,
-        canUndo: true,
-        canRedo: state.historyIndex + 1 < state.history.length - 1,
-      });
-    }
-  },
-
-  addToHistory: (action) => {
-    const state = get();
-    const newHistory: EditHistory = {
-      id: generateId(),
-      timestamp: new Date(),
-      action,
-      pages: JSON.parse(JSON.stringify(state.pages)),
-    };
-    const newHistoryArray = state.history.slice(0, state.historyIndex + 1);
-    newHistoryArray.push(newHistory);
-    set({
-      history: newHistoryArray,
-      historyIndex: newHistoryArray.length - 1,
-      canUndo: newHistoryArray.length > 1,
-      canRedo: false,
+    set((s) => {
+      const slides = [...s.slides];
+      const slide = slides[s.activeSlideIndex];
+      if (!slide) return s;
+      slides[s.activeSlideIndex] = {
+        ...slide,
+        elements: slide.elements.map((el) => (el.id === id ? { ...el, ...updates } : el)),
+      };
+      return { slides };
     });
   },
 
-  clearHistory: () => set({ history: [], historyIndex: -1, canUndo: false, canRedo: false }),
+  removeElement: (id) => {
+    set((s) => {
+      const slides = [...s.slides];
+      const slide = slides[s.activeSlideIndex];
+      if (!slide) return s;
+      slides[s.activeSlideIndex] = {
+        ...slide,
+        elements: slide.elements.filter((el) => el.id !== id),
+      };
+      return { slides, selectedElementId: null };
+    });
+    get().pushHistory();
+  },
 
-  setZoom: (zoom) => set({ zoom }),
-  setPages: (pages) => set({ pages }),
+  pushHistory: () => {
+    const { slides, history, historyIndex } = get();
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ slides: cloneSlides(slides) });
+    if (newHistory.length > 50) newHistory.shift();
+    set({ history: newHistory, historyIndex: newHistory.length - 1 });
+  },
+
+  undo: () => {
+    const { history, historyIndex } = get();
+    if (historyIndex <= 0) return;
+    const prev = history[historyIndex - 1];
+    set({ slides: cloneSlides(prev.slides), historyIndex: historyIndex - 1 });
+  },
+
+  redo: () => {
+    const { history, historyIndex } = get();
+    if (historyIndex >= history.length - 1) return;
+    const next = history[historyIndex + 1];
+    set({ slides: cloneSlides(next.slides), historyIndex: historyIndex + 1 });
+  },
+
+  canUndo: () => get().historyIndex > 0,
+  canRedo: () => get().historyIndex < get().history.length - 1,
 }));

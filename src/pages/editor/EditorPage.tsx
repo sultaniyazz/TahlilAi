@@ -1,65 +1,62 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Loader2 } from 'lucide-react';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { useProjects } from '@/features/projects/useProjects';
 import { useEditorStore } from '@/store/useEditorStore';
 import { EditorSidebar } from '@/shared/ui/editor/EditorSidebar';
-import { InfographicCanvas } from '@/shared/ui/editor/InfographicCanvas';
+import { EditorCanvas } from '@/shared/ui/editor/EditorCanvas';
 
 export default function EditorPage() {
   const { user } = useAuth();
-  const { loadProject, saveProject, createProject } = useProjects();
-  const { pages, canvasSettings, project } = useEditorStore();
+  const { loadProject, saveProject, createProject, currentProject } = useProjects();
+  const { setProject, slides, theme } = useEditorStore();
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId?: string }>();
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const initializeEditor = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const queryProjectId = urlParams.get('project');
-      const projectParam = projectId || queryProjectId;
-
-      if (projectParam) {
-        const loaded = await loadProject(projectParam);
-        if (loaded) {
-          useEditorStore.setState({
-            pages: loaded.pages || [],
-            canvasSettings: loaded.canvasSettings,
-            project: loaded,
-          });
-        }
-      } else if (!project && user) {
-        const newProject = await createProject();
-        if (newProject) {
-          navigate(`/editor/${newProject.id}`, { replace: true });
+    if (!user) return;
+    const init = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const pid = projectId || params.get('project');
+      if (pid) {
+        const loaded = await loadProject(pid);
+        if (loaded) setProject(loaded);
+      } else {
+        const created = await createProject();
+        if (created) {
+          setProject(created);
+          navigate(`/editor/${created.id}`, { replace: true });
         }
       }
-      setIsInitialized(true);
+      setReady(true);
     };
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, projectId]);
 
-    initializeEditor();
-  }, [user, projectId, loadProject, createProject, project, navigate]);
-
+  // Autosave (2s debounce)
   useEffect(() => {
-    if (!project || !isInitialized) return;
-
-    const saveTimer = setTimeout(() => {
-      saveProject({
-        pages,
-        canvasSettings,
-      });
+    if (!ready || !currentProject) return;
+    const t = setTimeout(() => {
+      saveProject({ slides, theme });
     }, 2000);
+    return () => clearTimeout(t);
+  }, [slides, theme, ready, currentProject, saveProject]);
 
-    return () => clearTimeout(saveTimer);
-  }, [pages, canvasSettings, project, isInitialized, saveProject]);
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-[#0F0F11] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-violet-500 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-[#0F0F11]">
-      {/* Editor Header */}
-      <div className="h-14 border-b border-white/10 flex items-center justify-between px-4 bg-[#0F0F11]">
-        <div className="flex items-center gap-4">
+      <header className="h-14 border-b border-white/10 flex items-center justify-between px-4">
+        <div className="flex items-center gap-3">
           <a href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-white" />
@@ -67,37 +64,18 @@ export default function EditorPage() {
           </a>
           <div className="h-6 w-px bg-white/10" />
           <div>
-            <h1 className="text-sm font-medium text-white">
-              {project?.title || 'Untitled'}
-            </h1>
-            <p className="text-xs text-white/40">
-              {project?.pages?.length ? `${project.pages.length} slides` : 'Draft'}
-            </p>
+            <h1 className="text-sm font-medium text-white">{currentProject?.title || 'Untitled'}</h1>
+            <p className="text-xs text-white/40">{slides.length} ta slayd</p>
           </div>
         </div>
-
         <div className="flex items-center gap-2">
-          <a
-            href="/"
-            className="px-4 py-2 text-sm text-white/70 hover:text-white transition-colors"
-          >
-            Dashboard
-          </a>
-          <a
-            href="/brand"
-            className="px-4 py-2 text-sm text-white/70 hover:text-white transition-colors"
-          >
-            Brand Kit
-          </a>
+          <a href="/" className="px-3 py-1.5 text-sm text-white/70 hover:text-white">Bosh sahifa</a>
         </div>
-      </div>
-
-      {/* Editor Content */}
+      </header>
       <div className="flex-1 flex overflow-hidden">
         <EditorSidebar />
-        <InfographicCanvas />
+        <EditorCanvas />
       </div>
     </div>
   );
 }
-

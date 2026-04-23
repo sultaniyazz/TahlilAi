@@ -1,14 +1,15 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { Project, Page, CanvasSettings } from '@/types';
+import type { Project, Slide, CanvasSettings, Theme } from '@/types';
+import { DEFAULT_CANVAS, DEFAULT_THEME } from '@/types';
 
-export interface DbProject {
+interface DbProject {
   id: string;
   user_id: string;
   title: string;
   subtitle: string | null;
-  pages: Page[];
+  pages: Slide[];
   canvas_settings: CanvasSettings;
-  theme: Record<string, unknown> | null;
+  theme: Theme | null;
   thumbnail_url: string | null;
   is_public: boolean;
   public_slug: string | null;
@@ -16,33 +17,25 @@ export interface DbProject {
   updated_at: string;
 }
 
-const DEFAULT_CANVAS: CanvasSettings = {
-  width: 1920,
-  height: 1080,
-  backgroundColor: '#0F0F11',
-  aspectRatio: '16:9',
-};
-
 function dbToProject(row: DbProject): Project {
   return {
     id: row.id,
     userId: row.user_id,
     title: row.title,
     subtitle: row.subtitle ?? undefined,
-    pages: row.pages ?? [],
+    slides: Array.isArray(row.pages) ? row.pages : [],
     canvasSettings: row.canvas_settings ?? DEFAULT_CANVAS,
+    theme: row.theme ?? DEFAULT_THEME,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
     thumbnail: row.thumbnail_url ?? undefined,
     isPublic: row.is_public,
     publicSlug: row.public_slug ?? undefined,
-    history: [],
   };
 }
 
-function generateSlug() {
-  return Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 6);
-}
+const generateSlug = () =>
+  Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6);
 
 export const projectService = {
   async list(userId: string): Promise<Project[]> {
@@ -62,7 +55,7 @@ export const projectService = {
       .eq('id', id)
       .maybeSingle();
     if (error) {
-      console.error('get project error', error);
+      console.error('get project', error);
       return null;
     }
     return data ? dbToProject(data as unknown as DbProject) : null;
@@ -75,60 +68,42 @@ export const projectService = {
       .eq('public_slug', slug)
       .eq('is_public', true)
       .maybeSingle();
-    if (error) {
-      console.error('getBySlug error', error);
-      return null;
-    }
+    if (error) return null;
     return data ? dbToProject(data as unknown as DbProject) : null;
   },
 
   async create(userId: string, init?: Partial<Project>): Promise<Project | null> {
-    const initialPage: Page = {
-      id: crypto.randomUUID(),
-      heading: 'New Slide',
-      content: '',
-      elements: [],
-    };
-
     const { data, error } = await supabase
       .from('projects')
       .insert({
         user_id: userId,
         title: init?.title ?? 'Untitled presentation',
         subtitle: init?.subtitle ?? null,
-        pages: (init?.pages ?? [initialPage]) as unknown as never,
+        pages: (init?.slides ?? []) as unknown as never,
         canvas_settings: (init?.canvasSettings ?? DEFAULT_CANVAS) as unknown as never,
+        theme: (init?.theme ?? DEFAULT_THEME) as unknown as never,
       })
       .select()
       .single();
-
     if (error) {
-      console.error('create project error', error);
+      console.error('create project', error);
       return null;
     }
     return dbToProject(data as unknown as DbProject);
   },
 
   async save(id: string, updates: Partial<Project>): Promise<boolean> {
-    const payload: {
-      title?: string;
-      subtitle?: string | null;
-      pages?: Page[];
-      canvas_settings?: CanvasSettings;
-      thumbnail_url?: string | null;
-    } = {};
+    const payload: Record<string, unknown> = {};
     if (updates.title !== undefined) payload.title = updates.title;
     if (updates.subtitle !== undefined) payload.subtitle = updates.subtitle ?? null;
-    if (updates.pages !== undefined) payload.pages = updates.pages;
+    if (updates.slides !== undefined) payload.pages = updates.slides;
     if (updates.canvasSettings !== undefined) payload.canvas_settings = updates.canvasSettings;
+    if (updates.theme !== undefined) payload.theme = updates.theme;
     if (updates.thumbnail !== undefined) payload.thumbnail_url = updates.thumbnail ?? null;
 
-    const { error } = await supabase
-      .from('projects')
-      .update(payload as never)
-      .eq('id', id);
+    const { error } = await supabase.from('projects').update(payload as never).eq('id', id);
     if (error) {
-      console.error('save project error', error);
+      console.error('save', error);
       return false;
     }
     return true;
@@ -136,11 +111,7 @@ export const projectService = {
 
   async remove(id: string): Promise<boolean> {
     const { error } = await supabase.from('projects').delete().eq('id', id);
-    if (error) {
-      console.error('delete project error', error);
-      return false;
-    }
-    return true;
+    return !error;
   },
 
   async duplicate(id: string, userId: string): Promise<Project | null> {
@@ -149,8 +120,9 @@ export const projectService = {
     return this.create(userId, {
       title: `${original.title} (Copy)`,
       subtitle: original.subtitle,
-      pages: original.pages,
+      slides: original.slides,
       canvasSettings: original.canvasSettings,
+      theme: original.theme,
     });
   },
 
@@ -160,10 +132,7 @@ export const projectService = {
       .from('projects')
       .update({ is_public: isPublic, public_slug: slug })
       .eq('id', id);
-    if (error) {
-      console.error('setPublic error', error);
-      return null;
-    }
+    if (error) return null;
     return slug;
   },
 };
