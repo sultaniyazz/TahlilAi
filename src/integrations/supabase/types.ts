@@ -14,7 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          brand_accent_color: string | null
+          brand_font_body: string | null
+          brand_font_heading: string | null
+          brand_logo_url: string | null
+          brand_primary_color: string | null
+          brand_secondary_color: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          exports_this_month: number
+          id: string
+          plan: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          brand_accent_color?: string | null
+          brand_font_body?: string | null
+          brand_font_heading?: string | null
+          brand_logo_url?: string | null
+          brand_primary_color?: string | null
+          brand_secondary_color?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          exports_this_month?: number
+          id: string
+          plan?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          brand_accent_color?: string | null
+          brand_font_body?: string | null
+          brand_font_heading?: string | null
+          brand_logo_url?: string | null
+          brand_primary_color?: string | null
+          brand_secondary_color?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          exports_this_month?: number
+          id?: string
+          plan?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          canvas_settings: Json
+          created_at: string
+          id: string
+          is_public: boolean
+          pages: Json
+          public_slug: string | null
+          subtitle: string | null
+          theme: Json | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          canvas_settings?: Json
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          pages?: Json
+          public_slug?: string | null
+          subtitle?: string | null
+          theme?: Json | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          canvas_settings?: Json
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          pages?: Json
+          public_slug?: string | null
+          subtitle?: string | null
+          theme?: Json | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
