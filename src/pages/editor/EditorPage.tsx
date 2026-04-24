@@ -36,7 +36,7 @@ export default function EditorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, projectId]);
 
-  // Autosave (2s debounce)
+  // Autosave 2s debounce
   useEffect(() => {
     if (!ready || !currentProject) return;
     const t = setTimeout(() => {
@@ -64,12 +64,16 @@ export default function EditorPage() {
           </a>
           <div className="h-6 w-px bg-white/10" />
           <div>
-            <h1 className="text-sm font-medium text-white">{currentProject?.title || 'Untitled'}</h1>
+            <h1 className="text-sm font-medium text-white">
+              {currentProject?.title || 'Untitled'}
+            </h1>
             <p className="text-xs text-white/40">{slides.length} ta slayd</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <a href="/" className="px-3 py-1.5 text-sm text-white/70 hover:text-white">Bosh sahifa</a>
+          <a href="/" className="px-3 py-1.5 text-sm text-white/70 hover:text-white">
+            Bosh sahifa
+          </a>
         </div>
       </header>
       <div className="flex-1 flex overflow-hidden">

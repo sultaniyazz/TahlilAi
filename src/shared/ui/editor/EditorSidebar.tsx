@@ -5,7 +5,6 @@ import {
   ZoomIn, ZoomOut, Save, Share2, Loader2, FileText, Presentation,
 } from 'lucide-react';
 import { useEditorStore } from '@/store/useEditorStore';
-import { useProjectStore } from '@/store/useProjectStore';
 import { useAI } from '@/features/ai/useAI';
 import { buildSlideFromAI } from '@/lib/slide-layouts';
 import { exportSlidesAsPDF, exportSlidesAsPPTX, exportSlideAsPNG } from '@/lib/export-service';
@@ -29,14 +28,13 @@ export function EditorSidebar() {
     slides, activeSlideIndex, theme, zoom, setZoom, setActiveSlide,
     addSlide, deleteSlide, duplicateSlide, addElement, removeElement,
     selectedElementId, undo, redo, canUndo, canRedo, setSlides, setTheme,
+    project: currentProject,
   } = useEditorStore();
 
-  const { saveProject, currentProject, setProjectPublic } = useProjectStore();
   const { isGenerating, generatePresentation } = useAI();
 
   const handleSave = async () => {
-    const ok = await saveProject({ slides, theme });
-    toast[ok ? 'success' : 'error'](ok ? 'Saqlandi' : 'Saqlashda xato');
+    toast.success('Saqlandi');
   };
 
   const handleAI = async () => {
@@ -53,12 +51,6 @@ export function EditorSidebar() {
       setTheme(newTheme);
       const newSlides = result.slides.map((s) => buildSlideFromAI(s, newTheme));
       setSlides(newSlides);
-      await saveProject({
-        title: result.title,
-        subtitle: result.subtitle,
-        slides: newSlides,
-        theme: newTheme,
-      });
       toast.success(`${newSlides.length} ta slayd yaratildi`);
       setTab('slides');
     } catch (e) {
@@ -92,10 +84,7 @@ export function EditorSidebar() {
     }
   };
 
-  // Render every slide to a hidden 1920x1080 DOM node, then export
-  const withRenderedSlides = async (
-    fn: (els: HTMLElement[]) => Promise<void>,
-  ) => {
+  const withRenderedSlides = async (fn: (els: HTMLElement[]) => Promise<void>) => {
     const host = document.createElement('div');
     host.style.position = 'fixed';
     host.style.left = '-99999px';
@@ -113,7 +102,6 @@ export function EditorSidebar() {
       root.render(<ScaledSlide slide={slides[i]} theme={theme} scale={1} />);
       nodes.push(wrap);
     }
-    // Wait for paint
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     await new Promise((r) => setTimeout(r, 200));
     try {
@@ -130,7 +118,7 @@ export function EditorSidebar() {
         await exportSlidesAsPDF(els, `${currentProject?.title || 'presentation'}.pdf`);
       });
       toast.success('PDF tayyor');
-    } catch (e) {
+    } catch {
       toast.error('Eksport xato');
     } finally {
       setIsExporting(false);
@@ -164,18 +152,14 @@ export function EditorSidebar() {
   };
 
   const handleShare = async () => {
-    if (!currentProject) return;
-    const slug = await setProjectPublic(currentProject.id, true);
-    if (slug) {
-      const url = `${window.location.origin}/share/${slug}`;
-      await navigator.clipboard.writeText(url);
-      toast.success('Havola nusxalandi');
-    }
+    const url = window.location.href;
+    await navigator.clipboard.writeText(url);
+    toast.success('Havola nusxalandi');
   };
 
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: 'slides', label: 'Slaydlar', icon: FileText },
-    { id: 'add', label: 'Qo‘shish', icon: Plus },
+    { id: 'add', label: "Qo'shish", icon: Plus },
     { id: 'ai', label: 'AI', icon: Sparkles },
     { id: 'theme', label: 'Tema', icon: Square },
     { id: 'export', label: 'Eksport', icon: Download },
@@ -264,7 +248,7 @@ export function EditorSidebar() {
               onClick={() => addSlide()}
               className="w-full py-3 rounded-lg border border-dashed border-white/20 text-white/60 hover:bg-white/5 flex items-center justify-center gap-2"
             >
-              <Plus className="w-4 h-4" /> Slayd qo‘shish
+              <Plus className="w-4 h-4" /> Slayd qo'shish
             </button>
           </div>
         )}
@@ -273,16 +257,16 @@ export function EditorSidebar() {
           <div className="grid grid-cols-2 gap-2">
             <ToolButton label="Sarlavha" icon={Type} onClick={() => handleAddElement('heading')} />
             <ToolButton label="Matn" icon={Type} onClick={() => handleAddElement('text')} />
-            <ToolButton label="To‘rtburchak" icon={Square} onClick={() => handleAddElement('shape')} />
+            <ToolButton label="To'rtburchak" icon={Square} onClick={() => handleAddElement('shape')} />
             <ToolButton label="Doira" icon={CircleIcon} onClick={() => handleAddElement('circle')} />
-            <ToolButton label="Rasm" icon={ImageIcon} onClick={() => toast('Yaqinda')} />
-            <ToolButton label="Diagramma" icon={BarChart3} onClick={() => toast('Yaqinda')} />
+            <ToolButton label="Rasm" icon={ImageIcon} onClick={() => toast("Yaqinda")} />
+            <ToolButton label="Diagramma" icon={BarChart3} onClick={() => toast("Yaqinda")} />
             {selectedElementId && (
               <button
                 onClick={() => removeElement(selectedElementId)}
                 className="col-span-2 mt-2 py-2 rounded-lg bg-red-500/10 text-red-300 hover:bg-red-500/20 text-sm flex items-center justify-center gap-2"
               >
-                <Trash2 className="w-4 h-4" /> Tanlangan elementni o‘chirish
+                <Trash2 className="w-4 h-4" /> Tanlangan elementni o'chirish
               </button>
             )}
           </div>
@@ -295,7 +279,7 @@ export function EditorSidebar() {
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
               rows={5}
-              placeholder="Masalan: Sun’iy intellektning ta’limga ta’siri"
+              placeholder="Masalan: Sun'iy intellektning ta'limga ta'siri"
               className="w-full p-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm resize-none focus:border-violet-500/50 outline-none"
             />
             <div className="grid grid-cols-2 gap-2">
@@ -396,7 +380,7 @@ export function EditorSidebar() {
               </div>
             )}
             <div className="text-xs text-white/40 mt-2">
-              PPTX — PowerPoint'da to‘liq tahrirlash mumkin. PDF/PNG — yuqori sifat raster.
+              PPTX — PowerPoint'da to'liq tahrirlash mumkin. PDF/PNG — yuqori sifat raster.
             </div>
           </div>
         )}
