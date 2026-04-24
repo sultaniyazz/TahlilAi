@@ -49,7 +49,7 @@ export function EditorSidebar() {
         background: result.theme.background,
       };
       setTheme(newTheme);
-      const newSlides = result.slides.map((s) => buildSlideFromAI(s, newTheme));
+      const newSlides = result.slides.map((s: any) => buildSlideFromAI(s, newTheme));
       setSlides(newSlides);
       toast.success(`${newSlides.length} ta slayd yaratildi`);
       setTab('slides');
@@ -212,7 +212,7 @@ export function EditorSidebar() {
       <div className="flex-1 overflow-auto p-3 custom-scrollbar">
         {tab === 'slides' && (
           <div className="space-y-2">
-            {slides.map((s, i) => (
+            {slides.map((s: any, i: number) => (
               <div
                 key={s.id}
                 onClick={() => setActiveSlide(i)}

@@ -150,9 +150,10 @@ function addContentSlide(slide: pptxgen.Slide, s: Slide, theme: Theme) {
       line: { type: 'none' },
     });
 
+    const fontSize = el.style.fontSize ? Math.max(12, Math.round((el.style.fontSize) * 0.6)) : 16;
     slide.addText(el.content || '', {
       x: 0.65, y, w: SLIDE_IN_W - 1, h: rowH,
-      fontSize: Math.max(16, Math.round((el.style.fontSize ?? 20) * 0.55)),
+      fontSize: fontSize,
       fontFace: el.style.fontFamily ?? theme.fontBody,
       color: cleanColor(el.style.color ?? '#E2E8F0'),
       bold: Number(el.style.fontWeight ?? 400) >= 600,
@@ -216,7 +217,7 @@ function addTwoColumnSlide(slide: pptxgen.Slide, s: Slide, theme: Theme) {
 
       slide.addText(el.content || '', {
         x: baseX + 0.15, y, w: colW - 0.15, h: rowH,
-        fontSize: Math.max(14, Math.round((el.style.fontSize ?? 18) * 0.55)),
+        fontSize: el.style.fontSize ? Math.max(12, Math.round((el.style.fontSize) * 0.6)) : 14,
         fontFace: theme.fontBody,
         color: cleanColor(el.style.color ?? '#E2E8F0'),
         valign: 'middle',
@@ -270,7 +271,7 @@ function addStatsSlide(slide: pptxgen.Slide, s: Slide, theme: Theme) {
 
     slide.addText(el.content || '', {
       x: x + 0.15, y: 1.7, w: cardW - 0.6, h: 4.1,
-      fontSize: Math.max(14, Math.round((el.style.fontSize ?? 18) * 0.55)),
+      fontSize: el.style.fontSize ? Math.max(12, Math.round((el.style.fontSize) * 0.6)) : 14,
       fontFace: theme.fontBody,
       color: 'FFFFFF',
       align: 'center',
@@ -432,11 +433,46 @@ export async function exportSlidesAsPPTX(
         const w = px2in(el.width, SLIDE_W, SLIDE_IN_W);
         const h = px2in(el.height, SLIDE_H, SLIDE_IN_H);
         try {
-          slide.addImage({ data: el.content, x, y, w, h });
-        } catch {
-          // ignore
+          // Handle both data URLs and regular URLs
+          if (el.content.startsWith('data:') || el.content.startsWith('blob:')) {
+            slide.addImage({ data: el.content, x, y, w, h });
+          } else {
+            // For regular URLs, use them as-is - pptxgenjs will handle them
+            slide.addImage({ path: el.content, x, y, w, h });
+          }
+        } catch (err) {
+          console.warn('Failed to add image:', err);
+          // Add placeholder rectangle if image fails
+          slide.addShape('rect', {
+            x, y, w, h,
+            fill: { color: 'CCCCCC' },
+            line: { color: '999999', pt: 1 },
+          });
         }
       }
+    }
+
+    // Add custom text elements that weren't handled by layout functions
+    // Only add 'text' type elements; heading/subheading are handled by layout functions
+    const customTexts = s.elements.filter((el: SlideElement) => el.type === 'text');
+
+    for (const el of customTexts) {
+      const x = px2in(el.x, SLIDE_W, SLIDE_IN_W);
+      const y = px2in(el.y, SLIDE_H, SLIDE_IN_H);
+      const w = px2in(el.width, SLIDE_W, SLIDE_IN_W);
+      const h = px2in(el.height, SLIDE_H, SLIDE_IN_H);
+
+      slide.addText(el.content || '', {
+        x, y, w, h,
+        fontSize: Math.max(10, (el.style.fontSize ?? 18) * 0.75),
+        fontFace: el.style.fontFamily ?? theme.fontBody,
+        color: cleanColor(el.style.color ?? '#E2E8F0'),
+        bold: Number(el.style.fontWeight ?? 400) >= 600,
+        italic: el.style.fontStyle === 'italic',
+        align: (el.style.textAlign ?? 'left') as 'left' | 'center' | 'right',
+        valign: 'top',
+        lineSpacingMultiple: 1.2,
+      });
     }
   }
 
