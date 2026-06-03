@@ -775,7 +775,7 @@ export const paletteItems: PaletteItem[] = [
       {
         heading: "Measure",
         content:
-          "Track detailed usage metrics, monitor system performance, collect user feedback through surveys, analyze business impact",
+          "Track batafsil usage metrics, monitor system performance, collect user feedback through surveys, analyze business impact",
       },
       {
         heading: "Learn",
@@ -806,7 +806,7 @@ export const paletteItems: PaletteItem[] = [
         ),
         createBoxItem(
           "User Experience",
-          "Intuitive interface with less than 5-minute learning curve, extensive keyboard shortcuts, and seamless real-time collaboration",
+          "Intuitive interface with less than 5-minute learning curve, keng qamrovli keyboard shortcuts, and seamless real-time collaboration",
         ),
         createBoxItem(
           "Scalability",

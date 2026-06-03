@@ -24,10 +24,10 @@ export function PromptInput() {
       <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <h3 className="text-sm font-semibold text-foreground">
-            Presentation prompt
+            Taqdimot uchun so'rov
           </h3>
           <p className="text-sm text-muted-foreground">
-            Refine the topic or regenerate the outline after edits.
+            Mavzuni takomillashtiring yoki tahrirdan so'ng konturini qayta yarating.
           </p>
         </div>
         <button
@@ -50,6 +50,7 @@ export function PromptInput() {
         onChange={(e) => setPresentationInput(e.target.value)}
         className="w-full rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-foreground outline-hidden transition-colors placeholder:text-muted-foreground focus:ring-2 focus:ring-indigo-400 sm:text-base"
         placeholder="Enter your presentation topic..."
+        aria-label="Taqdimot mavzusi"
         disabled={isGeneratingOutline}
       />
     </div>

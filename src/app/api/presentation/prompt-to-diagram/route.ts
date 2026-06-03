@@ -128,14 +128,14 @@ Add a stylize property inside the theme block for special effects:
 
 - For relation-* templates, model relationships explicitly.
 - Prefer relations with arrows (A -> B) when the template supports it.
-- If only items are allowed, express connections via concise item labels and descriptions.
+- If only items are allowed, express connections via ixcham item labels and descriptions.
 
 ## Prompt to Visual Mapping
 
 - Generate all text in the same language as the user's prompt
 - Use the prompt only as guidance; do not copy it verbatim in long phrases
 - Avoid using more than 3 consecutive words from the user's prompt
-- Rephrase and synthesize ideas into concise infographic-friendly content
+- Rephrase and synthesize ideas into ixcham infographic-friendly content
 - Infer and add supporting nodes where helpful
 
 ---

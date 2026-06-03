@@ -1,3 +1,5 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -63,7 +65,6 @@ export function OutlineList() {
     null,
   );
 
-  // Get available templates for dropdown (filtered to selected ones)
   const availableTemplates = useMemo(() => {
     return TEMPLATE_DEFINITIONS.filter((t) =>
       selectedSlideTemplates.includes(t.id),
@@ -98,7 +99,6 @@ export function OutlineList() {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
         const newItems = arrayMove(items, oldIndex, newIndex);
-        // Update the outline in the store
         setOutline(newItems.map((item) => item.title));
         return newItems;
       });
@@ -110,7 +110,6 @@ export function OutlineList() {
       const newItems = items.map((item) =>
         item.id === id ? { ...item, title: newTitle } : item,
       );
-      // Update the outline in the store
       setOutline(newItems.map((item) => item.title));
       return newItems;
     });
@@ -118,16 +117,14 @@ export function OutlineList() {
 
   const handleAddCard = () => {
     const newId = crypto.randomUUID();
-    const newItems = [...items, { id: newId, title: "New Card" }];
+    const newItems = [...items, { id: newId, title: "Yangi slayd" }];
     setItems(newItems);
-    // Update the outline in the store
     setOutline(newItems.map((item) => item.title));
   };
 
   const handleDeleteCard = (id: string) => {
     setItems((items) => {
       const newItems = items.filter((item) => item.id !== id);
-      // Update the outline in the store
       setOutline(newItems.map((item) => item.title));
       return newItems;
     });
@@ -170,7 +167,6 @@ export function OutlineList() {
             ))}
           </div>
         </SortableContext>
-        {/* Show loading skeletons only when actually generating */}
         {showLoadingSkeletons &&
           Array.from({ length: remainingCount }).map((_, index) => (
             <Skeleton key={`loading-${index}`} className="h-16 w-full" />
@@ -196,11 +192,11 @@ export function OutlineList() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm text-foreground">Outline</h2>
+        <h2 className="text-sm text-foreground">Taqdimot rejasi</h2>
         <div className="flex items-center gap-2">
           {isGeneratingOutline && items.length > 0 && (
             <span className="animate-pulse text-xs text-muted-foreground">
-              Generating...
+              Yaratilmoqda...
             </span>
           )}
           <Button
@@ -213,7 +209,7 @@ export function OutlineList() {
             className="h-7 gap-1.5 px-2 text-xs"
           >
             <LayoutGrid className="h-3.5 w-3.5" />
-            Layouts
+            Maketlar
             {selectedSlideTemplates.length > 0 && (
               <Badge
                 variant="secondary"
@@ -234,11 +230,11 @@ export function OutlineList() {
         className="flex w-full items-center justify-center gap-2 rounded-md bg-muted/50 py-3 text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
       >
         <Plus size={20} />
-        Add card
+        Slayd qo'shish
       </button>
 
       <div className="flex justify-between text-sm text-muted-foreground">
-        <span>{items.length} cards total</span>
+        <span>Jami {items.length} ta slayd</span>
         <span>
           {items.reduce((acc, item) => acc + item.title.length, 0)}/20000
         </span>

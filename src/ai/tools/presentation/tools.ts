@@ -98,7 +98,7 @@ const change_theme = tool(
           "orbit",
           "piano",
           "mystique",
-          "allweoneDark",
+          "tahlilaiDark",
           "crimson",
           "sunset",
           "forest",
@@ -144,7 +144,7 @@ Layout components (choose EXACTLY ONE per slide):
 - <CHART charttype="bar|pie|line|area|radar|scatter"> <DATA>...</DATA> ... </CHART>
 
 Supporting elements you may use inside components:
-- <IMG query="detailed image description..." />
+- <IMG query="batafsil image description..." />
 - <DIV> ... </DIV>  <H3> ... </H3>  <P> ... </P>  <LI> ... </LI>
 - For <CHART>: <DATA> with <LABEL>/<VALUE> (for bar/pie/line/area/radar) or <X>/<Y> (for scatter).
 

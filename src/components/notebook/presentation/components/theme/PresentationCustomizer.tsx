@@ -24,9 +24,9 @@ export function PresentationCustomizer() {
 
   const contentOptions = [
     { id: "minimal", label: "Minimal", lines: 2 },
-    { id: "concise", label: "Concise", lines: 3 },
-    { id: "detailed", label: "Detailed", lines: 3 },
-    { id: "extensive", label: "Extensive", lines: 3 },
+    { id: "ixcham", label: "ixcham", lines: 3 },
+    { id: "batafsil", label: "batafsil", lines: 3 },
+    { id: "keng qamrovli", label: "keng qamrovli", lines: 3 },
   ] as const;
 
   const toneOptions = [

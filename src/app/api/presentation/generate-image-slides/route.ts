@@ -39,13 +39,13 @@ const IMAGE_SLIDES_TEMPLATE = `You are an expert visual presentation designer. C
 # OUTPUT FORMAT
 
 Generate XML with image slides. Each slide should have:
-1. A highly detailed AI image generation prompt (60-120 words, descriptive, artistic)
+1. A highly batafsil AI image generation prompt (60-120 words, descriptive, artistic)
 2. No text elements outside the image (no H1/H2/H3/P etc.)
 
 \`\`\`xml
 <PRESENTATION>
 <SECTION isImageSlide="true">
-  <IMG query="detailed prompt for AI image generation, include style, mood, lighting, composition, AND the exact text that must be rendered in the image" />
+  <IMG query="batafsil prompt for AI image generation, include style, mood, lighting, composition, AND the exact text that must be rendered in the image" />
 </SECTION>
 <!-- More SECTION tags... -->
 </PRESENTATION>
@@ -53,7 +53,7 @@ Generate XML with image slides. Each slide should have:
 
 # IMAGE PROMPT GUIDELINES
 
-Create detailed, artistic prompts that:
+Create batafsil, artistic prompts that:
 - Describe the visual scene, composition, and mood
 - Include style references (photorealistic, illustration, cinematic, etc.)
 - Mention lighting, colors, and atmosphere
@@ -69,7 +69,7 @@ Create detailed, artistic prompts that:
 
 1. Generate **EXACTLY {TOTAL_SLIDES} slides** - one for each outline item
 2. Each slide MUST have isImageSlide="true" attribute
-3. Each slide MUST have an IMG tag with a detailed query (60-120 words)
+3. Each slide MUST have an IMG tag with a batafsil query (60-120 words)
 4. The IMG query MUST include the exact on-image text in quotes
 5. Do NOT include any other tags (no H1/H2/H3/P/COLUMNS/etc.)
 6. Make image prompts visually descriptive and creative

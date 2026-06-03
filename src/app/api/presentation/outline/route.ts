@@ -31,7 +31,7 @@ interface OutlineMessageMetadata {
   modelId?: string;
   modelProvider?: "openai" | "ollama" | "lmstudio" | "openrouter";
   webSearch?: boolean;
-  textContent?: "minimal" | "concise" | "detailed" | "extensive";
+  textContent?: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
   tone?: string;
   audience?: string;
   scenario?: string;
@@ -191,14 +191,14 @@ export async function POST(req: Request) {
   const actionName = "presentation.outline.post";
   const requestId = crypto.randomUUID();
   const routeLogger = createLogger("api:presentation-outline");
-  const span = logger.startSpan(`allweone.api.${actionName}`, {
+  const span = logger.startSpan(`tahlilai.api.${actionName}`, {
     attributes: {
-      "allweone.scope": "api",
-      "allweone.action.type": "api_route",
-      "allweone.action.name": actionName,
+      "tahlilai.scope": "api",
+      "tahlilai.action.type": "api_route",
+      "tahlilai.action.name": actionName,
       "http.method": "POST",
       "http.route": "/api/presentation/outline",
-      "allweone.request.id": requestId,
+      "tahlilai.request.id": requestId,
     },
   });
 
@@ -207,8 +207,8 @@ export async function POST(req: Request) {
     const session = await auth();
     if (!session) {
       routeLogger.warn("Outline request rejected: unauthorized", { requestId });
-      span.event("allweone.api.request_rejected", {
-        "allweone.validation.error": "unauthorized",
+      span.event("tahlilai.api.request_rejected", {
+        "tahlilai.validation.error": "unauthorized",
       });
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -226,10 +226,10 @@ export async function POST(req: Request) {
     const webSearch = Boolean(metadata.webSearch);
 
     span.annotate({
-      "allweone.presentation.cards.count": numberOfCards,
-      "allweone.presentation.prompt.length": prompt.length,
-      "allweone.presentation.language": language,
-      "allweone.presentation.web_search": webSearch,
+      "tahlilai.presentation.cards.count": numberOfCards,
+      "tahlilai.presentation.prompt.length": prompt.length,
+      "tahlilai.presentation.language": language,
+      "tahlilai.presentation.web_search": webSearch,
     });
     routeLogger.info("Validated outline request payload", {
       requestId,
@@ -249,8 +249,8 @@ export async function POST(req: Request) {
         language,
         messageCount: messages.length,
       });
-      span.event("allweone.api.request_rejected", {
-        "allweone.validation.error": "missing_required_fields",
+      span.event("tahlilai.api.request_rejected", {
+        "tahlilai.validation.error": "missing_required_fields",
       });
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -329,7 +329,7 @@ export async function POST(req: Request) {
           actualLanguage,
           numberOfCards,
           currentDate,
-          textContent: metadata.textContent ?? "concise",
+          textContent: metadata.textContent ?? "ixcham",
           tone: metadata.tone ?? "auto",
           audience: metadata.audience ?? "auto",
           scenario: metadata.scenario ?? "auto",
@@ -358,7 +358,7 @@ export async function POST(req: Request) {
       modelProvider,
       modelId: modelId || DEFAULT_OPENROUTER_MODEL,
     });
-    span.event("allweone.api.response_stream_created");
+    span.event("tahlilai.api.response_stream_created");
     return createUIMessageStreamResponse({
       stream: toUIMessageStream(stream),
     });

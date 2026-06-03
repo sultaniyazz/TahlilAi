@@ -41,7 +41,7 @@ async function persistGeneratedImage(
 ) {
   const imageResponse = await fetch(imageUrl);
   if (!imageResponse.ok) {
-    throw new Error("Failed to download generated image");
+    throw new Error("Yaratilgan rasmni yuklab olishda xatolik yuz berdi.");
   }
 
   const imageBlob = await imageResponse.blob();
@@ -51,7 +51,7 @@ async function persistGeneratedImage(
   const uploadResult = await utapi.uploadFiles([utFile]);
 
   if (!uploadResult[0]?.data?.ufsUrl) {
-    throw new Error("Failed to upload generated image");
+    throw new Error("Yaratilgan rasmni serverga yuklashda xatolik yuz berdi.");
   }
 
   return db.generatedImage.create({
@@ -72,13 +72,13 @@ async function generateFalImage(
     integration: "FAL",
     envVar: "FAL_API_KEY",
     value: env.FAL_API_KEY,
-    feature: "AI image generation",
+    feature: "AI rasm generatsiyasi",
   });
 
   if (!falConfig.ok) {
     return {
       success: false,
-      error: falConfig.error,
+      error: "AI rasm generatsiyasi funksiyasi vaqtincha ishlamayapti.",
     };
   }
 
@@ -96,7 +96,7 @@ async function generateFalImage(
 
   const imageUrl = result.data?.images?.[0]?.url;
   if (!imageUrl) {
-    throw new Error("Failed to generate image");
+    throw new Error("Rasm yaratishda muammo yuz berdi. Iltimos, qaytadan urinib ko'ring.");
   }
 
   const image = await persistGeneratedImage(imageUrl, prompt, userId, "image");
@@ -116,7 +116,7 @@ export async function generateImageAction(
   if (!session?.user?.id) {
     return {
       success: false,
-      error: "You must be logged in to generate images",
+      error: "Rasm yaratish uchun avval tizimga kirishingiz kerak.",
     };
   }
 
@@ -127,11 +127,11 @@ export async function generateImageAction(
       session.user.id,
     );
   } catch (error) {
-    console.error("Error generating image:", error);
+    console.error("Rasm generatsiya qilishda xatolik:", error);
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "Failed to generate image",
+        error instanceof Error ? error.message : "Noma'lum xatolik yuz berdi.",
     };
   }
 }

@@ -213,7 +213,7 @@ ${
 You work with presentations in XML format that contain:
 - <SECTION> tags for each slide with layout attributes (left, right, vertical, background)
 - Various layout components like COLUMNS, BULLETS, ICONS, CYCLE, ARROWS, TIMELINE, PYRAMID, STAIRCASE, BOXES, COMPARE, BEFORE-AFTER, PROS-CONS, TABLE, CHARTS
-- <IMG> tags with detailed image queries
+- <IMG> tags with batafsil image queries
 - <H1>, <H2>, <H3> for headings and <P> for paragraphs
 
 ## WORKFLOW PRINCIPLES

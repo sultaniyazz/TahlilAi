@@ -19,7 +19,7 @@ interface GenerateSlideRequest {
   language?: string;
   slideType?: "standard" | "image";
   imageStyle?: "3D" | "Sketch" | "Flat";
-  textDensity?: "Minimal" | "Balanced" | "Detailed";
+  textDensity?: "Minimal" | "Balanced" | "batafsil";
 }
 
 const singleSlideTemplate = `
@@ -244,11 +244,11 @@ function getTextDensityGuidance(density?: string): string {
   switch (density) {
     case "Minimal":
       return "Text should be minimal: a short title and one short supporting line.";
-    case "Detailed":
-      return "Text should be detailed: title, subtitle, and 4-6 concise bullet lines or labels.";
+    case "batafsil":
+      return "Text should be batafsil: title, subtitle, and 4-6 ixcham bullet lines or labels.";
     case "Balanced":
     default:
-      return "Text should be balanced: title, subtitle, and 2-3 concise supporting lines.";
+      return "Text should be balanced: title, subtitle, and 2-3 ixcham supporting lines.";
   }
 }
 

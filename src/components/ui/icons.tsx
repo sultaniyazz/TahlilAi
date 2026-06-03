@@ -84,7 +84,7 @@ export type Icons = keyof typeof ICON_MAP;
 export function FontColor(props: { className?: string }) {
   return (
     <div className={cn("h-full w-full", props.className)}>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 20">
+      <svg xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg" viewBox="0 0 24 20">
         <path
           d="M11 2 5.5 16h2.25l1.12-3h6.25l1.12 3h2.25L13 2h-2zm-1.38 9L12 4.67 14.38 11H9.62z"
           fill="currentColor"
@@ -98,7 +98,7 @@ export function FontColor(props: { className?: string }) {
 export function GoogleLogo(props: { className?: string }) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       className={cn("h-full w-full", props.className)}
       viewBox="0 0 186.69 190.5"
     >
@@ -135,7 +135,7 @@ export function GoogleLogo(props: { className?: string }) {
 export function Temple(props: { className?: string }) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       viewBox="0 0 24 24"
       fill="currentColor"
       stroke="currentColor"
@@ -156,7 +156,7 @@ export function Temple(props: { className?: string }) {
 export function Museum(props: { className?: string }) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -177,7 +177,7 @@ function PillBottleIcon(props) {
   return (
     <svg
       {...props}
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -196,7 +196,7 @@ function PillBottleIcon(props) {
 export function Brain({ className }: { className?: string }) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       viewBox="0 0 24 24"
       fill="currentColor"
       className={cn("h-6 w-6", className)}
@@ -211,7 +211,7 @@ export function Brain({ className }: { className?: string }) {
 export function Mouth({ className }: { className?: string }) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       className={cn("h-6 w-6 text-inherit", className)}
       viewBox="0 0 192.756 192.756"
     >
@@ -238,7 +238,7 @@ function CookingPotIcon(props) {
   return (
     <svg
       {...props}
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -259,7 +259,7 @@ export function CakeIcon(props) {
   return (
     <svg
       {...props}
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -286,7 +286,7 @@ function UtensilsIcon(props) {
   return (
     <svg
       {...props}
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -307,7 +307,7 @@ export function CalendarIcon(props) {
   return (
     <svg
       {...props}
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -329,7 +329,7 @@ export function CarIcon(props) {
   return (
     <svg
       {...props}
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -351,7 +351,7 @@ export function PenToolIcon(props) {
   return (
     <svg
       {...props}
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -373,7 +373,7 @@ export function ShoppingCartIcon(props) {
   return (
     <svg
       {...props}
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -393,7 +393,7 @@ export function ShoppingCartIcon(props) {
 export function GoogleIcon({ className }: Props) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
       viewBox="0 0 48 48"
       className={className}
     >
@@ -424,7 +424,7 @@ export const MindMapIcon = forwardRef<SVGSVGElement, IconSvgProps>(
     return (
       <svg
         ref={ref}
-        xmlns="http://www.w3.org/2000/svg"
+        xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
         viewBox="0 0 24 24"
         fill="none"
         className={cn("h-4 w-4", props.className)}
@@ -477,7 +477,7 @@ export const LogicChartIcon = forwardRef<SVGSVGElement, IconSvgProps>(
     return (
       <svg
         ref={ref}
-        xmlns="http://www.w3.org/2000/svg"
+        xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -515,7 +515,7 @@ export const ReverseLogicChartIcon = forwardRef<SVGSVGElement, IconSvgProps>(
     return (
       <svg
         ref={ref}
-        xmlns="http://www.w3.org/2000/svg"
+        xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -554,7 +554,7 @@ export const TreeChartIcon = forwardRef<SVGSVGElement, IconSvgProps>(
     return (
       <svg
         ref={ref}
-        xmlns="http://www.w3.org/2000/svg"
+        xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
         viewBox="0 0 24 24"
         fill="none"
         className={cn("h-4 w-4", props.className)}
@@ -582,7 +582,7 @@ export const TimelineChartIcon = forwardRef<SVGSVGElement, IconSvgProps>(
     return (
       <svg
         ref={ref}
-        xmlns="http://www.w3.org/2000/svg"
+        xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
         viewBox="0 0 24 24"
         fill="none"
         className={cn("h-4 w-4", props.className)}
@@ -639,7 +639,7 @@ export const FishboneChartIcon = forwardRef<SVGSVGElement, IconSvgProps>(
     return (
       <svg
         ref={ref}
-        xmlns="http://www.w3.org/2000/svg"
+        xmlns="https://static.vecteezy.com/system/resources/previews/045/787/076/non_2x/data-analysis-icon-or-logo-illustration-outline-black-style-free-vector.jpg"
         viewBox="0 0 24 24"
         fill="none"
         className={cn("h-4 w-4", props.className)}

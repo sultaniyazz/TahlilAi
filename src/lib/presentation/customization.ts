@@ -7,7 +7,7 @@ export type PresentationCustomization = {
   themeData?: ThemeProperties | null;
   pageStyle?: string | null;
   presentationStyle?: string | null;
-  textContent?: "minimal" | "concise" | "detailed" | "extensive";
+  textContent?: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
   tone?:
     | "auto"
     | "general"
@@ -41,7 +41,7 @@ export type PresentationCustomizationState = {
   customThemeData: ThemeProperties | null;
   pageStyle: string;
   presentationStyle: string;
-  textContent: "minimal" | "concise" | "detailed" | "extensive";
+  textContent: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
   tone:
     | "auto"
     | "general"

@@ -54,7 +54,7 @@ export function PresentationMenu({
     useMutation({
       mutationFn: async () => {
         if (!currentPresentationId) {
-          toast.error("Current presentation is not available");
+            toast.error("Joriy taqdimot mavjud emas");
           throw new Error("CURRENT_PRESENTATION_ID_MISSING");
         }
 
@@ -70,7 +70,7 @@ export function PresentationMenu({
         toast.error(data.message);
       },
       onError: () => {
-        toast.error("Failed to duplicate presentation");
+        toast.error("Taqdimotni nusxalash muvaffaqiyatsiz tugadi");
       },
     });
 
@@ -99,7 +99,7 @@ export function PresentationMenu({
       toast.error(data.message);
     },
     onError: () => {
-      toast.error("Failed to create presentation");
+        toast.error("Taqdimot yaratib bo‘lmadi");
     },
   });
 
@@ -125,12 +125,12 @@ export function PresentationMenu({
           onClick={() => void createBlankPresentationMutation()}
         >
           <Plus className="mr-2 h-4 w-4" />
-          New Presentation
+          Yangi taqdimot
         </DropdownMenuItem>
         {!readOnly ? (
           <DropdownMenuItem onClick={focusTitleInput}>
             <FileEdit className="mr-2 h-4 w-4" />
-            Rename
+            Nomini o‘zgartirish
           </DropdownMenuItem>
         ) : null}
         <DropdownMenuItem
@@ -138,7 +138,7 @@ export function PresentationMenu({
           onClick={() => void duplicatePresentationMutation()}
         >
           <Copy className="mr-2 h-4 w-4" />
-          {readOnly ? "Clone to My Account" : "Duplicate"}
+          {readOnly ? "Hisobimga klonlash" : "Nusxalash"}
         </DropdownMenuItem>
 
         {!readOnly ? (
@@ -146,24 +146,24 @@ export function PresentationMenu({
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled={!canUndo} onClick={undo}>
               <Undo className="mr-2 h-4 w-4" />
-              Undo
+              Bekor qilish
             </DropdownMenuItem>
             <DropdownMenuItem disabled={!canRedo} onClick={redo}>
               <Redo className="mr-2 h-4 w-4" />
-              Redo
+              Qayta bajarish
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setActiveRightPanel("globalSettings")}>
               <Settings className="mr-2 h-4 w-4" />
-              Page setup
+              Sahifa sozlamalari
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setActiveRightPanel("theme")}>
               <Palette className="mr-2 h-4 w-4" />
-              Theme panel
+              Mavzu paneli
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setActiveRightPanel("agent")}>
               <Bot className="mr-2 h-4 w-4" />
-              Agent panel
+              Agent paneli
             </DropdownMenuItem>
           </>
         ) : null}
@@ -171,7 +171,7 @@ export function PresentationMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push("/presentation")}>
           <FolderOpen className="mr-2 h-4 w-4" />
-          All Presentations
+          Barcha taqdimotlar
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

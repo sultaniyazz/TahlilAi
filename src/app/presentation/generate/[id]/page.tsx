@@ -29,9 +29,6 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useLayoutEffect, useRef } from "react";
 import { toast } from "sonner";
-
-// Cookie name for presentation generation
-
 import { GenerateImageSlidesButton } from "@/components/notebook/presentation/components/outline/GenerateImageSlidesButton";
 
 export default function PresentationGenerateWithIdPage() {
@@ -40,6 +37,7 @@ export default function PresentationGenerateWithIdPage() {
   const id = params.id as string;
   const { data: session } = useSession();
   const { resolvedTheme } = usePresentationTheme();
+  
   const {
     setCurrentPresentation,
     setPresentationInput,
@@ -65,28 +63,31 @@ export default function PresentationGenerateWithIdPage() {
     outline,
     currentPresentationId,
   } = usePresentationState();
+
   const outlineSectionRef = useRef<HTMLDivElement>(null);
   const canGenerateImageSlides = session?.user?.isAdmin === true;
   const hasOutline = outline.some((item) => item.trim().length > 0);
   const isOutlineUnavailable = isGeneratingOutline || !hasOutline;
   const isGeneratePresentationDisabled =
     isGeneratingPresentation || isGeneratingOutline;
-  const generatePresentationButtonLabel = isGeneratingOutline
-    ? "Generating Outline..."
-    : isGeneratingPresentation
-      ? "Generating Presentation..."
-      : hasOutline
-        ? "Generate Presentation"
-        : "Generate Outline";
 
-  // Use React Query to fetch presentation data
+  // Tugma matnlarini o'zbekchalashtirish
+  const generatePresentationButtonLabel = isGeneratingOutline
+    ? "Reja yaratilmoqda..."
+    : isGeneratingPresentation
+      ? "Taqdimot yaratilmoqda..."
+      : hasOutline
+        ? "Taqdimotni yaratish"
+        : "Rejani yaratish";
+
+  // Taqdimot ma'lumotlarini yuklab olish
   const { data: presentationData, isLoading: isLoadingPresentation } = useQuery(
     {
       queryKey: ["presentation", id],
       queryFn: async () => {
         const result = await getPresentation(id);
         if (!result.success) {
-          throw new Error(result.message ?? "Failed to load presentation");
+          throw new Error(result.message ?? "Taqdimotni yuklab bo'lmadi");
         }
         return result.presentation;
       },
@@ -102,7 +103,7 @@ export default function PresentationGenerateWithIdPage() {
     }
   }, [id, setPendingCreateRequest]);
 
-  // Update presentation state when data is fetched
+  // Ma'lumotlar kelganda holatni yangilash
   useLayoutEffect(() => {
     if (presentationData && !isLoadingPresentation && !isGeneratingOutline) {
       setCurrentPresentation(presentationData.id, presentationData.title);
@@ -123,7 +124,7 @@ export default function PresentationGenerateWithIdPage() {
         setOutline(presentationData.presentation.outline);
       }
 
-      // Load search results if available
+      // Qidiruv natijalarini yuklash
       if (presentationData.presentation?.searchResults) {
         try {
           const searchResults = Array.isArray(
@@ -134,12 +135,12 @@ export default function PresentationGenerateWithIdPage() {
           setWebSearchEnabled(true);
           setSearchResults(searchResults);
         } catch (error) {
-          console.error("Failed to parse search results:", error);
+          console.error("Qidiruv natijalarini tahlil qilishda xatolik:", error);
           setSearchResults([]);
         }
       }
 
-      // Set theme if available
+      // Mavzuni (theme) sozlash
       if (customizationThemeId) {
         const themeId = customizationThemeId;
         const customThemeData = customization?.themeData as
@@ -150,29 +151,24 @@ export default function PresentationGenerateWithIdPage() {
         } else if (themeId in themes) {
           setTheme(themeId as Themes);
         } else {
-          // If not in predefined themes, treat as custom theme
           void getCustomThemeById(themeId)
             .then((result) => {
               if (result.success && result.theme) {
-                // Set the theme with the custom theme data
                 const themeData = result.theme
                   .themeData as unknown as ThemeProperties;
                 setTheme(themeId, themeData);
               } else {
-                // Fallback to default theme if custom theme not found
-                console.warn("Custom theme not found:", themeId);
                 setTheme(resolvedTheme === "dark" ? "ebony" : "mystique");
               }
             })
             .catch((error) => {
-              console.error("Failed to load custom theme:", error);
-              // Fallback to default theme on error
+              console.error("Maxsus mavzuni yuklashda xatolik:", error);
               setTheme(resolvedTheme === "dark" ? "ebony" : "mystique");
             });
         }
       }
 
-      // Set presentationStyle if available
+      // Taqdimot uslublarini sozlash
       if (customization?.presentationStyle) {
         setPresentationStyle(customization.presentationStyle);
       } else if (presentationData?.presentation?.presentationStyle) {
@@ -202,7 +198,6 @@ export default function PresentationGenerateWithIdPage() {
         );
       }
 
-      // Set language if available
       if (presentationData.presentation?.language) {
         setLanguage(presentationData.presentation.language);
       }
@@ -215,7 +210,6 @@ export default function PresentationGenerateWithIdPage() {
         );
         setPageBackground(next);
       }
-
     }
   }, [
     presentationData,
@@ -259,7 +253,7 @@ export default function PresentationGenerateWithIdPage() {
     }
 
     if (!hasOutline) {
-      toast.error("Generate an outline before generating image slides.");
+      toast.error("Rasm slaydlarini yaratishdan oldin reja yarating.");
       return;
     }
 
@@ -268,6 +262,7 @@ export default function PresentationGenerateWithIdPage() {
     startImageSlideGeneration();
   };
 
+  // Yuklanish holati ekrani
   if (isLoadingPresentation) {
     return (
       <ThemeBackground
@@ -278,8 +273,8 @@ export default function PresentationGenerateWithIdPage() {
             <Spinner className="h-10 w-10 text-primary" />
           </div>
           <div className="space-y-2 text-center">
-            <h2 className="text-2xl font-bold">Loading Presentation Outline</h2>
-            <p className="text-muted-foreground">Please wait a moment...</p>
+            <h2 className="text-2xl font-bold">Taqdimot rejasi yuklanmoqda</h2>
+            <p className="text-muted-foreground">Iltimos, bir oz kuting...</p>
           </div>
         </div>
       </ThemeBackground>
@@ -302,6 +297,7 @@ export default function PresentationGenerateWithIdPage() {
         </div>
       </div>
 
+      {/* Pastki boshqaruv paneli */}
       <div className="fixed right-0 bottom-0 left-0 border-t bg-background/80 p-4 backdrop-blur-xs">
         <div className="mx-auto flex w-full max-w-4xl flex-col justify-center gap-3 sm:w-fit sm:max-w-none sm:flex-row sm:gap-4">
           {canGenerateImageSlides ? (

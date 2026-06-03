@@ -58,7 +58,7 @@ interface PresentationState {
   modelProvider: "openai" | "ollama" | "lmstudio" | "openrouter";
   modelId: string;
   // New customization options
-  textContent: "minimal" | "concise" | "detailed" | "extensive";
+  textContent: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
   tone:
     | "auto"
     | "general"
@@ -160,7 +160,7 @@ interface PresentationState {
   setModelProvider: (provider: "openai" | "ollama" | "lmstudio" | "openrouter") => void;
   setModelId: (id: string) => void;
   setTextContent: (
-    content: "minimal" | "concise" | "detailed" | "extensive",
+    content: "minimal" | "ixcham" | "batafsil" | "keng qamrovli",
   ) => void;
   setTone: (
     tone:
@@ -368,7 +368,7 @@ export const usePresentationState = create<PresentationState>((set, get) => ({
   presentationStyle: "professional",
   modelProvider: "openrouter",
   modelId: "",
-  textContent: "concise",
+  textContent: "ixcham",
   tone: "auto",
   audience: "auto",
   scenario: "auto",

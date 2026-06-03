@@ -21,21 +21,21 @@ export function ThemeSettings() {
   return (
     <div className="mb-32! space-y-5 rounded-2xl border border-border/60 bg-muted/35 p-4 sm:p-6">
       <div className="space-y-1">
-        <h2 className="text-lg font-semibold">Customize Theme</h2>
+        <h2 className="text-lg font-semibold">Mavzuni sozlash</h2>
         <p className="text-sm text-muted-foreground">
-          Pick a visual direction and image source before rendering slides.
+          Slaydlarni ko'rsatishdan oldin vizual yo'nalish va tasvir manbasini tanlang.
         </p>
       </div>
       <div className="space-y-6">
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <Label className="text-sm font-medium">Theme & Layout</Label>
+            <Label className="text-sm font-medium">Mavzu va Dizayn</Label>
             <ThemeModal>
               <Button
                 variant="link"
                 className="h-auto p-0 text-sm font-medium whitespace-nowrap"
               >
-                More Themes
+                Barcha mavzular
               </Button>
             </ThemeModal>
           </div>

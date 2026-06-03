@@ -71,7 +71,7 @@ export function ThemeModalContent({
       </div>
 
       <Tabs
-        defaultValue="allweone-themes"
+        defaultValue="standard-themes"
         value={activeTab}
         onValueChange={onTabChange}
         className="flex min-h-0 flex-1 flex-col overflow-hidden"
@@ -79,10 +79,10 @@ export function ThemeModalContent({
         <div className="shrink-0 px-4 pt-2">
           <TabsList className="h-auto w-full justify-start gap-6 rounded-none border-b border-border bg-transparent p-0">
             <TabsTrigger
-              value="allweone-themes"
+              value="standard-themes"
               className="rounded-none border-b-2 border-transparent px-0 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             >
-              ALLWEONE
+              Built-in
             </TabsTrigger>
             <TabsTrigger
               value="explore"
@@ -94,7 +94,7 @@ export function ThemeModalContent({
         </div>
 
         <ScrollArea className="max-h-[calc(85vh-4rem)] flex-1">
-          <TabsContent value="allweone-themes" className="m-0 p-4">
+          <TabsContent value="standard-themes" className="m-0 p-4">
             <div className="grid grid-cols-2 gap-3 xl:grid-cols-2">
               {Object.entries(builtInThemes).map(([key, theme]) => (
                 <div key={key} className="h-44">

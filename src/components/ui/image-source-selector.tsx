@@ -43,7 +43,7 @@ export function ImageSourceSelector({
   return (
     <div className={className}>
       {showLabel && (
-        <Label className="mb-2 block text-sm font-medium">Image Source</Label>
+        <Label className="mb-2 block text-sm font-medium">Tasvir manbasi</Label>
       )}
       <Select
         value={
@@ -57,32 +57,30 @@ export function ImageSourceSelector({
           if (value === "automatic") {
             onImageSourceChange("automatic");
           } else if (value.startsWith("stock-")) {
-            // Handle stock image selection
             const provider = value.replace("stock-", "") as
               | "unsplash"
               | "pixabay";
             onImageSourceChange("stock");
             onStockImageProviderChange(provider);
           } else {
-            // Handle AI model selection
             onImageSourceChange("ai");
             onImageModelChange(value as ImageModelList);
           }
         }}
       >
         <SelectTrigger>
-          <SelectValue placeholder="Select image generation method" />
+          <SelectValue placeholder="Tasvir yaratish usulini tanlang" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             <SelectItem value="automatic" className="font-medium">
-              Automatic
+              Avtomatik
             </SelectItem>
           </SelectGroup>
           <SelectGroup>
             <SelectLabel className="flex items-center gap-1 text-primary/80">
               <Wand2 size={10} />
-              AI Generation
+              AI yordamida yaratish
             </SelectLabel>
             {IMAGE_MODELS.map((model) => (
               <SelectItem key={model.value} value={model.value}>
@@ -93,7 +91,7 @@ export function ImageSourceSelector({
           <SelectGroup>
             <SelectLabel className="flex items-center gap-1 text-primary/80">
               <Image size={10} />
-              Stock Images
+              Tayyor rasmlar (Stock)
             </SelectLabel>
             <SelectItem value="stock-unsplash">Unsplash</SelectItem>
             <SelectItem value="stock-pixabay">Pixabay</SelectItem>

@@ -24,6 +24,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { SlideParser } from "../utils/parser";
+import { nanoid } from "nanoid";
 import {
   serializeTemplateHintsForPrompt,
   serializeTemplatesForPrompt,
@@ -36,7 +37,7 @@ interface PresentationOutlineMessageMetadata {
   modelProvider: "openai" | "ollama" | "lmstudio" | "openrouter";
   webSearch: boolean;
   presentationId: string | null;
-  textContent: "minimal" | "concise" | "detailed" | "extensive";
+  textContent: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
   tone:
     | "auto"
     | "general"
@@ -254,11 +255,104 @@ export function PresentationGenerationManager() {
         }
       }
     }
-    setSlides(mergedSlides);
+    // Post-process slides: split overly long slides into multiple slides
+    const splitSlides = splitLongSlides(mergedSlides);
+    setSlides(splitSlides);
     // Debounced save during generation to avoid excessive writes
     save();
     slidesRafIdRef.current = null;
   };
+
+  // Split slides that have too much text into multiple slides.
+  // Keeps rootImage on the first slide and moves text content across new slides.
+  function splitLongSlides(slides: typeof mergedSlides): typeof mergedSlides {
+    const MAX_CHARS = 900; // soft threshold for slide text length
+
+    const getNodeText = (node: any): string => {
+      if (!node) return "";
+      if (node.type === "p" || node.type?.startsWith?.("h")) {
+        return JSON.stringify(node.children || [])
+          .replace(/\[|\]|\{|\}|\"/g, "")
+          .replace(/\\n/g, " ");
+      }
+      // For other nodes, try to stringify children
+      return node.children ? JSON.stringify(node.children).replace(/\[|\]|\{|\}|\"/g, "") : "";
+    };
+
+    const result: typeof mergedSlides = [] as any;
+
+    for (const slide of slides) {
+      // Compute total text length excluding image elements
+      const textNodes = slide.content.filter((c) => (c as any).type !== "img");
+      const totalText = textNodes.map(getNodeText).join(" ").trim();
+
+      if (totalText.length <= MAX_CHARS) {
+        result.push(slide);
+        continue;
+      }
+
+      // Need to split: accumulate paragraphs/headings into chunks
+      const chunks: any[] = [];
+      let currentChunk: any[] = [];
+      let currentLen = 0;
+
+      for (const node of slide.content) {
+        if ((node as any).type === "img") {
+          // Keep images only in the first chunk; if currentChunk empty, include image there
+          if (currentChunk.length === 0) {
+            currentChunk.push(node);
+          } else {
+            // push current chunk and start next chunk that will not include image
+            chunks.push(currentChunk);
+            currentChunk = [];
+            // Do not copy image to subsequent chunks, but preserve layout by adding placeholder empty paragraph
+            currentChunk.push({ type: "p", children: [{ text: "" }] });
+          }
+          continue;
+        }
+
+        const nodeText = getNodeText(node);
+        const nodeLen = nodeText.length;
+
+        if (currentLen + nodeLen > MAX_CHARS && currentChunk.length > 0) {
+          chunks.push(currentChunk);
+          currentChunk = [];
+          currentLen = 0;
+        }
+
+        currentChunk.push(node);
+        currentLen += nodeLen;
+      }
+
+      if (currentChunk.length > 0) chunks.push(currentChunk);
+
+      // Create new slides from chunks
+      for (let i = 0; i < chunks.length; i++) {
+        const chunkContent = chunks[i];
+        const newSlide: any = {
+          id: i === 0 ? slide.id : nanoid(),
+          content: chunkContent,
+          layoutType: slide.layoutType,
+          alignment: slide.alignment,
+          width: slide.width,
+          fontSize: slide.fontSize,
+          fontFamily: slide.fontFamily,
+          formatCategory: slide.formatCategory,
+          aspectRatio: slide.aspectRatio,
+          isImageSlide: slide.isImageSlide,
+        };
+
+        // Only the first new slide should keep the rootImage
+        if (i === 0 && slide.rootImage) {
+          newSlide.rootImage = slide.rootImage;
+        }
+
+        result.push(newSlide as any);
+      }
+    }
+
+    return result;
+  }
 
   // Function to extract title from content
   const extractTitle = (
@@ -680,7 +774,9 @@ export function PresentationGenerationManager() {
           }
         }
 
-        setSlides(imageSlidesData);
+        // Post-process image slides too (split long text while keeping image on first chunk)
+        const splitImageSlides = splitLongSlides(imageSlidesData as any);
+        setSlides(splitImageSlides);
         save();
       } catch (error) {
         generationLogger.error("Failed to process image slides XML stream", error, {

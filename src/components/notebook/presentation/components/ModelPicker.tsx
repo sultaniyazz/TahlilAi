@@ -197,8 +197,8 @@ export function ModelPicker({
     <div className="space-y-1.5">
       {shouldShowLabel && (
         <label className="block text-xs font-medium text-muted-foreground">
-          Text model
-        </label>
+            Matn modeli
+          </label>
       )}
       <Select value={getCurrentModelValue()} onValueChange={handleModelChange}>
         <SelectTrigger className="overflow-hidden bg-background">
@@ -216,16 +216,16 @@ export function ModelPicker({
         <SelectContent>
           {isLoading && !isInitialLoad && (
             <SelectGroup>
-              <SelectLabel>Loading Models</SelectLabel>
+              <SelectLabel>Modellar yuklanmoqda</SelectLabel>
               <SelectItem value="loading" disabled>
                 <div className="flex items-center gap-3">
                   <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin" />
                   <div className="flex min-w-0 flex-col">
-                    <span className="truncate text-sm">
-                      Refreshing models...
+                      <span className="truncate text-sm">
+                      Modellar yangilanmoqda...
                     </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      Checking for new models
+                      Yangi modellar tekshirilmoqda
                     </span>
                   </div>
                 </div>

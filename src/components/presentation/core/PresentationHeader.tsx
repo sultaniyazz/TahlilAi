@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 
 // Import our new components
 import { updatePresentationTitle } from "@/app/_actions/notebook/presentation/presentationActions";
-import AllweoneText from "@/components/globals/allweone-logo";
 import { PresentButton } from "@/components/presentation/buttons/PresentButton";
 import { ShareButton } from "@/components/presentation/buttons/ShareButton";
 import { PresentationMenu } from "@/components/presentation/controls/PresentationMenu";
@@ -65,7 +64,7 @@ export default function PresentationHeader({ title }: PresentationHeaderProps) {
         <div className="flex min-w-0 items-center gap-2">
           {/* This component is suppose to be logo but for now its is actually hamburger menu */}
 
-          <Link href="/presentations">
+          <Link href="/presentation">
             <Button size={"icon"} className="rounded-full" variant={"ghost"}>
               <Brain></Brain>
             </Button>
@@ -77,7 +76,9 @@ export default function PresentationHeader({ title }: PresentationHeaderProps) {
             transition={{ duration: 1 }}
           >
             <Link href="/" className="h-max">
-              <AllweoneText className="h-10 w-30 cursor-pointer transition-transform duration-100 active:scale-95"></AllweoneText>
+              <span className="text-lg font-bold tracking-tight text-foreground transition-transform duration-100 active:scale-95">
+                TahlilAi
+              </span>
             </Link>
           </motion.div>
         </div>
@@ -94,7 +95,7 @@ export default function PresentationHeader({ title }: PresentationHeaderProps) {
       {/* Left section with breadcrumb navigation */}
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <Link
-          href="/presentations"
+          href="/presentation"
           className="text-muted-foreground hover:text-foreground"
         >
           <Brain className="h-5 w-5"></Brain>

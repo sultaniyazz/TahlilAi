@@ -19,11 +19,11 @@ interface GenerateSlideUIProps {
 
 type ContentType = "Slide" | "Infograph";
 type ImageStyle = "3D" | "Sketch" | "Flat";
-type TextDensity = "Minimal" | "Balanced" | "Detailed";
+type TextDensity = "Minimal" | "Balanced" | "batafsil";
 
 const IMAGE_STYLES: ImageStyle[] = ["3D", "Sketch", "Flat"];
 
-const TEXT_DENSITIES: TextDensity[] = ["Minimal", "Balanced", "Detailed"];
+const TEXT_DENSITIES: TextDensity[] = ["Minimal", "Balanced", "batafsil"];
 
 export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
   const [prompt, setPrompt] = useState("");

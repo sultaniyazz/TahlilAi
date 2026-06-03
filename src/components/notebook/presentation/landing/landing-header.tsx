@@ -1,20 +1,18 @@
 "use client";
 
-import AllweoneText from "@/components/globals/allweone-logo";
-import { Brain } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
-import { Github, Moon, Star, Sun } from "lucide-react";
+import { Github, Moon, Sparkles, Star, Sun } from "lucide-react";
 import * as motion from "motion/react-client";
 import Link from "next/link";
 import { fadeIn } from "./landing-motion";
 
 const NAV_ITEMS = [
-  { label: "Features", href: "#features" },
-  { label: "Community", href: "#community" },
+  { label: "Xususiyatlar", href: "#features" },
+  { label: "Jamoa", href: "#community" },
   { label: "Demo", href: "#demo" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Narxlar", href: "#pricing" },
 ] as const;
 
 function HeaderThemeToggle() {
@@ -36,6 +34,14 @@ function HeaderThemeToggle() {
 }
 
 export function LandingHeader() {
+  const scrollToSection = (href: string) => {
+    const section = document.querySelector(href);
+
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <motion.header
       initial="hidden"
@@ -46,24 +52,34 @@ export function LandingHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           href="/presentation"
-          className="group flex items-center gap-2 transition-opacity duration-300 hover:opacity-80"
+          className="flex items-center gap-3 rounded-full transition duration-500 ease-out hover:text-foreground"
         >
-          <Brain className="h-5 w-5 text-foreground transition-transform duration-300 group-hover:scale-110" />
-          <AllweoneText className="h-8 w-28" />
+          <span className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+            TahlilAi
+          </span>
+          <span className="inline-flex h-6 items-center justify-center rounded-full border border-amber-300/40 px-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-600 dark:border-amber-400/20 dark:text-amber-200">
+            <Sparkles className="h-3 w-3" />
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
           {NAV_ITEMS.map((item) => (
-            <a
+            <motion.a
               key={item.href}
               href={item.href}
+              onClick={(event) => {
+                event.preventDefault();
+                scrollToSection(item.href);
+              }}
+              whileHover={{ y: -3 }}
+              transition={{ duration: 0.55, ease: "easeOut" }}
               className={cn(
-                "text-sm font-medium text-muted-foreground",
-                "transition-colors duration-300 hover:text-foreground",
+                "text-sm font-medium text-muted-foreground transition-all duration-500 ease-out transform",
+                "hover:text-foreground hover:tracking-wide",
               )}
             >
               {item.label}
-            </a>
+            </motion.a>
           ))}
         </nav>
 
@@ -87,12 +103,12 @@ export function LandingHeader() {
               className="gap-2 shadow-md transition-shadow duration-300 hover:shadow-lg"
             >
               <a
-                href="https://github.com/allweone/presentation-ai"
+                href="https://github.com/sultaniyazz/TahlilAi"
                 target="_blank"
                 rel="noreferrer"
               >
                 <Github className="h-4 w-4" />
-                <span className="hidden sm:inline">Star one GitHub</span>
+                <span className="hidden sm:inline">Star on GitHub</span>
               </a>
             </Button>
           </motion.div>

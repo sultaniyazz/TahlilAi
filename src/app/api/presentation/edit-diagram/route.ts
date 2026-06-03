@@ -122,7 +122,7 @@ Add a stylize property inside the theme block for special effects:
 
 - For relation-* templates, model relationships explicitly.
 - Prefer relations with arrows (A -> B) when the template supports it.
-- If only items are allowed, express connections via concise item labels and descriptions.
+- If only items are allowed, express connections via ixcham item labels and descriptions.
 
 ## Relations (for relation-* templates)
 
@@ -154,7 +154,7 @@ relations
 7. When asked to change or expand content, use the user text as inspiration only
 8. Do NOT paste or quote the user text verbatim in labels or descriptions
 9. Avoid using more than 3 consecutive words from the user's text
-10. Rephrase and synthesize: derive core ideas, then express them freshly and concisely
+10. Rephrase and synthesize: derive core ideas, then express them freshly and ixchamly
 11. Expand outward from the seed text: add helpful supporting nodes, contrasts, examples, or implications
 
 ---

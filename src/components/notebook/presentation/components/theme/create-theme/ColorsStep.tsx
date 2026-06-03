@@ -46,7 +46,7 @@ export function ColorsStep({
             )}
           >
             <Heart className="h-4 w-4" />
-            ALLWEONE®
+            Curated
           </button>
           <button
             onClick={() => setMode("customize")}

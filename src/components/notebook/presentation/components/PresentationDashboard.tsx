@@ -136,14 +136,14 @@ export function PresentationDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
               <Sparkles className="h-6 w-6 text-primary" />
-              Create a presentation
+              Taqdimot yaratish
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
             <Textarea
               value={presentationInput}
               onChange={(event) => setPresentationInput(event.target.value)}
-              placeholder="Describe the presentation you want to build."
+              placeholder="Yaratmoqchi bo‘lgan taqdimotingizni ta’riflang."
               className="min-h-36 resize-none"
             />
 
@@ -151,7 +151,7 @@ export function PresentationDashboard() {
               <ModelPicker />
 
               <div className="space-y-2">
-                <div className="text-sm font-medium">Slides</div>
+                <div className="text-sm font-medium">Slaydlar</div>
                 <Select
                   value={String(numSlides)}
                   onValueChange={(value) => setNumSlides(Number(value))}
@@ -170,7 +170,7 @@ export function PresentationDashboard() {
               </div>
 
               <div className="space-y-2">
-                <div className="text-sm font-medium">Language</div>
+                <div className="text-sm font-medium">Til</div>
                 <Select value={language} onValueChange={setLanguage}>
                   <SelectTrigger>
                     <SelectValue />
@@ -186,11 +186,11 @@ export function PresentationDashboard() {
               </div>
 
               <div className="space-y-2">
-                <div className="text-sm font-medium">Web search</div>
+                <div className="text-sm font-medium">Web qidiruv</div>
                 <div className="flex h-10 items-center justify-between rounded-md border px-3">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Globe className="h-4 w-4" />
-                    {webSearchEnabled ? "Enabled" : "Disabled"}
+                    {webSearchEnabled ? "Yoqilgan" : "O‘chirilgan"}
                   </div>
                   <Switch
                     checked={webSearchEnabled}
@@ -210,7 +210,7 @@ export function PresentationDashboard() {
                 ) : (
                   <Sparkles className="mr-2 h-4 w-4" />
                 )}
-                Generate outline
+                Kontur yaratish
               </Button>
               <Button
                 variant="outline"
@@ -218,7 +218,7 @@ export function PresentationDashboard() {
                 disabled={isCreating}
               >
                 <FilePlus2 className="mr-2 h-4 w-4" />
-                Blank presentation
+                Bo'sh taqdimot
               </Button>
             </div>
           </CardContent>
@@ -228,18 +228,18 @@ export function PresentationDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl">
               <Presentation className="h-5 w-5 text-primary" />
-              Recent presentations
+                So'nggi taqdimotlar
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {isLoading ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Loading presentations...
+                Taqdimotlar yuklanmoqda...
               </div>
             ) : items.length === 0 ? (
               <div className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-                No presentations yet.
+                Hozircha taqdimotlar yo'q.
               </div>
             ) : (
               items.slice(0, 8).map((item) => (
@@ -250,10 +250,10 @@ export function PresentationDashboard() {
                   className="flex w-full flex-col rounded-lg border p-3 text-left transition-colors hover:bg-muted/50"
                 >
                   <span className="font-medium">
-                    {item.title || "Untitled Presentation"}
+                    {item.title || "Nomsiz taqdimot"}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    Updated{" "}
+                    Yangilangan{" "}
                     {formatDistanceToNow(new Date(item.updatedAt), {
                       addSuffix: true,
                     })}

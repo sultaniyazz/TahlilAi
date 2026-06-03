@@ -36,7 +36,7 @@ import {
  *
  * @param options - Configuration options for creating the Plate editor
  * @param deps - Additional dependencies for the useMemo hook (default: [])
- * @see {@link createPlateEditor} for detailed information on React editor creation and configuration.
+ * @see {@link createPlateEditor} for batafsil information on React editor creation and configuration.
  * @see {@link createSlateEditor} for a non-React version of editor creation.
  * @see {@link withPlate} for the underlying React-specific enhancement function.
  */

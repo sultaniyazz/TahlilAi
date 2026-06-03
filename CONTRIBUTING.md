@@ -39,7 +39,7 @@ By participating in this project, you agree to abide by our Code of Conduct. Ple
 ## Pull Request Process
 
 1. **Use a clear and descriptive title** for your PR
-1. **Include a detailed description** explaining what your changes do and why they should be included
+1. **Include a batafsil description** explaining what your changes do and why they should be included
 1. **Link any related issues** using GitHub issue references
 1. Wait for a maintainer to review your PR
 1. Address any feedback from reviewers
@@ -70,7 +70,7 @@ If you find a bug or have a feature request:
 
 1. Check if it already exists in the [Issues](https://github.com/allweonedev/presentation-ai/issues)
 2. If not, create a new issue using the appropriate template
-3. Provide detailed steps to reproduce bugs
+3. Provide batafsil steps to reproduce bugs
 4. For feature requests, explain the use case and benefits
 
 ## Questions or Need Help?

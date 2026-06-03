@@ -36,7 +36,7 @@ const ART_STYLES = [
   {
     id: "photorealistic",
     label: "Photorealistic",
-    value: "photorealistic, highly detailed, 8k",
+    value: "photorealistic, highly batafsil, 8k",
   },
   {
     id: "illustration",

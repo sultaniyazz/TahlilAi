@@ -47,7 +47,7 @@ An open-source, AI-powered presentation generator alternative to Gamma.app that 
 - **Blank Presentations**: Start from scratch when you do not want AI-generated content
 - **Editable Outlines**: Review and modify AI-generated outlines before finalizing
 - **Real-Time Generation**: Watch your presentation build live as content is created
-- **Auto-Save**: Everything saves automatically as you work
+- **Avtomatik-Save**: Everything saves Avtomatikmatically as you work
 
 ### Design & Customization
 
@@ -56,7 +56,7 @@ An open-source, AI-powered presentation generator alternative to Gamma.app that 
 - **PPTX Theme Import**: Import theme inspiration directly from PowerPoint files
 - **Full Editability**: Modify text, fonts, and design elements as needed
 - **Image Generation**: Choose different AI image generation models for your slides
-- **Audience-Focused Styles**: Select between professional and casual presentation styles
+- **Tomoshabin-Focused Styles**: Select between professional and casual presentation styles
 
 ### Presentation Tools
 
@@ -228,13 +228,13 @@ ALLWEONE Presentation AI now supports both Ollama and LM Studio as local model p
 1. Open the app and open the text model selector.
 2. Choose the model you want to use.
 3. For LM Studio, load the model in LM Studio first.
-4. For Ollama, installed models appear automatically, and some recommended models can be downloaded on first use.
+4. For Ollama, installed models appear Avtomatikmatically, and some recommended models can be downloaded on first use.
 5. Enjoy the generation.
 
 Notes:
 
 - OpenAI remains available as the default cloud text model.
-- Models will automatically appear in the Model Selector when the LM Studio server or the Ollama daemon is running.
+- Models will Avtomatikmatically appear in the Model Selector when the LM Studio server or the Ollama daemon is running.
 - Make sure LM Studio has CORS enabled so the browser can connect.
 
 ## 📁 Project Structure
@@ -282,7 +282,7 @@ presentation-ai/
 | Presentation recording       | 🟡 Partially Done | Present mode already supports webcam and microphone recording controls                           |
 | Cloud storage integration    | 🔴 Not Started    | Connect with Google Drive, Dropbox, OneDrive                                                     |
 | Presentation analytics       | 🔴 Not Started    | Track views, engagement, and presentation performance                                            |
-| AI presenter notes           | 🔴 Not Started    | Auto-generate speaker notes for each slide                                                       |
+| AI presenter notes           | 🔴 Not Started    | Avtomatik-generate speaker notes for each slide                                                       |
 | Custom font uploads          | 🔴 Not Started    | Allow users to upload and use their own fonts                                                    |
 | Plugin system                | 🔴 Not Started    | Allow community to build and share extensions                                                    |
 | API                          | 🔴 Not Started    | Allow developers to use the allweone presentation to generate content in their own applications. |

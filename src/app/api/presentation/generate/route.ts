@@ -22,7 +22,7 @@ interface SlidesRequest {
   modelId?: string;
   modelProvider?: "openai" | "ollama" | "lmstudio" | "openrouter";
   searchResults?: Array<{ query: string; results: unknown[] }>;
-  textContent?: "minimal" | "concise" | "detailed" | "extensive";
+  textContent?: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
   audience?: string;
   scenario?: string;
   imageSource?: "automatic" | "ai" | "stock";
@@ -218,7 +218,7 @@ const SLIDES_TEMPLATE = `You are an expert presentation designer. Create an enga
 <!--Every slide must follow this structure (layout determines where the image appears) -->
 <SECTION layout="left|right|vertical">
   <!-- Required: include ONE layout component per slide -->
-  <!-- Required: include at least one detailed image query -->
+  <!-- Required: include at least one batafsil image query -->
   </SECTION>
   <!-- More SECTION tags... -->
 </PRESENTATION>
@@ -249,9 +249,9 @@ Vary layouts throughout for visual interest.
 
 **Text Content Levels:**
 - minimal: 1-2 short sentences per point
-- concise: 2-3 sentences per point
-- detailed: 3-4 sentences per point
-- extensive: 4-5+ sentences per point
+- ixcham: 2-3 sentences per point
+- batafsil: 3-4 sentences per point
+- keng qamrovli: 4-5+ sentences per point
 
 **Content Expansion:** For each outline point, add supporting data, real-world examples, and industry context. Do NOT copy outline verbatim.
 ---
@@ -313,9 +313,9 @@ Important: Every \`<IMG query="...">\` value for stock image search MUST be writ
 \`\`\``;
   }
 
-  return `**AI IMAGE GENERATION**: Use DETAILED descriptive prompts (60-120 words).
+  return `**AI IMAGE GENERATION**: Use batafsil descriptive prompts (60-120 words).
 
-Create detailed, artistic prompts that:
+Create batafsil, artistic prompts that:
 - Describe the visual scene, composition, and mood
 - Include style references (photorealistic, illustration, cinematic, etc.)
 - Mention lighting, colors, and atmosphere
@@ -422,7 +422,7 @@ function buildCriticalRules(
     return `1. Generate **EXACTLY {TOTAL_SLIDES} slides** - no more, no less
 2. Use DIFFERENT layouts for consecutive slides - never repeat
 3. Expand outline content - do NOT copy verbatim
-4. Include detailed image queries on most slides
+4. Include batafsil image queries on most slides
 5. Vary SECTION layout attribute (left/right/vertical) throughout
 6. Use ONLY layout tags from AVAILABLE LAYOUTS - unlisted tags cause parsing errors`;
   }
@@ -581,7 +581,7 @@ export async function POST(req: Request) {
       TOTAL_SLIDES: totalSlides,
       SEARCH_RESULTS: formatSearchResults(searchResults),
       SELECTED_CHUNKS_CONTEXT: "",
-      TEXT_CONTENT: textContent || "concise",
+      TEXT_CONTENT: textContent || "ixcham",
       AUDIENCE: audience || "auto",
       SCENARIO: scenario || "auto",
       IMAGE_QUERY_STYLE: getImageQueryStyle(imageSource),

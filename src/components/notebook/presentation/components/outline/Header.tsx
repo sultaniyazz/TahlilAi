@@ -83,7 +83,7 @@ export function Header() {
                 )}
               />
               <span className="truncate text-sm font-medium">
-                {prompt || "Untitled presentation"}
+                {prompt || "Nomsiz taqdimot"}
               </span>
             </button>
           </CollapsibleTrigger>
@@ -139,7 +139,7 @@ export function Header() {
                   htmlFor="outline-prompt"
                   className="text-xs font-medium text-muted-foreground"
                 >
-                  Prompt
+                    So'rov
                 </label>
                 <Textarea
                   id="outline-prompt"
@@ -147,7 +147,7 @@ export function Header() {
                   onChange={(e) => setPresentationInput(e.target.value)}
                   disabled={isGeneratingOutline}
                   rows={3}
-                  placeholder="Describe the presentation you want to generate…"
+                    placeholder="Yaratmoqchi bo‘lgan taqdimotingizni ta’riflang…"
                   className="min-h-20 resize-none rounded-xl border-border/50 bg-background px-3.5 py-2.5 text-sm shadow-none focus-visible:ring-2 focus-visible:ring-primary/30"
                 />
               </div>
@@ -183,7 +183,7 @@ export function Header() {
                 <div className="space-y-1.5">
                   <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <Globe className="size-3.5" />
-                    Language
+                    Til
                   </label>
                   <Select value={language} onValueChange={setLanguage}>
                     <SelectTrigger className="h-9 rounded-lg bg-background">
@@ -210,7 +210,7 @@ export function Header() {
                 <div className="space-y-1.5">
                   <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <Search className="size-3.5" />
-                    Web search
+                    Web qidiruv
                   </label>
                   <div className="flex h-9 items-center justify-between rounded-lg border bg-background px-3">
                     <span className="text-sm text-muted-foreground">

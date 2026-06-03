@@ -16,12 +16,22 @@ import {
   Zap,
 } from "lucide-react";
 import * as motion from "motion/react-client";
+import { AnimatePresence, useReducedMotion } from "motion/react";
+import { useState } from "react";
 import {
   fadeInUp,
+  reducedFadeInUp,
   hoverLift,
+  reducedHoverLift,
+  hoverScale,
+  reducedHoverScale,
+  imageEntrance,
   scaleIn,
+  reducedScaleIn,
   staggerContainer,
   tapScale,
+  SPRING_BUTTON,
+  LANDING_EASE,
 } from "./landing-motion";
 
 function SectionHeading({
@@ -33,6 +43,9 @@ function SectionHeading({
   title: string;
   className?: string;
 }) {
+  const shouldReduceMotion = useReducedMotion();
+  const enter = shouldReduceMotion ? reducedFadeInUp : fadeInUp;
+
   return (
     <motion.div
       className={cn("mx-auto max-w-3xl text-center", className)}
@@ -42,13 +55,13 @@ function SectionHeading({
       variants={staggerContainer}
     >
       <motion.p
-        variants={fadeInUp}
+        variants={enter}
         className="text-sm font-semibold text-muted-foreground"
       >
         {eyebrow}
       </motion.p>
       <motion.h2
-        variants={fadeInUp}
+        variants={enter}
         className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl"
       >
         {title}
@@ -60,43 +73,46 @@ function SectionHeading({
 const FEATURES = [
   {
     icon: Zap,
-    title: "AI-Powered Content",
-    description:
-      "Generate complete presentations on any topic with advanced AI technology.",
+    title: "AI yordamida kontent",
+    description: "Ilg'or sun'iy intellekt texnologiyasi bilan har qanday mavzuda to'liq taqdimotlar yarating.",
   },
   {
     icon: Palette,
-    title: "Custom Themes",
-    description: "Choose from built-in themes or create your own from scratch.",
+    title: "Maxsus mavzular",
+    description: "Tayyor mavzularni tanlang yoki noldan o'zingiznikini yarating.",
   },
   {
     icon: ImageIcon,
-    title: "Image Generation",
-    description: "Automatically generate relevant images using various AI models.",
+    title: "Rasm generatsiyasi",
+    description: "AI modellari yordamida avtomatik tarzda mos rasmlarni yarating.",
   },
   {
     icon: Users,
-    title: "Audience-Focused",
-    description: "Switch between professional and casual presentation styles.",
+    title: "Auditoriyaga moslashuv",
+    description: "Taqdimot uslublarini professional yoki erkin ko'rinishga o'zgartiring.",
   },
   {
     icon: Clock,
-    title: "Real-Time Generation",
-    description: "Watch your presentation build live as content is created.",
+    title: "Real vaqtda yaratish",
+    description: "Kontent yaratilayotganda taqdimotingiz jonli tarzda shakllanishini kuzating.",
   },
   {
     icon: Pencil,
-    title: "Full Editability",
-    description: "Modify text, fonts, and design elements as needed.",
+    title: "To'liq tahrirlash",
+    description: "Matnlar, shriftlar va dizayn elementlarini o'zingizga moslab o'zgartiring.",
   },
 ] as const;
 
 export function LandingFeatures() {
+  const shouldReduceMotion = useReducedMotion();
+  const cardVariant = shouldReduceMotion ? reducedScaleIn : scaleIn;
+  const cardHover = shouldReduceMotion ? reducedHoverLift : hoverLift;
+
   return (
     <section id="features" className="scroll-mt-24 px-4 py-20 sm:px-6">
       <SectionHeading
-        eyebrow="Powerful Features"
-        title="Everything you need to create amazing presentations"
+        eyebrow="Kuchli imkoniyatlar"
+        title="Ajoyib taqdimotlar yaratish uchun barchasi mavjud"
       />
 
       <motion.div
@@ -109,15 +125,15 @@ export function LandingFeatures() {
         {FEATURES.map((feature) => (
           <motion.article
             key={feature.title}
-            variants={scaleIn}
-            whileHover={hoverLift}
+            variants={cardVariant}
+            whileHover={cardHover}
             className={cn(
-              "rounded-2xl border border-border/50 bg-card/50 p-6",
+              "group rounded-2xl border border-border/50 bg-card/50 p-6",
               "transition-[box-shadow,border-color] duration-300 hover:border-primary/25 hover:shadow-lg",
             )}
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted transition-colors duration-300 group-hover:bg-primary/10">
-              <feature.icon className="h-5 w-5 text-foreground" />
+              <feature.icon className="h-5 w-5 text-foreground" aria-hidden="true" />
             </div>
             <h3 className="mt-4 font-semibold">{feature.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -133,37 +149,34 @@ export function LandingFeatures() {
 const OPEN_SOURCE = [
   {
     icon: Lock,
-    title: "Transparency",
-    description:
-      "Our code is open for everyone to see, review, and improve. No black boxes or hidden agendas.",
+    title: "Shaffoflik",
+    description: "Kodimiz hamma uchun ochiq: ko'rishingiz, tekshirishingiz va yaxshilashingiz mumkin.",
   },
   {
     icon: Users,
-    title: "Community-Driven",
-    description:
-      "We believe in the power of community collaboration to create better software for everyone.",
+    title: "Jamoa bilan birga",
+    description: "Biz hamma uchun yaxshiroq dasturiy ta'minot yaratishda hamkorlik kuchiga ishonamiz.",
   },
   {
     icon: Code2,
-    title: "Education",
-    description:
-      "Learn from our codebase, contribute to it, and grow your skills while helping others.",
+    title: "Ta'lim",
+    description: "Kodimizdan o'rganing, hissa qo'shing va o'z ko'nikmalaringizni oshiring.",
   },
   {
     icon: Heart,
-    title: "Free Forever",
-    description:
-      "Our core features will always remain free and open source, ensuring accessibility for everyone.",
+    title: "Doimiy bepul",
+    description: "Asosiy funksiyalarimiz doimo bepul va ochiq kodli bo'lib qoladi.",
   },
 ] as const;
 
 export function LandingOpenSource() {
+  const shouldReduceMotion = useReducedMotion();
+  const enter = shouldReduceMotion ? reducedFadeInUp : fadeInUp;
+  const btnHover = shouldReduceMotion ? reducedHoverScale : hoverScale;
+
   return (
     <section className="px-4 py-20 sm:px-6">
-      <SectionHeading
-        eyebrow="Open Source"
-        title="Why we're open source"
-      />
+      <SectionHeading eyebrow="Ochiq kodli" title="Nega ochiq kodli loyihamiz?" />
 
       <motion.div
         className="mx-auto mt-14 grid max-w-4xl gap-8 sm:grid-cols-2"
@@ -175,13 +188,11 @@ export function LandingOpenSource() {
         {OPEN_SOURCE.map((item) => (
           <motion.div
             key={item.title}
-            variants={fadeInUp}
-            whileHover={{ x: 4 }}
-            transition={{ duration: 0.25 }}
+            variants={enter}
             className="flex gap-4"
           >
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted transition-colors duration-300 hover:bg-primary/10">
-              <item.icon className="h-5 w-5" />
+              <item.icon className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
               <h3 className="font-semibold">{item.title}</h3>
@@ -195,20 +206,25 @@ export function LandingOpenSource() {
 
       <motion.div
         className="mt-12 flex justify-center"
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, filter: "blur(8px)", y: 16 }}
+        whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.45 }}
+        transition={{ duration: 0.45, ease: LANDING_EASE }}
       >
-        <motion.div whileHover={hoverLift} whileTap={tapScale}>
+        <motion.div
+          whileHover={btnHover}
+          whileTap={tapScale}
+          transition={SPRING_BUTTON}
+        >
           <Button asChild variant="outline" size="lg" className="gap-2">
             <a
-              href="https://github.com/allweone/presentation-ai"
+              href="https://github.com/"
               target="_blank"
               rel="noreferrer"
+              aria-label="GitHub'da hissa qo'shish"
             >
-              <Github className="h-4 w-4" />
-              Contribute on GitHub
+              <Github className="h-4 w-4" aria-hidden="true" />
+              GitHub'da hissa qo'shish
             </a>
           </Button>
         </motion.div>
@@ -218,17 +234,21 @@ export function LandingOpenSource() {
 }
 
 export function LandingDemo() {
+  const shouldReduceMotion = useReducedMotion();
+  const mediaVariant = shouldReduceMotion
+    ? { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.6 } } }
+    : imageEntrance;
+
   return (
     <section id="demo" className="scroll-mt-24 px-4 py-20 sm:px-6">
-      <SectionHeading eyebrow="See it in action" title="Watch how it works" />
+      <SectionHeading eyebrow="Amalda ko'ring" title="Qanday ishlashini tomosha qiling" />
 
       <motion.div
         className="mx-auto mt-12 max-w-4xl"
-        initial={{ opacity: 0, scale: 0.98 }}
-        whileInView={{ opacity: 1, scale: 1 }}
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        whileHover={{ scale: 1.01 }}
+        variants={mediaVariant as any}
       >
         <div
           className={cn(
@@ -238,10 +258,10 @@ export function LandingDemo() {
           )}
         >
           <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center text-background/90">
-            <Sparkles className="h-10 w-10 opacity-80" />
-            <p className="text-lg font-medium">Demo video placeholder</p>
+            <Sparkles className="h-10 w-10 opacity-80" aria-hidden="true" />
+            <p className="text-lg font-medium">Demo video joyi</p>
             <p className="max-w-md text-sm opacity-70">
-              Replace with your product demo embed when ready.
+              Mahsulotingiz tayyor bo'lganda bu yerga demo videoni joylang.
             </p>
           </div>
         </div>
@@ -252,66 +272,73 @@ export function LandingDemo() {
 
 const PLANS = [
   {
-    name: "Free",
-    description: "Perfect for individuals getting started",
+    name: "Bepul",
+    description: "Endi boshlayotganlar uchun mukammal",
     price: "$0",
-    cta: "Get Started",
+    cta: "Boshlash",
     highlighted: false,
     features: [
-      "5 presentations per month",
-      "Basic AI generation",
-      "Standard templates",
-      "Export to PDF",
+      "Oyiga 5 ta taqdimot",
+      "Asosiy AI generatsiyasi",
+      "Standart shablonlar",
+      "PDF formatida eksport",
     ],
   },
   {
     name: "Pro",
-    description: "Everything you need for professional presentations",
+    description: "Professional taqdimotlar uchun kerakli hamma narsa",
     price: "$0",
-    period: "per month",
-    cta: "Start Free Trial",
+    period: "oyiga",
+    cta: "Bepul sinab ko'rish",
     highlighted: true,
     features: [
-      "Unlimited presentations",
-      "Advanced AI generation",
-      "Premium templates",
-      "Export to multiple formats",
-      "Team collaboration",
-      "Priority support",
+      "Cheksiz taqdimotlar",
+      "Ilg'or AI generatsiyasi",
+      "Premium shablonlar",
+      "Ko'p formatli eksport",
+      "Jamoaviy hamkorlik",
+      "Ustuvor qo'llab-quvvatlash",
     ],
   },
   {
     name: "Enterprise",
-    description: "Custom solutions for larger teams",
-    price: "Contact",
-    cta: "Contact Us",
+    description: "Katta jamoalar uchun maxsus yechimlar",
+    price: "Bog'lanish",
+    cta: "Biz bilan bog'laning",
     highlighted: false,
     features: [
-      "Everything in Pro",
-      "Custom templates",
-      "Advanced security",
-      "Dedicated support",
-      "Custom integrations",
-      "Volume discounts",
+      "Pro'dagi barcha imkoniyatlar",
+      "Maxsus shablonlar",
+      "Yuqori darajadagi xavfsizlik",
+      "Shaxsiy yordam",
+      "Maxsus integratsiyalar",
+      "Hajm bo'yicha chegirmalar",
     ],
   },
 ] as const;
 
 export function LandingPricing() {
+  const shouldReduceMotion = useReducedMotion();
+  const cardVariant = shouldReduceMotion ? reducedScaleIn : scaleIn;
+  const cardHover = shouldReduceMotion ? reducedHoverLift : hoverLift;
+
+  const [expandedPlan, setExpandedPlan] = useState<string | null>(null);
+
   return (
     <section id="pricing" className="scroll-mt-24 px-4 py-20 sm:px-6">
       <SectionHeading
-        eyebrow="Pricing"
-        title="Simple, transparent pricing"
+        eyebrow="Narxlar"
+        title="Oddiy va shaffof narxlar"
         className="mb-2"
       />
       <motion.p
         className="mx-auto max-w-xl text-center text-muted-foreground"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
+        initial={{ opacity: 0, filter: "blur(8px)" }}
+        whileInView={{ opacity: 1, filter: "blur(0px)" }}
         viewport={{ once: true }}
+        transition={{ duration: 0.45, ease: LANDING_EASE }}
       >
-        Choose the plan that works best for you and your team.
+        O'zingiz va jamoangiz uchun eng mos rejani tanlang.
       </motion.p>
 
       <motion.div
@@ -321,53 +348,96 @@ export function LandingPricing() {
         viewport={{ once: true }}
         variants={staggerContainer}
       >
-        {PLANS.map((plan) => (
-          <motion.div
-            key={plan.name}
-            variants={scaleIn}
-            whileHover={hoverLift}
-            className={cn(
-              "flex flex-col rounded-2xl border p-6 transition-shadow duration-300",
-              plan.highlighted
-                ? "border-foreground bg-card shadow-xl"
-                : "border-border/60 bg-card/50 hover:shadow-lg",
-            )}
-          >
-            <h3 className="text-xl font-bold">{plan.name}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {plan.description}
-            </p>
-            <ul className="mt-6 flex-1 space-y-2 text-sm">
-              {plan.features.map((feature) => (
-                <li key={feature} className="flex gap-2">
-                  <span className="text-primary">✓</span>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-8">
-              <span className="text-4xl font-bold">{plan.price}</span>
-              {"period" in plan && plan.period ? (
-                <span className="text-muted-foreground"> {plan.period}</span>
-              ) : null}
-            </div>
-            <Button
+        {PLANS.map((plan) => {
+          const isExpanded = expandedPlan === plan.name;
+          return (
+            <motion.div
+              key={plan.name}
+              variants={cardVariant}
+              whileHover={cardHover}
               className={cn(
-                "mt-6 w-full transition-all duration-300",
-                plan.highlighted && "bg-foreground text-background hover:bg-foreground/90",
+                "flex flex-col rounded-2xl border p-6 transition-shadow duration-300",
+                plan.highlighted
+                  ? "border-foreground bg-card shadow-xl"
+                  : "border-border/60 bg-card/50 hover:shadow-lg",
               )}
-              variant={plan.highlighted ? "default" : "outline"}
             >
-              {plan.cta}
-            </Button>
-          </motion.div>
-        ))}
+              <h3 className="text-xl font-bold">{plan.name}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {plan.description}
+              </p>
+
+              <ul className="mt-6 flex-1 space-y-2 text-sm">
+                {plan.features.slice(0, 3).map((feature) => (
+                  <li key={feature} className="flex gap-2">
+                    <span className="text-primary" aria-hidden="true">✓</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <AnimatePresence mode="wait">
+                {isExpanded && (
+                  <motion.ul
+                    key="extra-features"
+                    initial={{ opacity: 0, scale: 0.9, filter: "blur(8px)", y: 10 }}
+                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, filter: "blur(4px)", y: -6 }}
+                    transition={{ duration: 0.3, ease: LANDING_EASE }}
+                    className="mt-2 space-y-2 text-sm"
+                  >
+                    {plan.features.slice(3).map((feature) => (
+                      <li key={feature} className="flex gap-2 text-muted-foreground">
+                        <span aria-hidden="true">✓</span>
+                        {feature}
+                      </li>
+                    ))}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
+
+              {plan.features.length > 3 && (
+                <button
+                  type="button"
+                  onClick={() => setExpandedPlan(isExpanded ? null : plan.name)}
+                  className="mt-3 text-left text-xs text-muted-foreground underline-offset-2 hover:underline"
+                  aria-expanded={isExpanded}
+                  aria-controls={`plan-features-${plan.name}`}
+                >
+                  {isExpanded ? "Yashirish" : `+${plan.features.length - 3} ta qo'shimcha funksiya`}
+                </button>
+              )}
+
+              <div className="mt-8">
+                <span className="text-4xl font-bold">{plan.price}</span>
+                {"period" in plan && plan.period ? (
+                  <span className="text-muted-foreground"> {plan.period}</span>
+                ) : null}
+              </div>
+              <Button
+                type="button"
+                className={cn(
+                  "mt-6 w-full transition-all duration-300",
+                  plan.highlighted &&
+                    "bg-foreground text-background hover:bg-foreground/90",
+                )}
+                variant={plan.highlighted ? "default" : "outline"}
+              >
+                {plan.cta}
+              </Button>
+            </motion.div>
+          );
+        })}
       </motion.div>
     </section>
   );
 }
 
 export function LandingCommunity() {
+  const shouldReduceMotion = useReducedMotion();
+  const enter = shouldReduceMotion ? reducedFadeInUp : fadeInUp;
+  const btnHover = shouldReduceMotion ? reducedHoverScale : hoverScale;
+
   return (
     <section id="community" className="scroll-mt-24 px-4 py-20 sm:px-6">
       <motion.div
@@ -377,35 +447,53 @@ export function LandingCommunity() {
         viewport={{ once: true }}
         variants={staggerContainer}
       >
-        <motion.h2 variants={fadeInUp} className="text-3xl font-bold sm:text-4xl">
-          Join our Community
+        <motion.h2 variants={enter} className="text-3xl font-bold sm:text-4xl">
+          Jamiyatimizga qo'shiling
         </motion.h2>
         <motion.p
-          variants={fadeInUp}
+          variants={enter}
           className="mt-4 text-muted-foreground sm:text-lg"
         >
-          Share your ideas, ask questions, and collaborate with other developers.
-          The fastest growing community for AI web agents.
+          G'oyalaringizni ulashing, savollar bering va boshqa dasturchilar bilan hamkorlik qiling.
+          AI veb-agentlari uchun eng tez o'sayotgan jamoa.
         </motion.p>
         <motion.div
-          variants={fadeInUp}
+          variants={enter}
           className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
         >
-          <motion.div whileHover={hoverLift} whileTap={tapScale}>
+          <motion.div
+            whileHover={btnHover}
+            whileTap={tapScale}
+            transition={SPRING_BUTTON}
+          >
             <Button
               asChild
               size="lg"
               className="gap-2 bg-[#5865F2] text-white hover:bg-[#5865F2]/90"
             >
-              <a href="https://discord.com" target="_blank" rel="noreferrer">
-                Join Discord
+              <a
+                href="https://discord.com"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Discord serverimizga qo'shiling"
+              >
+                Discord'ga qo'shilish
               </a>
             </Button>
           </motion.div>
-          <motion.div whileHover={hoverLift} whileTap={tapScale}>
+          <motion.div
+            whileHover={btnHover}
+            whileTap={tapScale}
+            transition={SPRING_BUTTON}
+          >
             <Button asChild size="lg" variant="outline" className="gap-2">
-              <a href="https://x.com/allweone" target="_blank" rel="noreferrer">
-                Follow @allweone
+              <a
+                href="https://x.com/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Our X (Twitter) profile"
+              >
+                Kuzatish
               </a>
             </Button>
           </motion.div>
@@ -417,9 +505,9 @@ export function LandingCommunity() {
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border/50 px-4 py-12 sm:px-6">
-      <div className="mx-auto max-w-5xl text-center text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} ALLWEONE®. All rights reserved.</p>
+    <footer className="border-t border-border/50 px-4 py-12 text-sm text-muted-foreground transition-colors duration-300 dark:border-border/30 sm:px-6">
+      <div className="mx-auto max-w-5xl text-center">
+        <p>© {new Date().getFullYear()} TahlilAi. Barcha huquqlar himoyalangan.</p>
       </div>
     </footer>
   );

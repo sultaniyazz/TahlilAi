@@ -11,55 +11,55 @@ export const EXAMPLE_PROMPTS: ExamplePrompt[] = [
   {
     id: "ai-engineering",
     icon: "⚡",
-    title: "The Future of Artificial Intelligence in Engineering",
+    title: "Muhandislikda sun'iy intellektning kelajagi",
     prompt:
-      "Create a presentation on the future of artificial intelligence in engineering, covering automation, design optimization, and workforce impact.",
+      "Muhandislikda sun'iy intellektning kelajagi haqida taqdimot yarating, unda avtomatlashtirish, dizaynni optimallashtirish va ishchi kuchiga ta'sirini qamrab oling.",
     slides: 5,
-    language: "en-US",
+    language: "uz-UZ",
   },
   {
     id: "climate",
     icon: "🌍",
-    title: "Climate Change Solutions: A Global Perspective",
+    title: "Iqlim o'zgarishi yechimlari: Global istiqbol",
     prompt:
-      "Build a presentation on climate change solutions from a global perspective, including renewable energy, policy, and community action.",
+      "Iqlim o'zgarishi yechimlari bo'yicha global istiqbolda taqdimot tuzing, jumladan qayta tiklanadigan energiya, siyosat va jamoatchilik harakatlari.",
     slides: 5,
-    language: "en-US",
+    language: "uz-UZ",
   },
   {
     id: "startup",
     icon: "🎯",
-    title: "Startup Pitch Deck: Tech Innovation",
+    title: "Startup Pitch: Texnologik innovatsiya",
     prompt:
-      "Create a startup pitch deck for a tech innovation product covering problem, solution, market, traction, and ask.",
+      "Texnologik innovatsiya mahsuloti uchun startup pitch deck yarating: muammo, yechim, bozor, rivojlanish va taklif qismlarini o'z ichiga olsin.",
     slides: 5,
-    language: "en-US",
+    language: "uz-UZ",
   },
   {
     id: "ml-health",
     icon: "🤖",
-    title: "Machine Learning in Healthcare Applications",
+    title: "Sog'liqni saqlashda mashinali o'qitish (ML)",
     prompt:
-      "Present machine learning applications in healthcare: diagnostics, imaging, patient outcomes, and ethical considerations.",
+      "Sog'liqni saqlashda mashinali o'qitish dasturlarini taqdim eting: diagnostika, tasvirlash, bemorlar natijalari va axloqiy jihatlar.",
     slides: 5,
-    language: "en-US",
+    language: "uz-UZ",
   },
   {
     id: "energy",
     icon: "🌱",
-    title: "Sustainable Energy Technologies",
+    title: "Barqaror energiya texnologiyalari",
     prompt:
-      "Explain sustainable energy technologies including solar, wind, storage, and grid modernization with real-world examples.",
+      "Barqaror energiya texnologiyalarini tushuntiring, jumladan quyosh, shamol, saqlash va tarmoq modernizatsiyasi, real hayotiy misollar bilan.",
     slides: 5,
-    language: "en-US",
+    language: "uz-UZ",
   },
   {
     id: "security",
     icon: "🔒",
-    title: "Digital Security Best Practices",
+    title: "Raqamli xavfsizlik bo'yicha eng yaxshi amaliyotlar",
     prompt:
-      "Outline digital security best practices for teams: authentication, encryption, incident response, and user training.",
+      "Jamoalar uchun raqamli xavfsizlik bo'yicha eng yaxshi amaliyotlarni ko'rsatib bering: autentifikatsiya, shifrlash, hodisalarga javob berish va foydalanuvchilarni o'qitish.",
     slides: 5,
-    language: "en-US",
+    language: "uz-UZ",
   },
 ];

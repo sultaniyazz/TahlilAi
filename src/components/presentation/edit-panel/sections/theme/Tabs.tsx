@@ -23,7 +23,7 @@ export function ThemeModalTabs({
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          ALLWEONE
+          Built-in
         </button>
         <button
           onClick={() => onTabChange("public")}

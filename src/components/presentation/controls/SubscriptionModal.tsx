@@ -20,7 +20,7 @@ export function SubscriptionModal({
       period: "/month",
       features: [
         "Unlimited AI creations",
-        "Remove ALLWEONE® branding",
+        "Remove branding",
         "Advanced animations",
         "Advanced AI image models",
       ],
@@ -33,7 +33,7 @@ export function SubscriptionModal({
         "Everything in Plus",
         "Premium AI image models",
         "Custom branding and fonts",
-        "Detailed analytics",
+        "batafsil analytics",
         "API access",
       ],
       popular: true,
@@ -56,7 +56,7 @@ export function SubscriptionModal({
       <DialogContent className="z-100 max-w-6xl gap-0 p-0">
         <div className="border-b px-8 pt-8 pb-6">
           <h2 className="text-3xl font-semibold tracking-tight">
-            Upgrade to ALLWEONE® Presentation AI
+            Upgrade to TahlilAi Presentation
           </h2>
           <p className="mt-2 text-muted-foreground">
             Choose the plan that works best for you

@@ -101,7 +101,7 @@ export function GenerateImageDialogContent({
       <AlertDialogHeader>
         <AlertDialogTitle>Generate Image with AI</AlertDialogTitle>
         <AlertDialogDescription>
-          Enter a detailed description of the image you want to generate
+          Enter a batafsil description of the image you want to generate
         </AlertDialogDescription>
       </AlertDialogHeader>
 
