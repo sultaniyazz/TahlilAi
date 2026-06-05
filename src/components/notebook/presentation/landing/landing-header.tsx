@@ -1,18 +1,32 @@
 "use client";
 
+import { getUserStars } from "@/app/_actions/stars/starActions";
+import { StarBalanceBadge } from "@/components/stars/StarCostPreview";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useLoginModal } from "@/stores/useLoginModal";
+import { useSettingsSheet } from "@/stores/useSettingsSheet";
+import { useQuery } from "@tanstack/react-query";
+import { LogOut, Moon, Settings, Sparkles, Star, Sun } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
-import { Github, Moon, Sparkles, Star, Sun } from "lucide-react";
 import * as motion from "motion/react-client";
 import Link from "next/link";
 import { fadeIn } from "./landing-motion";
 
 const NAV_ITEMS = [
-  { label: "Xususiyatlar", href: "#features" },
-  { label: "Jamoa", href: "#community" },
+  { label: "Features", href: "#features" },
   { label: "Demo", href: "#demo" },
-  { label: "Narxlar", href: "#pricing" },
+  { label: "Pricing", href: "#pricing" },
 ] as const;
 
 function HeaderThemeToggle() {
@@ -34,13 +48,25 @@ function HeaderThemeToggle() {
 }
 
 export function LandingHeader() {
+  const { data: session, status } = useSession();
+  const { open: openLoginModal } = useLoginModal();
+  const { open: openSettings } = useSettingsSheet();
+
+  const { data: starsData } = useQuery({
+    queryKey: ["user-stars"],
+    queryFn: getUserStars,
+    enabled: status === "authenticated",
+  });
+
   const scrollToSection = (href: string) => {
     const section = document.querySelector(href);
-
     if (section) {
       section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
+
+  const stars = starsData?.stars ?? 100;
+  const isLoggedIn = status === "authenticated" && session?.user;
 
   return (
     <motion.header
@@ -86,32 +112,74 @@ export function LandingHeader() {
         <div className="flex items-center gap-2 sm:gap-3">
           <HeaderThemeToggle />
 
-          <motion.div
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ duration: 0.2 }}
-            className="hidden items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-1.5 text-sm font-medium sm:flex"
-          >
-            <Star className="h-3.5 w-3.5 fill-current" />
-            <span>2.8k</span>
-          </motion.div>
+          {isLoggedIn ? (
+            <>
+              <StarBalanceBadge stars={stars} />
 
-          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-            <Button
-              asChild
-              size="sm"
-              className="gap-2 shadow-md transition-shadow duration-300 hover:shadow-lg"
-            >
-              <a
-                href="https://github.com/sultaniyazz/TahlilAi"
-                target="_blank"
-                rel="noreferrer"
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="relative h-9 w-9 rounded-full p-0"
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={session.user.image ?? undefined} />
+                      <AvatarFallback>
+                        {session.user.name?.[0]?.toUpperCase() ?? "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-normal">
+                    <p className="font-medium">{session.user.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {session.user.email}
+                    </p>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/presentation">My Presentations</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => openSettings("profile")}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => openSettings("plan")}>
+                    Billing & Plan
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => openSettings("history")}>
+                    <Star className="mr-2 h-4 w-4" />
+                    Star History
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onClick={() => signOut({ callbackUrl: "/presentation" })}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={openLoginModal}
               >
-                <Github className="h-4 w-4" />
-                <span className="hidden sm:inline">Star on GitHub</span>
-              </a>
-            </Button>
-          </motion.div>
+                Log in
+              </Button>
+              <Button type="button" size="sm" onClick={openLoginModal}>
+                Get Started
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </motion.header>

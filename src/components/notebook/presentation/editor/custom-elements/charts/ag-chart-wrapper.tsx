@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { type AgChartOptions } from "ag-charts-community";
-import { AgCharts } from "ag-charts-react";
+import { AgCharts } from "@/lib/ag-charts-react-wrapper";
 
 export interface AgChartWrapperProps {
   options: AgChartOptions;

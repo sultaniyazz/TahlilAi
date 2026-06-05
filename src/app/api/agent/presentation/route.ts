@@ -8,7 +8,7 @@ import {
   ensureModelIsReady,
 } from "@/lib/modelPicker";
 import { createLogger } from "@/lib/observability/logger";
-import { auth } from "@/server/auth";
+import { guardAiRoute } from "@/lib/api-guards";
 import { toBaseMessages, toUIMessageStream } from "@ai-sdk/langchain";
 import { type HumanMessage } from "@langchain/core/messages";
 import { Command } from "@langchain/langgraph";
@@ -49,15 +49,15 @@ export async function POST(req: Request) {
       modelProvider: modelProvider ?? DEFAULT_MODEL_PROVIDER,
       modelId: modelId || DEFAULT_OPENROUTER_MODEL,
     });
-    const session = await auth();
-
-    if (!session?.user) {
-      routeLogger.warn("Presentation agent request rejected: unauthorized", {
+    const guard = await guardAiRoute();
+    if (guard.error) {
+      routeLogger.warn("Presentation agent request rejected", {
         requestId,
         presentationId: id,
       });
-      return new Response("Unauthorized", { status: 401 });
+      return guard.error;
     }
+    const { session } = guard;
 
     await ensureCheckpointerSetup();
     try {

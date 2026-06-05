@@ -89,20 +89,20 @@ export function SharedGifSearchControls({
         <div className="relative flex-1">
           <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search GIFs on Giphy..."
+            placeholder="Giphy'da GIF qidiring..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             className="pl-9"
           />
         </div>
-        <Button onClick={handleSearch}>Search</Button>
+        <Button onClick={handleSearch}>Qidirish</Button>
         {searchQuery && (
           <Button
             variant="outline"
             size="icon"
             onClick={handleShowTrending}
-            title="Show Trending"
+            title="Trendlarni ko'rsatish"
           >
             <TrendingUp className="h-4 w-4" />
           </Button>
@@ -113,13 +113,12 @@ export function SharedGifSearchControls({
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         {searchQuery ? (
           <span>
-            Results for &quot;<span className="font-medium">{searchQuery}</span>
-            &quot;
+            {`"${searchQuery}" uchun natijalar`}
           </span>
         ) : (
           <span className="flex items-center gap-1">
             <TrendingUp className="h-3 w-3" />
-            Trending GIFs
+            Trenddagi GIFlar
           </span>
         )}
       </div>
@@ -204,7 +203,7 @@ export function SharedGifSearchControls({
           {/* Empty state */}
           {!isLoading && gifs.length === 0 && (
             <div className="flex h-40 flex-col items-center justify-center text-muted-foreground">
-              <p className="text-sm">No GIFs found</p>
+              <p className="text-sm">GIF topilmadi</p>
             </div>
           )}
         </div>

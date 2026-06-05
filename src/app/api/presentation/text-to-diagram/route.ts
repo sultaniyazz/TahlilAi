@@ -1,6 +1,6 @@
 import { templates } from "@/constants/antv-templates";
 import { modelPicker } from "@/lib/modelPicker";
-import { auth } from "@/server/auth";
+import { guardAiRoute } from "@/lib/api-guards";
 import { toUIMessageStream } from "@ai-sdk/langchain";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
@@ -193,10 +193,9 @@ const diagramChain = RunnableSequence.from([
 export async function POST(req: Request) {
   console.log("I got called");
   try {
-    const session = await auth();
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const guard = await guardAiRoute();
+    if (guard.error) return guard.error;
+    const { session } = guard;
 
     const { prompt } = (await req.json()) as { prompt: string };
 

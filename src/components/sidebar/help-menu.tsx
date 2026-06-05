@@ -40,14 +40,14 @@ export function HelpMenu({
             size="icon"
             className="size-9 rounded-full bg-transparent text-sm"
           >
-            ?<span className="sr-only">Open help menu</span>
+            ?<span className="sr-only">Yordam menyusini ochish</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           {shouldShowKeyboardShortcuts ? (
             <DropdownMenuItem onClick={() => setKeyboardShortcutsOpen(true)}>
               <Keyboard className="mr-3 h-5 w-5" />
-              <span>Keyboard shortcuts</span>
+              <span>Klaviatura yorliqlari</span>
             </DropdownMenuItem>
           ) : null}
 
@@ -59,14 +59,14 @@ export function HelpMenu({
               className="flex items-center"
             >
               <ExternalLink className="mr-3 h-5 w-5" />
-              <span>Visit GitHub</span>
+              <span>GitHub'ga tashrif buyuring</span>
             </a>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
 
           <div className="px-2 py-2 text-xs text-muted-foreground">
-            TahlilAi Presentation
+            TahlilAi taqdimoti
           </div>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -12,7 +12,7 @@ import {
 } from "@/lib/modelPicker";
 import { createLogger } from "@/lib/observability/logger";
 import { logger } from "@/lib/observability/server/logger";
-import { auth } from "@/server/auth";
+import { guardAiRoute } from "@/lib/api-guards";
 import { toBaseMessages, toUIMessageStream } from "@ai-sdk/langchain";
 import {
   createUIMessageStreamResponse,
@@ -160,11 +160,13 @@ function getErrorStatus(error: unknown): number | null {
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
-    return error.message;
+    const message = error.message || "Unknown error";
+    const stack = error.stack ? error.stack.split('\n').slice(0, 3).join('\n') : '';
+    return stack ? `${message}\n${stack}` : message;
   }
 
   if (typeof Response !== "undefined" && error instanceof Response) {
-    return `${error.status} ${error.statusText}`;
+    return `HTTP ${error.status} ${error.statusText}`;
   }
 
   if (
@@ -178,6 +180,19 @@ function getErrorMessage(error: unknown): string {
 
   if (typeof error === "string") {
     return error;
+  }
+
+  // Provide better diagnostics for empty objects
+  if (error && typeof error === "object") {
+    const keys = Object.keys(error);
+    if (keys.length === 0) {
+      return "Unknown error (empty error object)";
+    }
+    try {
+      return JSON.stringify(error, Object.keys(error), 2);
+    } catch {
+      return String(error);
+    }
   }
 
   try {
@@ -204,14 +219,15 @@ export async function POST(req: Request) {
 
   try {
     routeLogger.info("Outline request received", { requestId });
-    const session = await auth();
-    if (!session) {
-      routeLogger.warn("Outline request rejected: unauthorized", { requestId });
+    const guard = await guardAiRoute({ checkStars: true });
+    if (guard.error) {
+      routeLogger.warn("Outline request rejected", { requestId });
       span.event("tahlilai.api.request_rejected", {
         "tahlilai.validation.error": "unauthorized",
       });
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return guard.error;
     }
+    const { session } = guard;
 
     const request = (await req.json()) as OutlineRequest;
     const { messages = [] } = request;
@@ -344,14 +360,36 @@ export async function POST(req: Request) {
       numberOfCards,
       webSearch,
     });
-    const stream = await agent.stream(
-      {
-        messages: await toBaseMessages(messages),
-      },
-      {
-        streamMode: ["values", "messages"],
-      },
-    );
+    
+    let stream: unknown;
+    try {
+      stream = await agent.stream(
+        {
+          messages: await toBaseMessages(messages),
+        },
+        {
+          streamMode: ["values", "messages"],
+        },
+      );
+    } catch (streamError) {
+      routeLogger.error("Failed to create agent stream", streamError, {
+        requestId,
+        modelProvider,
+        modelId: modelId || DEFAULT_OPENROUTER_MODEL,
+        numberOfCards,
+        webSearch,
+      });
+      throw streamError;
+    }
+
+    if (!stream) {
+      const streamErr = new Error("Agent stream is null or undefined");
+      routeLogger.error("Invalid stream returned from agent", streamErr, {
+        requestId,
+        modelProvider,
+      });
+      throw streamErr;
+    }
 
     routeLogger.info("Presentation outline stream created", {
       requestId,
@@ -359,8 +397,20 @@ export async function POST(req: Request) {
       modelId: modelId || DEFAULT_OPENROUTER_MODEL,
     });
     span.event("tahlilai.api.response_stream_created");
+    
+    let uiMessageStream: unknown;
+    try {
+      uiMessageStream = toUIMessageStream(stream);
+    } catch (transformError) {
+      routeLogger.error("Failed to transform stream to UI message stream", transformError, {
+        requestId,
+        modelProvider,
+      });
+      throw transformError;
+    }
+    
     return createUIMessageStreamResponse({
-      stream: toUIMessageStream(stream),
+      stream: uiMessageStream,
     });
   } catch (error) {
     const status = getErrorStatus(error) ?? 500;

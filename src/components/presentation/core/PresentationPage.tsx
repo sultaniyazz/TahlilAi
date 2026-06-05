@@ -23,10 +23,6 @@ import { ThemeFontLoader } from "../shared/ThemeFontLoader";
 import { SlideSidebar } from "../sidebar/SlideSidebar";
 import { SlidesContainer } from "../slides/SlidesContainer";
 
-import { initAgCharts } from "@/lib/ag-charts-setup";
-
-initAgCharts();
-
 export default function PresentationPage({ readOnly = false }: { readOnly?: boolean }) {
   const params = useParams();
   const id = params.id as string;

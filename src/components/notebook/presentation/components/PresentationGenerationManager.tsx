@@ -265,7 +265,7 @@ export function PresentationGenerationManager() {
 
   // Split slides that have too much text into multiple slides.
   // Keeps rootImage on the first slide and moves text content across new slides.
-  function splitLongSlides(slides: typeof mergedSlides): typeof mergedSlides {
+  function splitLongSlides(slides: any[]): any[] {
     const MAX_CHARS = 900; // soft threshold for slide text length
 
     const getNodeText = (node: any): string => {
@@ -279,7 +279,7 @@ export function PresentationGenerationManager() {
       return node.children ? JSON.stringify(node.children).replace(/\[|\]|\{|\}|\"/g, "") : "";
     };
 
-    const result: typeof mergedSlides = [] as any;
+    const result: any[] = [];
 
     for (const slide of slides) {
       // Compute total text length excluding image elements

@@ -59,8 +59,8 @@ export default function ButtonElement(
   })();
 
   return (
-    <PlateElement {...props}>
-      <div
+    <PlateElement {...props} as="span">
+      <span
         className={cn(
           "presentation-element",
           commonClasses,
@@ -70,7 +70,7 @@ export default function ButtonElement(
         style={style}
       >
         {props.children}
-      </div>
+      </span>
     </PlateElement>
   );
 }

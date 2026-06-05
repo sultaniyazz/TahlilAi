@@ -1,6 +1,8 @@
 "use client";
 
 import { usePresentationState } from "@/states/presentation-state";
+import { useLoginModal } from "@/stores/useLoginModal";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -9,6 +11,8 @@ const MAX_PROMPT_LENGTH = 1200;
 
 export function useLandingCreate() {
   const router = useRouter();
+  const { status } = useSession();
+  const { open: openLoginModal } = useLoginModal();
   const [isCreating, setIsCreating] = useState(false);
 
   const {
@@ -29,6 +33,11 @@ export function useLandingCreate() {
   const createPresentation = async () => {
     const prompt = presentationInput.trim();
     if (!prompt) {
+      return;
+    }
+
+    if (status !== "authenticated") {
+      openLoginModal();
       return;
     }
 

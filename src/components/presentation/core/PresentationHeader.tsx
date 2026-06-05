@@ -1,4 +1,5 @@
 "use client";
+import { t } from "@/lib/translations";
 import { Brain } from "@/components/ui/icons";
 import { usePresentationState } from "@/states/presentation-state";
 import Link from "next/link";
@@ -34,7 +35,7 @@ export default function PresentationHeader({ title }: PresentationHeaderProps) {
   );
 
   const [presentationTitle, setPresentationTitle] =
-    useState<string>("Presentation");
+    useState<string>(t("presentation.title"));
   const pathname = usePathname();
 
   const isPresentationPage =
@@ -140,11 +141,11 @@ export default function PresentationHeader({ title }: PresentationHeaderProps) {
           <Button
             variant="ghost"
             className="h-9 gap-1.5"
-            title="Theme"
+            title={t("presentation.theme")}
             onClick={() => setActiveRightPanel("theme")}
           >
             <Palette className="size-4" />
-            <span className="hidden sm:inline">Theme</span>
+            <span className="hidden sm:inline">{t("presentation.theme")}</span>
           </Button>
         )}
 
@@ -163,7 +164,7 @@ export default function PresentationHeader({ title }: PresentationHeaderProps) {
             className="gap-2"
           >
             <Bot className="h-4 w-4" />
-            <span className="hidden sm:inline">Agent</span>
+            <span className="hidden sm:inline">{t("presentation.agent")}</span>
           </Button>
         )}
 

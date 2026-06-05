@@ -28,14 +28,14 @@ export default function SignOut() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-slate-900 px-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Sign Out</CardTitle>
-          <CardDescription>Are you sure you want to sign out?</CardDescription>
+          <CardTitle className="text-2xl font-bold">Hisobdan chiqish</CardTitle>
+          <CardDescription>Rostdan ham hisobingizdan chiqmoqchimisiz?</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="flex flex-col space-y-4">
-            <Button onClick={handleSignOut}>Yes, sign me out</Button>
+            <Button onClick={handleSignOut}>Ha, chiqaman</Button>
             <Button variant="outline" onClick={handleCancel}>
-              No, take me back
+              Yo'q, ortga qaytaman
             </Button>
           </div>
         </CardContent>

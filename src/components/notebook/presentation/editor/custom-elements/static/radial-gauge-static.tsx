@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { type AgGaugeOptions } from "ag-charts-community";
-import { AgGauge } from "ag-charts-react";
+import { AgGauge } from "@/lib/ag-charts-react-wrapper";
 import { SlateElement, type SlateElementProps } from "platejs/static";
 import { getChartColor } from "../charts/ag-chart-wrapper";
 

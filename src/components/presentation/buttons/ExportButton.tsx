@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -45,15 +46,15 @@ export function ExportButton() {
         usePresentationState.getState();
 
       if (slides.length === 0) {
-        throw new Error("No slides to export");
+        throw new Error(t("errors.noSlidesToExport"));
       }
 
       const { update, dismiss } = toast({
-        title: "Exporting Presentation",
+        title: t("presentation.exportPresentation"),
         description: (
           <div className="flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Scanning slides...</span>
+            <span>{t("errors.scanningSlides")}</span>
           </div>
         ),
         duration: Infinity,
@@ -62,16 +63,14 @@ export function ExportButton() {
       const scanResults = await scanAllSlides(slides);
 
       if (scanResults.length === 0) {
-        throw new Error(
-          "Failed to scan slides. Please ensure all slides are visible on the page.",
-        );
+        throw new Error(t("errors.failedToScan"));
       }
 
       update({
         description: (
           <div className="flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Generating PowerPoint...</span>
+            <span>{t("errors.generatingPowerPoint")}</span>
           </div>
         ),
       });
@@ -83,7 +82,7 @@ export function ExportButton() {
       );
 
       update({
-        title: "Export Complete",
+        title: t("errors.exportComplete"),
         description: (
           <Button
             size="sm"
@@ -95,7 +94,7 @@ export function ExportButton() {
             }}
           >
             <Download className="mr-1 h-4 w-4" />
-            Download PowerPoint
+            {t("common.download")} PowerPoint
           </Button>
         ),
         duration: 15000,
@@ -104,11 +103,11 @@ export function ExportButton() {
       setIsExportDialogOpen(false);
     } catch (error) {
       toast({
-        title: "Export Failed",
+        title: t("errors.exportFailed"),
         description:
           error instanceof Error
             ? error.message
-            : "There was an error exporting your presentation.",
+            : t("errors.failedToExport"),
         variant: "destructive",
       });
       console.error("Export error:", error);
@@ -124,23 +123,23 @@ export function ExportButton() {
           variant="ghost"
           size="sm"
           className="relative h-9 w-9 px-0 text-muted-foreground hover:text-foreground sm:h-9 sm:w-auto sm:gap-1.5 sm:px-3"
-          aria-label="Export presentation"
+          aria-label={t("presentation.exportPresentation")}
         >
           <SaveStatus className="absolute top-1 right-1 sm:static" />
           <Download className="h-4 w-4 sm:mr-1" />
-          <span className="hidden sm:inline">Export</span>
+          <span className="hidden sm:inline">{t("presentation.export")}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Export Presentation</DialogTitle>
+          <DialogTitle>{t("presentation.exportPresentation")}</DialogTitle>
           <DialogDescription>
-            Export your presentation as a PowerPoint file.
+            {t("presentation.exportDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
-          <Label className="mb-2 block">Export Format</Label>
+          <Label className="mb-2 block">{t("presentation.exportFormat")}</Label>
           <RadioGroup value="pptx" className="grid gap-4">
             <div className="flex cursor-pointer items-start space-x-4 rounded-xl border border-primary bg-accent/50 p-4 ring-1 ring-primary">
               <RadioGroupItem value="pptx" id="pptx" className="mt-3" />
@@ -157,7 +156,7 @@ export function ExportButton() {
                       PowerPoint (.pptx)
                     </Label>
                     <p className="text-sm leading-snug text-muted-foreground">
-                      Standard PowerPoint file
+                      {t("presentation.exportAsPowerPoint")}
                     </p>
                   </div>
                 </div>
@@ -173,16 +172,16 @@ export function ExportButton() {
             onClick={() => setIsExportDialogOpen(false)}
             disabled={isExporting}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="button" onClick={handleExport} disabled={isExporting}>
             {isExporting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Exporting...
+                {t("presentation.exportPresentation")}...
               </>
             ) : (
-              "Export to PowerPoint"
+              t("presentation.exportAsPowerPoint")
             )}
           </Button>
         </DialogFooter>

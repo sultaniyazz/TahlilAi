@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { type AgGaugeOptions } from "ag-charts-community";
-import { AgGauge } from "ag-charts-react";
+import { AgGauge } from "@/lib/ag-charts-react-wrapper";
 import { PlateElement, type PlateElementProps } from "platejs/react";
 import { type TChartNode } from "../plugins/chart-plugin";
 import { buildChartConfigOptions } from "./chart-utils";

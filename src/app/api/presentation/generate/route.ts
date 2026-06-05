@@ -6,7 +6,7 @@ import {
   modelPicker,
 } from "@/lib/modelPicker";
 import { createLogger } from "@/lib/observability/logger";
-import { auth } from "@/server/auth";
+import { guardAiRoute } from "@/lib/api-guards";
 import { toUIMessageStream } from "@ai-sdk/langchain";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
@@ -218,7 +218,7 @@ const SLIDES_TEMPLATE = `You are an expert presentation designer. Create an enga
 <!--Every slide must follow this structure (layout determines where the image appears) -->
 <SECTION layout="left|right|vertical">
   <!-- Required: include ONE layout component per slide -->
-  <!-- Required: include at least one batafsil image query -->
+  <!-- Required: include at least one batafsil image query or infographic element on every slide -->
   </SECTION>
   <!-- More SECTION tags... -->
 </PRESENTATION>
@@ -232,7 +232,10 @@ const SLIDES_TEMPLATE = `You are an expert presentation designer. Create an enga
 Vary layouts throughout for visual interest.
 
 ---
-
+**MANDATORY SLIDES**
+- Slide 1 must be an introduction slide with the presentation title, a short explanation, the author/account owner name, and an image.
+- The final slide must be a conclusion slide with a summary and an image.
+- These intro and conclusion slides must always be included in every presentation.
 {AVAILABLE_LAYOUTS}
 
 ---
@@ -253,7 +256,23 @@ Vary layouts throughout for visual interest.
 - batafsil: 3-4 sentences per point
 - keng qamrovli: 4-5+ sentences per point
 
+**Slide Consistency:**
+- Keep every slide similar in text length and structure.
+- Avoid long paragraphs or one slide that is much denser than others.
+- Aim for roughly the same number of content items per slide.
+- Each slide should feel visually balanced and concise.
+
+**Infographic Preference:**
+- Use infographic-style layouts whenever possible.
+- Prefer charts, icons, boxes, ticker stats and minimal paragraphs.
+- Do not generate plain text slides only; use visual-rich structures instead.
+- Every slide must contain either an image query or an infographic element.
 **Content Expansion:** For each outline point, add supporting data, real-world examples, and industry context. Do NOT copy outline verbatim.
+
+**Intro/Conclusion Requirement:**
+- Ensure the first slide is a cover/introduction slide with title, one-sentence description, account owner name, and a strong image.
+- Ensure the last slide is a conclusion slide with a clear summary and a relevant image.
+- Always include both intro and conclusion slides, even when using a defined outline.
 ---
 
 # CRITICAL RULES
@@ -421,10 +440,14 @@ function buildCriticalRules(
   if (!templateContext) {
     return `1. Generate **EXACTLY {TOTAL_SLIDES} slides** - no more, no less
 2. Use DIFFERENT layouts for consecutive slides - never repeat
-3. Expand outline content - do NOT copy verbatim
-4. Include batafsil image queries on most slides
-5. Vary SECTION layout attribute (left/right/vertical) throughout
-6. Use ONLY layout tags from AVAILABLE LAYOUTS - unlisted tags cause parsing errors`;
+3. Keep every slide similar in text length and visual density
+4. Expand outline content - do NOT copy verbatim
+5. Use infographic-style layouts whenever possible
+6. Prefer charts, icons, boxes, ticker stats and minimal paragraphs
+7. Do not generate plain text slides only; make every slide visually rich
+8. Include batafsil image queries on most slides
+9. Vary SECTION layout attribute (left/right/vertical) throughout
+10. Use ONLY layout tags from AVAILABLE LAYOUTS - unlisted tags cause parsing errors`;
   }
 
   // Partial template selection
@@ -453,13 +476,12 @@ export async function POST(req: Request) {
 
   try {
     routeLogger.info("Presentation generation request received", { requestId });
-    const session = await auth();
-    if (!session) {
-      routeLogger.warn("Presentation generation request rejected: unauthorized", {
-        requestId,
-      });
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const guard = await guardAiRoute({ checkStars: true });
+    if (guard.error) {
+      routeLogger.warn("Presentation generation request rejected", { requestId });
+      return guard.error;
     }
+    const { session } = guard;
 
     const {
       title,

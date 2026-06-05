@@ -1,14 +1,12 @@
 import { search_tool } from "@/ai/tools/search";
-import { auth } from "@/server/auth";
+import { guardAiRoute } from "@/lib/api-guards";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const guard = await guardAiRoute();
+    if (guard.error) return guard.error;
+    const { session } = guard;
 
     const { query } = (await req.json()) as {
       query?: string;

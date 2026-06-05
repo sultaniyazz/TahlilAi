@@ -168,8 +168,8 @@ export function SharedImageSearchControls({
           <Input
             placeholder={
               mode === "unsplash"
-                ? "Search high-res photos..."
-                : "Search Pixabay Images..."
+                ? "Yuqori aniqlikdagi rasmlarni qidiring..."
+                : "Pixabay rasmlarini qidiring..."
             }
             value={mode === "unsplash" ? unsplashQuery : pixabayQuery}
             onChange={(e) =>
@@ -181,13 +181,13 @@ export function SharedImageSearchControls({
             className="pl-9"
           />
         </div>
-        <Button onClick={handleSearch}>Search</Button>
+        <Button onClick={handleSearch}>Qidirish</Button>
         {mode === "unsplash" && (
           <Button
             variant="outline"
             size="icon"
             onClick={handleRandom}
-            title="Random Search"
+            title="Tasodifiy qidiruv"
           >
             <Dices className="h-4 w-4" />
           </Button>
@@ -255,7 +255,7 @@ export function SharedImageSearchControls({
                           {/* Attribution Overlay */}
                           <div className="pointer-events-none absolute right-0 bottom-0 left-0 bg-black/60 p-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100">
                             <span className="pointer-events-auto">
-                              Photo by{" "}
+                              Foto muallifi{" "}
                               <a
                                 href={`https://unsplash.com/@${r.username}?utm_source=your_app_name&utm_medium=referral`}
                                 target="_blank"
@@ -265,7 +265,7 @@ export function SharedImageSearchControls({
                               >
                                 {r.author}
                               </a>{" "}
-                              on{" "}
+                              da{" "}
                               <a
                                 href={`${r.link || "https://unsplash.com"}?utm_source=your_app_name&utm_medium=referral`}
                                 target="_blank"
@@ -328,7 +328,7 @@ export function SharedImageSearchControls({
                           {r.author && (
                             <div className="pointer-events-none absolute right-0 bottom-0 left-0 bg-black/60 p-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100">
                               <span className="pointer-events-auto">
-                                Photo by {r.author} on{" "}
+                                Foto muallifi {r.author} da{" "}
                                 <a
                                   href={r.link || "https://pixabay.com"}
                                   target="_blank"
@@ -355,7 +355,7 @@ export function SharedImageSearchControls({
                 !unsplashQ.isFetching &&
                 !pixabayQ.isFetching && (
                   <div className="flex h-40 flex-col items-center justify-center text-muted-foreground">
-                    <p className="text-sm">No images found</p>
+                    <p className="text-sm">Rasm topilmadi</p>
                   </div>
                 )}
             </>

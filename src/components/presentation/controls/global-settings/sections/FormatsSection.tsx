@@ -23,22 +23,22 @@ export function FormatsSection() {
   const aspectOptions = useMemo(() => {
     if (currentFormatCategory === "presentation") {
       return [
-        { value: "fluid", label: "Default", sub: "Fluid", icon: "monitor" },
-        { value: "16:9", label: "Traditional", sub: "16:9", icon: "monitor" },
-        { value: "tall", label: "Tall", sub: "85vh", icon: "smartphone" },
+        { value: "fluid", label: "Standart", sub: "Moslashuvchan", icon: "monitor" },
+        { value: "16:9", label: "An'anaviy", sub: "16:9", icon: "monitor" },
+        { value: "tall", label: "Baland", sub: "85vh", icon: "smartphone" },
       ];
     }
     if (currentFormatCategory === "webpage") {
       return [
         {
           value: "fluid",
-          label: "Fluid",
-          sub: "Responsive width",
+          label: "Moslashuvchan",
+          sub: "Mos kenglik",
           icon: "globe",
         },
         {
           value: "16:9",
-          label: "16:9 (wide section)",
+          label: "16:9 (keng bo'lim)",
           sub: "16:9",
           icon: "monitor",
         },
@@ -47,9 +47,9 @@ export function FormatsSection() {
     }
     if (currentFormatCategory === "social") {
       return [
-        { value: "1:1", label: "Square", sub: "1:1", icon: "monitor" },
-        { value: "4:5", label: "Portrait", sub: "4:5", icon: "smartphone" },
-        { value: "9:16", label: "Story", sub: "9:16", icon: "smartphone" },
+        { value: "1:1", label: "Kvadrat", sub: "1:1", icon: "monitor" },
+        { value: "4:5", label: "Portret", sub: "4:5", icon: "smartphone" },
+        { value: "9:16", label: "Hikoya", sub: "9:16", icon: "smartphone" },
       ];
     }
     // document
@@ -122,15 +122,15 @@ export function FormatsSection() {
           }}
         >
           <SelectTrigger className="rounded-full">
-            <SelectValue placeholder="Choose format" />
+            <SelectValue placeholder="Formatni tanlang" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectLabel>Format</SelectLabel>
-              <SelectItem value="presentation">Presentation</SelectItem>
-              {/* <SelectItem value="webpage">Webpage</SelectItem> */}
-              <SelectItem value="document">Document</SelectItem>
-              <SelectItem value="social">Social</SelectItem>
+              <SelectItem value="presentation">Taqdimot</SelectItem>
+              {/* <SelectItem value="webpage">Veb-sahifa</SelectItem> */}
+              <SelectItem value="document">Hujjat</SelectItem>
+              <SelectItem value="social">Ijtimoiy</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>

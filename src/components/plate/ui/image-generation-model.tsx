@@ -59,7 +59,7 @@ export function GenerateImageDialogContent({
 
   const generateImage = async () => {
     if (!prompt.trim()) {
-      toast.error("Please enter a prompt");
+      toast.error("Iltimos, so'rov kiriting");
       return;
     }
 
@@ -67,15 +67,14 @@ export function GenerateImageDialogContent({
 
     try {
       const result = await generateImageAction(prompt, selectedModel);
-
-      if (!result.success) {
-        throw new Error(result.error ?? "Failed to generate image");
-      }
-
       const image = "image" in result ? result.image : undefined;
 
+      if (!result.success) {
+        throw new Error(result.error ?? "Rasm yaratib bo'lmadi");
+      }
+
       if (!image?.url) {
-        throw new Error("Failed to generate image");
+        throw new Error("Rasmni yaratib bo'lmadi");
       }
 
       editor.tf.insertNodes({
@@ -86,10 +85,10 @@ export function GenerateImageDialogContent({
       });
 
       setOpen(false);
-      toast.success("Image generated successfully!");
+      toast.success("Rasm muvaffaqiyatli yaratildi!");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to generate image",
+        error instanceof Error ? error.message : "Rasmni yaratib bo'lmadi",
       );
     } finally {
       setIsGenerating(false);
@@ -99,15 +98,15 @@ export function GenerateImageDialogContent({
   return (
     <>
       <AlertDialogHeader>
-        <AlertDialogTitle>Generate Image with AI</AlertDialogTitle>
+        <AlertDialogTitle>AI yordamida rasm yaratish</AlertDialogTitle>
         <AlertDialogDescription>
-          Enter a batafsil description of the image you want to generate
+          Yaratmoqchi bo'lgan rasm tavsifini kiriting
         </AlertDialogDescription>
       </AlertDialogHeader>
 
       <div className="space-y-4">
         <div className="relative w-full">
-          <Label htmlFor="prompt">Prompt</Label>
+          <Label htmlFor="prompt">So'rov</Label>
           <Input
             id="prompt"
             className="w-full"
@@ -126,7 +125,7 @@ export function GenerateImageDialogContent({
           <div className="mt-4 space-y-3">
             <div className="h-64 w-full animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800" />
             <div className="text-center text-sm text-gray-500">
-              Generating your image...
+              Sizning rasmingiz yaratilmoqda...
             </div>
           </div>
         )}
@@ -139,7 +138,7 @@ export function GenerateImageDialogContent({
           disabled={isGenerating}
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a model" />
+            <SelectValue placeholder="Modelni tanlang" />
           </SelectTrigger>
           <SelectContent>
             {MODEL_OPTIONS.map((option) => (
@@ -150,7 +149,7 @@ export function GenerateImageDialogContent({
           </SelectContent>
         </Select>
         <div className="flex gap-2">
-          <AlertDialogCancel disabled={isGenerating}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isGenerating}>Bekor qilish</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
@@ -158,7 +157,7 @@ export function GenerateImageDialogContent({
             }}
             disabled={isGenerating}
           >
-            {isGenerating ? "Generating..." : "Generate"}
+            {isGenerating ? "Yaratilmoqda..." : "Yaratish"}
           </AlertDialogAction>
         </div>
       </AlertDialogFooter>

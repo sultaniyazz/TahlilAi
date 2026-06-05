@@ -7,7 +7,7 @@ import {
 } from "@/lib/modelPicker";
 import { createLogger } from "@/lib/observability/logger";
 import { toUIMessageStream } from "@ai-sdk/langchain";
-import { auth } from "@/server/auth";
+import { guardAiRoute } from "@/lib/api-guards";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { NextResponse } from "next/server";
@@ -258,13 +258,12 @@ export async function POST(req: Request) {
 
   try {
     routeLogger.info("Single slide generation request received", { requestId });
-    const session = await auth();
-    if (!session) {
-      routeLogger.warn("Single slide generation request rejected: unauthorized", {
-        requestId,
-      });
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const guard = await guardAiRoute();
+    if (guard.error) {
+      routeLogger.warn("Single slide generation request rejected", { requestId });
+      return guard.error;
     }
+    const { session } = guard;
 
     const {
       prompt,

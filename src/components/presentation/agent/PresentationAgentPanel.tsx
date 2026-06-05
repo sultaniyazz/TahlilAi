@@ -326,7 +326,7 @@ export function PresentationAgentPanel() {
               ) : (
                 <BrushCleaning className="h-4 w-4" />
               )}
-              Clear
+              Tozalash
             </Button>
 
             <Button

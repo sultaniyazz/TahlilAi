@@ -101,7 +101,7 @@ function SlideSidebarBase({
       <div className="flex flex-col space-y-4 p-4">
         {!isSheetVariant && (
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-sm font-semibold">Slides</h2>
+            <h2 className="text-sm font-semibold">Slaydlar</h2>
 
             <Button
               onClick={() => setIsSidebarCollapsed(true)}
@@ -156,7 +156,7 @@ function SlideSidebarBase({
             <button
               onClick={() => setIsSidebarCollapsed(false)}
               className="rounded-2xl border border-border/70 bg-background/95 px-3 py-4 shadow-lg backdrop-blur-sm"
-              aria-label="Open slides sidebar"
+              aria-label="Slaydlar panelini ochish"
             >
               <PanelLeftOpen className="size-5 text-primary" />
             </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/translations";
 import { togglePresentationPublicStatus } from "@/app/_actions/presentation/sharedPresentationActions";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,18 +52,18 @@ export function ShareButton() {
         setShareLink(
           `${window.location.origin}/share/presentation/${currentPresentationId}`,
         );
-        toast.success("Presentation is now shared publicly");
+        toast.success(t("errors.presentationNowPublic"));
         return;
       }
 
       setShareLink("");
-      toast.success("Presentation is now private");
+      toast.success(t("errors.presentationNowPrivate"));
     },
     onError: (error) => {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to update sharing status",
+          : t("errors.failedToUpdateShare"),
       );
     },
   });
@@ -71,10 +72,10 @@ export function ShareButton() {
     try {
       await navigator.clipboard.writeText(shareLink);
       setCopied(true);
-      toast.success("Link copied to clipboard");
+      toast.success(t("errors.linkCopied"));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Failed to copy link");
+      toast.error(t("errors.failedToCopyLink"));
     }
   };
 
@@ -87,15 +88,15 @@ export function ShareButton() {
         onClick={() => setIsShareDialogOpen(true)}
       >
         <Share className="h-4 w-4" />
-        <span className="hidden sm:inline">Share</span>
+        <span className="hidden sm:inline">{t("presentation.share")}</span>
       </Button>
 
       <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Share presentation</DialogTitle>
+            <DialogTitle>{t("presentation.sharePresentation")}</DialogTitle>
             <DialogDescription>
-              Make your presentation public to share it with others.
+              {t("presentation.sharePresentation")}
             </DialogDescription>
           </DialogHeader>
 
@@ -108,8 +109,8 @@ export function ShareButton() {
             />
             <Label htmlFor="public-mode">
               {isPublic
-                ? "Public - Anyone with the link can view"
-                : "Private - Only you can access"}
+                ? t("presentation.publicAccessible")
+                : t("presentation.privateAccessible")}
             </Label>
           </div>
 
@@ -117,7 +118,7 @@ export function ShareButton() {
             <div className="flex items-center space-x-2">
               <div className="grid flex-1 gap-2">
                 <Label htmlFor="share-link" className="sr-only">
-                  Link
+                  {t("common.link")}
                 </Label>
                 <Input id="share-link" readOnly value={shareLink} className="h-9" />
               </div>
@@ -133,7 +134,7 @@ export function ShareButton() {
               variant="secondary"
               onClick={() => setIsShareDialogOpen(false)}
             >
-              Close
+              {t("common.close")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,6 +1,12 @@
 "use client";
 
+import { getUserStars } from "@/app/_actions/stars/starActions";
+import { StarCostPreview } from "@/components/stars/StarCostPreview";
 import { Button } from "@/components/ui/button";
+import { calculateStarCost } from "@/config/stars";
+import { usePresentationState } from "@/states/presentation-state";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import {
   Select,
   SelectContent,
@@ -14,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { Globe, Loader2, Shuffle, Wand2 } from "lucide-react";
 import * as motion from "motion/react-client";
 import { useReducedMotion } from "motion/react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { EXAMPLE_PROMPTS } from "./example-prompts";
 import {
   fadeInUp,
@@ -37,6 +43,8 @@ const LANGUAGES = [
   ["es", "Ispancha"],
   ["fr", "Fransuzcha"],
 ] as const;
+
+const SLIDES_OPTIONS = Array.from({ length: 12 }, (_, index) => `${index + 1}`);
 
 function shuffle<T>(items: readonly T[]): T[] {
   const copy = [...items];
@@ -127,6 +135,14 @@ function AnimatedHeadline({
 export function LandingHero() {
   const shouldReduceMotion = useReducedMotion();
 
+  const { status } = useSession();
+  const { textContent } = usePresentationState();
+  const { data: starsData } = useQuery({
+    queryKey: ["user-stars"],
+    queryFn: getUserStars,
+    enabled: status === "authenticated",
+  });
+
   const {
     presentationInput,
     setPresentationInput,
@@ -142,15 +158,23 @@ export function LandingHero() {
     maxPromptLength,
   } = useLandingCreate();
 
+  const userStars = starsData?.stars ?? null;
+  const starCost = calculateStarCost({ slides: numSlides, textContent });
+  const insufficientStars =
+    status === "authenticated" &&
+    userStars !== null &&
+    userStars < starCost;
+
   const [examples, setExamples] = useState(EXAMPLE_PROMPTS);
-  const slidesOptions = useMemo(
-    () => Array.from({ length: 12 }, (_, index) => `${index + 1}`),
-    [],
-  );
 
   const enterVariant = shouldReduceMotion ? reducedFadeInUp : fadeInUp;
   const cardHover = shouldReduceMotion ? reducedHoverLift : hoverLift;
   const btnHover = shouldReduceMotion ? reducedHoverScale : hoverScale;
+
+  const getLanguageLabel = (langCode: string) => {
+    const lang = LANGUAGES.find(([value]) => value === langCode);
+    return lang ? lang[1] : langCode;
+  };
 
   return (
     <section className="relative overflow-hidden px-4 pb-20 pt-16 sm:px-6 sm:pt-20">
@@ -195,6 +219,16 @@ export function LandingHero() {
             {presentationInput.length}/{maxPromptLength} belgi
           </div>
 
+          {status === "authenticated" && (
+            <div className="mt-4 border-t border-border/50 pt-4">
+              <StarCostPreview
+                slides={numSlides}
+                textContent={textContent}
+                userStars={userStars}
+              />
+            </div>
+          )}
+
           <div className="mt-4 flex flex-col gap-4 border-t border-border/50 pt-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
               <Select
@@ -208,7 +242,7 @@ export function LandingHero() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {slidesOptions.map((option) => (
+                  {SLIDES_OPTIONS.map((option) => (
                     <SelectItem key={option} value={option}>
                       {option} ta slayd
                     </SelectItem>
@@ -254,7 +288,9 @@ export function LandingHero() {
                 size="lg"
                 type="button"
                 className="w-full gap-2 bg-foreground text-background shadow-md transition-all duration-300 hover:bg-foreground/90 hover:shadow-lg sm:w-auto"
-                disabled={isCreating || !presentationInput.trim()}
+                disabled={
+                  isCreating || !presentationInput.trim() || insufficientStars
+                }
                 onClick={() => void createPresentation()}
               >
                 {isCreating ? (
@@ -323,7 +359,7 @@ export function LandingHero() {
                   {example.title}
                 </span>
                 <span className="mt-3 text-xs text-muted-foreground">
-                  {example.slides} ta slayd | O'zbekcha
+                  {example.slides} ta slayd | {getLanguageLabel(example.language)}
                 </span>
               </motion.button>
             ))}

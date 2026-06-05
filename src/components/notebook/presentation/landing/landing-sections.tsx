@@ -217,8 +217,8 @@ export function LandingOpenSource() {
           transition={SPRING_BUTTON}
         >
           <Button asChild variant="outline" size="lg" className="gap-2">
-            <a
-              href="https://github.com/"
+              <a // GitHub havolasi to'g'irlandi
+                href="https://github.com/sultaniyazz/TahlilAi"
               target="_blank"
               rel="noreferrer"
               aria-label="GitHub'da hissa qo'shish"
@@ -287,7 +287,7 @@ const PLANS = [
   {
     name: "Pro",
     description: "Professional taqdimotlar uchun kerakli hamma narsa",
-    price: "$0",
+    price: "$9", // Pro plan uchun realroq narx yoki "Tez kunda"
     period: "oyiga",
     cta: "Bepul sinab ko'rish",
     highlighted: true,
@@ -379,14 +379,15 @@ export function LandingPricing() {
               <AnimatePresence mode="wait">
                 {isExpanded && (
                   <motion.ul
-                    key="extra-features"
+                    key={`extra-features-${plan.name}`}
+                    id={`plan-features-${plan.name}`}
                     initial={{ opacity: 0, scale: 0.9, filter: "blur(8px)", y: 10 }}
                     animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, filter: "blur(4px)", y: -6 }}
                     transition={{ duration: 0.3, ease: LANDING_EASE }}
                     className="mt-2 space-y-2 text-sm"
                   >
-                    {plan.features.slice(3).map((feature) => (
+                    {plan.features.slice(3).map((feature) => ( // Kengaytirilgan funksiyalar ro'yxatidagi belgilash uchun aria-hidden qo'shildi
                       <li key={feature} className="flex gap-2 text-muted-foreground">
                         <span aria-hidden="true">✓</span>
                         {feature}

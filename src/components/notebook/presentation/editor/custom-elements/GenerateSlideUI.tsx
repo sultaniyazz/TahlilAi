@@ -97,7 +97,7 @@ export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
               transition={{ delay: 0.1 }}
               className="mb-4 text-sm font-medium text-slate-500 dark:text-white/50"
             >
-              Generate with AI
+              AI yordamida yaratish
             </motion.p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -105,7 +105,7 @@ export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-medium text-slate-500 dark:text-white/60">
-                      Content
+                      Kontent
                     </span>
                     <Select
                       value={contentType}
@@ -117,8 +117,8 @@ export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
-                        <SelectItem value="Slide">Slide</SelectItem>
-                        <SelectItem value="Infograph">Infograph</SelectItem>
+                          <SelectItem value="Slide">Slayd</SelectItem>
+                          <SelectItem value="Infograph">Infografika</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -127,7 +127,7 @@ export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
                     <>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-medium text-slate-500 dark:text-white/60">
-                          Style
+                          Usul
                         </span>
                         <Select
                           value={imageStyle}
@@ -150,7 +150,7 @@ export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
 
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-medium text-slate-500 dark:text-white/60">
-                          Text density
+                          Matn zichligi
                         </span>
                         <Select
                           value={textDensity}
@@ -178,7 +178,7 @@ export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Describe what you want on this slide..."
+                  placeholder="Bu slaydda nima bo'lishini tavsiflang..."
                   rows={3}
                   className="mt-4 w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-xs focus:border-slate-300 focus:outline-hidden focus:ring-0 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40 dark:focus:border-white/30"
                 />
@@ -194,7 +194,7 @@ export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
                   <Sparkles className="h-4 w-4" />
-                  Generate
+                  Yaratish
                 </motion.button>
 
                 <motion.button
@@ -206,7 +206,7 @@ export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
                   <X className="h-4 w-4" />
-                  Cancel
+                  Bekor qilish
                 </motion.button>
               </div>
             </form>
@@ -222,7 +222,7 @@ export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
           >
             <Loader2 className="h-5 w-5 animate-spin text-slate-500 dark:text-white/50" />
             <span className="text-sm text-slate-500 dark:text-white/50">
-              Generating slide...
+              Slayd yaratilmoqda...
             </span>
             <motion.button
               type="button"
@@ -231,7 +231,7 @@ export function GenerateSlideUI({ slideId, onClose }: GenerateSlideUIProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Cancel
+              Bekor qilish
             </motion.button>
           </motion.div>
         )}

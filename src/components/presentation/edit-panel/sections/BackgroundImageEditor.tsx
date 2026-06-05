@@ -56,7 +56,7 @@ export function BackgroundImageEditor({
   return (
     <div className={cn("flex h-full min-h-0 flex-col gap-5 p-1", className)}>
       <div className="space-y-2">
-        <Label className="text-xs">Source</Label>
+        <Label className="text-xs">Manba</Label>
         <Select
           value={imageMode}
           onValueChange={(v) => setImageMode(v as typeof imageMode)}
@@ -65,9 +65,9 @@ export function BackgroundImageEditor({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="upload-url">Image upload or URL</SelectItem>
-            <SelectItem value="ai">AI images</SelectItem>
-            <SelectItem value="search">Web & Stock images</SelectItem>
+            <SelectItem value="upload-url">Rasm yuklash yoki URL</SelectItem>
+            <SelectItem value="ai">AI rasmlar</SelectItem>
+            <SelectItem value="search">Veb va Stock rasmlar</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -78,7 +78,7 @@ export function BackgroundImageEditor({
             <Label className="text-xs">URL</Label>
             <div className="flex gap-2">
               <Input
-                placeholder="Paste or enter image URL"
+                placeholder="Rasm URL manzilini joylashtiring yoki kiriting"
                 value={(config?.backgroundImageUrl as string) ?? ""}
                 onChange={(e) =>
                   updateConfig({ backgroundImageUrl: e.target.value })
@@ -88,7 +88,7 @@ export function BackgroundImageEditor({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs">Upload</Label>
+            <Label className="text-xs">Yuklash</Label>
             <PrettyUploadZone
               isUploading={isUploading}
               progress={progress}
@@ -97,7 +97,7 @@ export function BackgroundImageEditor({
           </div>
 
           <Button className="w-full" onClick={applyUrl}>
-            Apply Image Background
+            Rasm fonini qo'llash
           </Button>
         </div>
       )}
@@ -120,14 +120,14 @@ export function BackgroundImageEditor({
         <div className="sticky right-0 bottom-0 left-0 z-10 mt-auto border-t bg-background/80 p-2 backdrop-blur-sm supports-backdrop-filter:bg-background/60">
           <div className="flex gap-2">
             <Button className="flex-1" onClick={applyUrl}>
-              Apply Selected
+              Tanlanganini qo'llash
             </Button>
             <Button
               variant="outline"
               className="flex-1"
               onClick={() => setPreviewUrl("")}
             >
-              Clear
+              Tozalash
             </Button>
           </div>
         </div>
@@ -165,21 +165,21 @@ function PrettyUploadZone({
           <UploadCloud className="h-5 w-5" />
         </div>
         <div className="text-sm">
-          Drag a file or
+          Faylni torting yoki
           <button
             type="button"
             onClick={openPicker}
             className="ml-1 text-primary underline underline-offset-2"
           >
-            click to upload
+            yuklash uchun bosing
           </button>
         </div>
         <div className="text-xs text-muted-foreground">
-          Tip: You can also paste an image URL above
+          Maslahat: yuqoriga rasm URL manzilini ham joylashtirishingiz mumkin
         </div>
         {isUploading && (
           <div className="mt-1 text-xs text-muted-foreground">
-            Uploading… {progress}%
+            Yuklanmoqda… {progress}%
           </div>
         )}
       </div>

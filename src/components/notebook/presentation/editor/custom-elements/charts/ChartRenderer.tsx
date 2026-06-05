@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { AgCharts, AgGauge } from "ag-charts-react";
+import { AgCharts, AgGauge } from "@/lib/ag-charts-react-wrapper";
 import {
   AREA_CHART_ELEMENT,
   BAR_CHART_ELEMENT,
@@ -82,6 +82,38 @@ export function ChartRenderer({
   className,
   style,
 }: ChartRendererProps) {
+  // Some chart types require AG Charts Enterprise modules which
+  // we cannot load without a license. Avoid creating those charts
+  // and show a fallback instead.
+  // treat as Set<string> so we can safely call .has with a runtime string
+  const enterpriseTypes = new Set<string>([
+    SANKEY_CHART_ELEMENT,
+    CHORD_CHART_ELEMENT,
+    FUNNEL_CHART_ELEMENT,
+    CONE_FUNNEL_CHART_ELEMENT,
+    TREEMAP_CHART_ELEMENT,
+    WATERFALL_CHART_ELEMENT,
+    SUNBURST_CHART_ELEMENT,
+  ]);
+
+  if (enterpriseTypes.has(chartType)) {
+    return (
+      <div
+        className={cn(
+          "h-full w-full rounded-lg border bg-card p-4 text-sm text-muted-foreground",
+          className,
+        )}
+        style={{
+          backgroundColor: "var(--presentation-background)",
+          color: "var(--presentation-text)",
+          borderColor: "hsl(var(--border))",
+          ...style,
+        }}
+      >
+        This chart type requires AG Charts Enterprise. Switch to a community-supported chart type or provide a license key.
+      </div>
+    );
+  }
   const themeConfig = useChartTheme();
   const dataArray = Array.isArray(chartData) ? (chartData as AnyRecord[]) : [];
   const labelKey = getLabelKey(dataArray);

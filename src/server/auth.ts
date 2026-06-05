@@ -81,7 +81,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           user.hasAccess = dbUser.hasAccess;
           user.role = dbUser.role;
         } else {
-          user.hasAccess = false;
+          user.hasAccess = true;
           user.role = "USER";
         }
       }
