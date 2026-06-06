@@ -1,12 +1,10 @@
-import { createUIMessageStreamResponse } from "ai";
+import { streamText } from "ai";
 import { templates } from "@/constants/antv-templates";
 import { modelPicker } from "@/lib/modelPicker";
 import { guardAiRoute } from "@/lib/api-guards";
-import { toUIMessageStream } from "@ai-sdk/langchain";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { RunnableSequence } from "@langchain/core/runnables";
 import { NextResponse } from "next/server";
 import "server-only";
+import { fillTemplate } from "@/lib/ai/fillTemplate";
 
 const INFOGRAPHIC_MODEL = "google/gemini-3-flash-preview";
 
@@ -148,11 +146,6 @@ Add a stylize property inside the theme block for special effects:
 
 Convert the prompt into one complete AntV infographic syntax output.`;
 
-const promptToDiagramChain = RunnableSequence.from([
-  PromptTemplate.fromTemplate(SYSTEM_PROMPT),
-  modelPicker("openrouter", INFOGRAPHIC_MODEL),
-]);
-
 export async function POST(req: Request) {
   console.log("Diagram generation called ");
   try {
@@ -170,15 +163,17 @@ export async function POST(req: Request) {
     }
 
     const templateList = organizeTemplates(templates);
-
-    const stream = await promptToDiagramChain.stream({
+    const filledPrompt = fillTemplate(SYSTEM_PROMPT, {
       prompt,
       templateList,
     });
 
-    return createUIMessageStreamResponse({
-      stream: toUIMessageStream(stream),
+    const result = streamText({
+      model: modelPicker("openrouter", INFOGRAPHIC_MODEL),
+      prompt: filledPrompt,
     });
+
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error("Prompt to diagram generation error:", error);
     return NextResponse.json(

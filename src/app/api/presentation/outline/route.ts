@@ -1,7 +1,7 @@
-import { search_tool } from "@/ai/tools/search";
 import {
   getLatestUserMessage,
   getMessageText,
+  toModelMessages,
 } from "@/lib/ai/uiMessageParts";
 import {
   assertModelIsConfigured,
@@ -13,12 +13,7 @@ import {
 import { createLogger } from "@/lib/observability/logger";
 import { logger } from "@/lib/observability/server/logger";
 import { guardAiRoute } from "@/lib/api-guards";
-import { toBaseMessages, toUIMessageStream } from "@ai-sdk/langchain";
-import {
-  createUIMessageStreamResponse,
-  type UIMessage,
-} from "ai";
-import { createAgent } from "langchain";
+import { streamText, type UIMessage } from "ai";
 import { NextResponse } from "next/server";
 
 interface OutlineRequest {
@@ -235,8 +230,8 @@ export async function POST(req: Request) {
     const prompt = latestUserMessage ? getMessageText(latestUserMessage).trim() : "";
     const metadata =
       (latestUserMessage?.metadata as OutlineMessageMetadata | undefined) ?? {};
-    const numberOfCards = metadata.numberOfCards ?? 0;
-    const language = metadata.language ?? "";
+    const numberOfCards = Math.max(1, metadata.numberOfCards ?? 5);
+    const language = metadata.language?.trim() || "en-US";
     const modelProvider = metadata.modelProvider ?? DEFAULT_MODEL_PROVIDER;
     const modelId = metadata.modelId;
     const webSearch = Boolean(metadata.webSearch);
@@ -257,7 +252,7 @@ export async function POST(req: Request) {
       webSearch,
     });
 
-    if (!prompt || !numberOfCards || !language || messages.length === 0) {
+    if (messages.length === 0 || !prompt) {
       routeLogger.warn("Outline request rejected: missing required fields", {
         requestId,
         hasPrompt: Boolean(prompt),
@@ -269,9 +264,19 @@ export async function POST(req: Request) {
         "tahlilai.validation.error": "missing_required_fields",
       });
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required prompt or messages for outline generation." },
         { status: 400 },
       );
+    }
+
+    if (metadata.numberOfCards == null || !metadata.language) {
+      routeLogger.warn("Outline request payload missing optional metadata, using defaults", {
+        requestId,
+        numberOfCards,
+        language,
+        hasNumberOfCards: metadata.numberOfCards != null,
+        hasLanguage: Boolean(metadata.language),
+      });
     }
 
     const languageMap: Record<string, string> = {
@@ -337,20 +342,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const agent = createAgent({
-      model: modelPicker(modelProvider, modelId),
-      tools: webSearch ? [search_tool] : [],
-      systemPrompt:
-        buildOutlineSystemPrompt({
-          actualLanguage,
-          numberOfCards,
-          currentDate,
-          textContent: metadata.textContent ?? "ixcham",
-          tone: metadata.tone ?? "auto",
-          audience: metadata.audience ?? "auto",
-          scenario: metadata.scenario ?? "auto",
-          webSearch,
-        }),
+    const systemPrompt = buildOutlineSystemPrompt({
+      actualLanguage,
+      numberOfCards,
+      currentDate,
+      textContent: metadata.textContent ?? "ixcham",
+      tone: metadata.tone ?? "auto",
+      audience: metadata.audience ?? "auto",
+      scenario: metadata.scenario ?? "auto",
+      webSearch,
     });
 
     routeLogger.info("Presentation outline generation started", {
@@ -360,36 +360,12 @@ export async function POST(req: Request) {
       numberOfCards,
       webSearch,
     });
-    
-    let stream: unknown;
-    try {
-      stream = await agent.stream(
-        {
-          messages: await toBaseMessages(messages),
-        },
-        {
-          streamMode: ["values", "messages"],
-        },
-      );
-    } catch (streamError) {
-      routeLogger.error("Failed to create agent stream", streamError, {
-        requestId,
-        modelProvider,
-        modelId: modelId || DEFAULT_OPENROUTER_MODEL,
-        numberOfCards,
-        webSearch,
-      });
-      throw streamError;
-    }
 
-    if (!stream) {
-      const streamErr = new Error("Agent stream is null or undefined");
-      routeLogger.error("Invalid stream returned from agent", streamErr, {
-        requestId,
-        modelProvider,
-      });
-      throw streamErr;
-    }
+    const result = streamText({
+      model: modelPicker(modelProvider, modelId),
+      system: systemPrompt,
+      messages: toModelMessages(messages),
+    });
 
     routeLogger.info("Presentation outline stream created", {
       requestId,
@@ -397,21 +373,8 @@ export async function POST(req: Request) {
       modelId: modelId || DEFAULT_OPENROUTER_MODEL,
     });
     span.event("tahlilai.api.response_stream_created");
-    
-    let uiMessageStream: unknown;
-    try {
-      uiMessageStream = toUIMessageStream(stream);
-    } catch (transformError) {
-      routeLogger.error("Failed to transform stream to UI message stream", transformError, {
-        requestId,
-        modelProvider,
-      });
-      throw transformError;
-    }
-    
-    return createUIMessageStreamResponse({
-      stream: uiMessageStream,
-    });
+
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     const status = getErrorStatus(error) ?? 500;
     const message = getErrorMessage(error) || "Failed to generate outline";

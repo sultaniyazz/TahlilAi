@@ -11,6 +11,16 @@ function serializeError(error: unknown) {
     };
   }
 
+  if (typeof Response !== "undefined" && error instanceof Response) {
+    return {
+      name: "Response",
+      message: `${error.status} ${error.statusText}`,
+      status: error.status,
+      statusText: error.statusText,
+      url: error.url,
+    };
+  }
+
   if (
     error &&
     typeof error === "object" &&

@@ -116,7 +116,7 @@ export function LandingFeatures() {
       />
 
       <motion.div
-        className="mx-auto mt-14 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        className="mx-auto w-full max-w-[75vw] mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-40px" }}
@@ -179,7 +179,7 @@ export function LandingOpenSource() {
       <SectionHeading eyebrow="Ochiq kodli" title="Nega ochiq kodli loyihamiz?" />
 
       <motion.div
-        className="mx-auto mt-14 grid max-w-4xl gap-8 sm:grid-cols-2"
+        className="mx-auto w-full max-w-[75vw] mt-14 grid gap-8 sm:grid-cols-2"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -244,7 +244,7 @@ export function LandingDemo() {
       <SectionHeading eyebrow="Amalda ko'ring" title="Qanday ishlashini tomosha qiling" />
 
       <motion.div
-        className="mx-auto mt-12 max-w-4xl"
+        className="mx-auto w-full max-w-[70vw] mt-12"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -342,7 +342,7 @@ export function LandingPricing() {
       </motion.p>
 
       <motion.div
-        className="mx-auto mt-14 grid max-w-5xl gap-6 lg:grid-cols-3"
+        className="mx-auto w-full max-w-[75vw] mt-14 grid gap-6 lg:grid-cols-3"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -507,7 +507,7 @@ export function LandingCommunity() {
 export function LandingFooter() {
   return (
     <footer className="border-t border-border/50 px-4 py-12 text-sm text-muted-foreground transition-colors duration-300 dark:border-border/30 sm:px-6">
-      <div className="mx-auto max-w-5xl text-center">
+      <div className="mx-auto w-full max-w-[75vw] text-center">
         <p>© {new Date().getFullYear()} TahlilAi. Barcha huquqlar himoyalangan.</p>
       </div>
     </footer>

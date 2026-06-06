@@ -593,6 +593,20 @@ export function PresentationGenerationManager() {
           lastProcessedMessagesLength.current = 0;
 
           const { presentationInput } = usePresentationState.getState();
+          const trimmedPrompt = presentationInput.trim();
+          if (!trimmedPrompt) {
+            const errorMessage =
+              "Outline generation aborted because the presentation prompt is empty.";
+            generationLogger.error(errorMessage, {
+              presentationId: currentPresentationId,
+            });
+            toast.error(errorMessage);
+            setIsGeneratingOutline(false);
+            setShouldStartOutlineGeneration(false);
+            setShouldStartPresentationGeneration(false);
+            return;
+          }
+
           if (outlineRafIdRef.current === null) {
             outlineRafIdRef.current =
               requestAnimationFrame(updateOutlineWithRAF);
@@ -612,7 +626,6 @@ export function PresentationGenerationManager() {
           });
 
           await appendOutlineMessage({
-            role: "user",
             metadata: {
               numberOfCards: numSlides,
               language,
@@ -625,7 +638,7 @@ export function PresentationGenerationManager() {
               audience,
               scenario,
             } satisfies PresentationOutlineMessageMetadata,
-            parts: [{ type: "text", text: presentationInput }],
+            text: trimmedPrompt,
           });
         } catch (error) {
           generationLogger.error(

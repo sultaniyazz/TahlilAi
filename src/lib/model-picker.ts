@@ -1,6 +1,7 @@
 import { env } from "@/env";
 import { createLogger } from "@/lib/observability/logger";
-import { ChatOpenAI } from "@langchain/openai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
 type ModelProvider = "openai" | "ollama" | "lmstudio" | "openrouter";
 
@@ -356,13 +357,13 @@ export function modelPicker(modelProviderOrModel: string, modelId?: string) {
       baseUrl: LM_STUDIO_API_BASE_URL,
     });
 
-    return new ChatOpenAI({
-      model: selection.modelId,
-      apiKey: "lmstudio",
-      configuration: {
-        baseURL: LM_STUDIO_API_BASE_URL,
-      },
+    const compatible = createOpenAICompatible({
+      name: selection.provider,
+      baseURL: LM_STUDIO_API_BASE_URL,
+      apiKey: selection.provider,
     });
+
+    return compatible(selection.modelId);
   }
 
   if (selection.provider === "ollama") {
@@ -373,37 +374,16 @@ export function modelPicker(modelProviderOrModel: string, modelId?: string) {
     modelLogger.info("Creating Ollama model client", {
       provider: selection.provider,
       modelId: selection.modelId,
-      baseUrl: `${OLLAMA_BASE_URL}/v1`,
+      baseUrl: OLLAMA_BASE_URL,
     });
 
-    return new ChatOpenAI({
-      model: selection.modelId,
-      apiKey: "ollama",
-      configuration: {
-        baseURL: `${OLLAMA_BASE_URL}/v1`,
-      },
-    });
-  }
-
-  if (selection.provider === "openrouter") {
-    const selectedOpenRouterModel = selection.modelId || DEFAULT_OPENROUTER_MODEL;
-    const openRouterApiKey = env.OPENROUTER_API_KEY?.trim();
-    const openRouterBaseUrl = env.OPENROUTER_API_BASE_URL?.trim() || OPENROUTER_BASE_URL;
-
-    modelLogger.info("Creating OpenRouter model client", {
-      provider: selection.provider,
-      modelId: selectedOpenRouterModel,
-      baseUrl: openRouterBaseUrl,
-      hasApiKey: Boolean(openRouterApiKey),
+    const compatible = createOpenAICompatible({
+      name: selection.provider,
+      baseURL: OLLAMA_BASE_URL,
+      apiKey: selection.provider,
     });
 
-    return new ChatOpenAI({
-      model: selectedOpenRouterModel,
-      ...(openRouterApiKey ? { apiKey: openRouterApiKey } : {}),
-      configuration: {
-        baseURL: openRouterBaseUrl,
-      },
-    });
+    return compatible(selection.modelId);
   }
 
   const selectedOpenRouterModel =
@@ -412,18 +392,17 @@ export function modelPicker(modelProviderOrModel: string, modelId?: string) {
   const openRouterBaseUrl =
     env.OPENROUTER_API_BASE_URL?.trim() || OPENROUTER_BASE_URL;
 
-  modelLogger.info("Creating OpenRouter model client (default provider)", {
+  modelLogger.info("Creating OpenRouter model client", {
     provider: selection.provider,
     modelId: selectedOpenRouterModel,
     baseUrl: openRouterBaseUrl,
     hasApiKey: Boolean(openRouterApiKey),
   });
 
-  return new ChatOpenAI({
-    model: selectedOpenRouterModel,
-    ...(openRouterApiKey ? { apiKey: openRouterApiKey } : {}),
-    configuration: {
-      baseURL: openRouterBaseUrl,
-    },
+  const openRouter = createOpenAI({
+    apiKey: openRouterApiKey,
+    baseURL: openRouterBaseUrl,
   });
+
+  return openRouter(selectedOpenRouterModel);
 }

@@ -1,12 +1,10 @@
-import { type Image as GeneratedImage } from "@/app/_actions/apps/image-studio/fetch";
-import { type ImageModelList } from "@/app/_actions/apps/image-studio/generate";
-import { type PlateSlide } from "@/components/notebook/presentation/utils/parser";
-import { type ThemeProperties, type Themes } from "@/lib/presentation/themes";
-import { create } from "zustand";
-import { usePresentationHistoryState } from "./presentation-history-state";
+import { useRef, useSyncExternalStore } from "react";
+import { useSlidesStore, type SlidesState } from "./slides-store";
+import { useGenerationStore, type GenerationState } from "./generation-store";
+import { useUIStore, type UIState } from "./ui-store";
+import { useSettingsStore, type SettingsState } from "./settings-store";
 
 export type HistoryType = "history";
-
 export type ImageEditorMode =
   | "generate"
   | "your-images"
@@ -29,788 +27,422 @@ export type RightPanelType =
   | "presentationImageEditor"
   | null;
 
-type PendingPresentationCreateRequest = {
-  language: string;
-  modelId: string;
-  modelProvider: "openai" | "ollama" | "lmstudio" | "openrouter";
-  numSlides: number;
-  prompt: string;
-  webSearchEnabled: boolean;
-};
-
-interface PresentationState {
-  currentPresentationId: string | null;
-  currentPresentationTitle: string | null;
-  isGridView: boolean;
-  isSheetOpen: boolean;
-  numSlides: number;
-
-  theme: Themes | string;
-  customThemeData: ThemeProperties | null;
-  language: string;
-  pageStyle: string;
-  showTemplates: boolean;
-  presentationInput: string;
-  imageModel: ImageModelList;
-  imageSource: "automatic" | "ai" | "stock";
-  stockImageProvider: "unsplash" | "pixabay";
-  presentationStyle: string;
-  modelProvider: "openai" | "ollama" | "lmstudio" | "openrouter";
-  modelId: string;
-  // New customization options
-  textContent: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
-  tone:
-    | "auto"
-    | "general"
-    | "persuasive"
-    | "inspiring"
-    | "instructive"
-    | "engaging";
-  audience:
-    | "auto"
-    | "general"
-    | "business"
-    | "investor"
-    | "teacher"
-    | "student";
-  scenario:
-    | "auto"
-    | "general"
-    | "analysis-report"
-    | "teaching-training"
-    | "promotional-materials"
-    | "public-speeches";
-  savingStatus: "idle" | "saving" | "saved";
-  isPresenting: boolean;
-  isPresentingLoading: boolean;
-  presentingScaleLocks: Record<string, boolean>;
-  currentSlideId: string | null;
-  isThemeCreatorOpen: boolean;
-
-  pageBackground: Record<string, unknown>;
-  setPageBackground: (pageBackground: Record<string, unknown>) => void;
-  // Generation states
-  shouldStartOutlineGeneration: boolean;
-  shouldStartPresentationGeneration: boolean;
-  shouldStartImageSlideGeneration: boolean;
-  isGeneratingOutline: boolean;
-  isGeneratingPresentation: boolean;
-  pendingCreateRequest: PendingPresentationCreateRequest | null;
-  outline: string[];
-  searchResults: Array<{ query: string; results: unknown[] }>; // Store search results for context
-  webSearchEnabled: boolean; // Toggle for web search in outline generation
-  slides: PlateSlide[]; // This now holds the new object structure
-
-  // Root image generation tracking by slideId
-  rootImageGeneration: Record<
-    string,
-    {
-      query: string;
-      status: "queued" | "generating" | "success" | "error";
-      url?: string;
-      error?: string;
-    }
-  >;
-
-  isSidebarCollapsed: boolean;
-  setIsSidebarCollapsed: (update: boolean) => void;
-  isRightPanelCollapsed: boolean;
-  setIsRightPanelCollapsed: (update: boolean) => void;
-  setSlides: (
-    slides:
-      | PlateSlide[]
-      | ((slides: PlateSlide[]) => PlateSlide[]),
-    type?: HistoryType,
-  ) => void;
-  updateSlide: (
-    slideId: string,
-    updates: Partial<PlateSlide>,
-    type?: HistoryType,
-  ) => void;
-  startRootImageGeneration: (slideId: string, query: string) => void;
-  completeRootImageGeneration: (slideId: string, url: string) => void;
-  failRootImageGeneration: (slideId: string, error: string) => void;
-  clearRootImageGeneration: (slideId: string) => void;
-  setCurrentPresentation: (id: string | null, title: string | null) => void;
-  setIsGridView: (isGrid: boolean) => void;
-  setIsSheetOpen: (isOpen: boolean) => void;
-  setNumSlides: (num: number) => void;
-  setTheme: (
-    theme: Themes | string,
-    customData?: ThemeProperties | null,
-    type?: HistoryType,
-  ) => void;
-  shouldShowExitHeader: boolean;
-  setShouldShowExitHeader: (udpdate: boolean) => void;
-  thumbnailUrl?: string;
-  setThumbnailUrl: (url: string | undefined) => void;
-  setLanguage: (lang: string) => void;
-  setPageStyle: (style: string) => void;
-  setShowTemplates: (show: boolean) => void;
-  setPresentationInput: (input: string) => void;
-  setOutline: (topics: string[]) => void;
-  setSearchResults: (
-    results: Array<{ query: string; results: unknown[] }>,
-  ) => void;
-  setWebSearchEnabled: (enabled: boolean) => void;
-  setImageModel: (model: ImageModelList) => void;
-  setImageSource: (source: "automatic" | "ai" | "stock") => void;
-  setStockImageProvider: (provider: "unsplash" | "pixabay") => void;
-  setPresentationStyle: (style: string) => void;
-  setModelProvider: (provider: "openai" | "ollama" | "lmstudio" | "openrouter") => void;
-  setModelId: (id: string) => void;
-  setTextContent: (
-    content: "minimal" | "ixcham" | "batafsil" | "keng qamrovli",
-  ) => void;
-  setTone: (
-    tone:
-      | "auto"
-      | "general"
-      | "persuasive"
-      | "inspiring"
-      | "instructive"
-      | "engaging",
-  ) => void;
-  setAudience: (
-    audience:
-      | "auto"
-      | "general"
-      | "business"
-      | "investor"
-      | "teacher"
-      | "student",
-  ) => void;
-  setScenario: (
-    scenario:
-      | "auto"
-      | "general"
-      | "analysis-report"
-      | "teaching-training"
-      | "promotional-materials"
-      | "public-speeches",
-  ) => void;
-  setSavingStatus: (status: "idle" | "saving" | "saved") => void;
-  setIsPresenting: (isPresenting: boolean) => void;
-  resetPresentMode: () => void;
-  setIsPresentingLoading: (isLoading: boolean) => void;
-  setPresentingScaleLock: (slideId: string, locked: boolean) => void;
-  resetPresentingScaleLocks: () => void;
-  setCurrentSlideId: (id: string | null) => void;
-  nextSlide: () => void;
-  previousSlide: () => void;
-
-  setIsThemeCreatorOpen: (update: boolean) => void;
-  // Typography overrides
-  fontSize: "S" | "M" | "L"; // S=12px, M=16px, L=18px
-  setFontSize: (size: "S" | "M" | "L") => void;
-  fontFamily: { body: string; heading: string };
-  setFontFamily: (fonts: { body?: string; heading?: string }) => void;
-  // Generation actions
-  setShouldStartOutlineGeneration: (shouldStart: boolean) => void;
-  setShouldStartPresentationGeneration: (shouldStart: boolean) => void;
-  setShouldStartImageSlideGeneration: (shouldStart: boolean) => void;
-  setIsGeneratingOutline: (isGenerating: boolean) => void;
-  setIsGeneratingPresentation: (isGenerating: boolean) => void;
-  setPendingCreateRequest: (
-    request: PendingPresentationCreateRequest | null,
-  ) => void;
-  consumePendingCreateRequest: () => PendingPresentationCreateRequest | null;
-  startOutlineGeneration: () => void;
-  startPresentationGeneration: () => void;
-  startImageSlideGeneration: () => void;
-  resetGeneration: () => void;
-  resetForNewGeneration: () => void;
-  resetPresentationState: () => void;
-
-  // Selection state
-  isSelecting: boolean;
-  selectedPresentations: string[];
-  toggleSelecting: () => void;
-  selectAllPresentations: (ids: string[]) => void;
-  deselectAllPresentations: () => void;
-  togglePresentationSelection: (id: string) => void;
-
-  // Unified right panel state (replaces isAgentOpen, isGlobalSettingsOpen)
-  activeRightPanel: RightPanelType;
-  setActiveRightPanel: (panel: RightPanelType) => void;
-
-  // Pending agent message (for slide-specific editing from Magic Menu)
-  pendingAgentMessage: {
-    message: string;
-    slideContext: string; // Serialized XML of the slide
-  } | null;
-  setPendingAgentMessage: (
-    pending: { message: string; slideContext: string } | null,
-  ) => void;
-
-  // Image editor state for root image editing
-  imageEditorInitialMode: ImageEditorMode | null;
-  openImageEditor: (mode?: ImageEditorMode) => void;
-  closeImageEditor: () => void;
-
-  // Chart editor state for inline chart element editing
-  chartEditorData: {
-    chartType: string;
-    chartData: unknown;
-    chartOptions: Record<string, unknown>;
-  } | null;
-  openChartEditor: (
-    chartData?: {
-      chartType: string;
-      chartData: unknown;
-      chartOptions: Record<string, unknown>;
-    },
-    updateElementFn?: (props: Record<string, unknown>) => void,
-  ) => void;
-  closeChartEditor: () => void;
-
-  // Infographic editor state for inline infographic element editing
-  openInfographicEditor: (
-    updateElementFn?: (props: Record<string, unknown>) => void,
-  ) => void;
-  closeInfographicEditor: () => void;
-
-  // Presentation image editor state (for inline TImageElement editing)
-  presentationImageEditorInitialMode: ImageEditorMode | null;
-  // Bound function to update the element from the panel
-  boundUpdateElement: ((props: Record<string, unknown>) => void) | null;
-  openPresentationImageEditor: (
-    mode?: ImageEditorMode,
-    updateElementFn?: (props: Record<string, unknown>) => void,
-  ) => void;
-  closePresentationImageEditor: () => void;
-
-  // Reordering state
-  isReorderingSlides: boolean;
-  setIsReorderingSlides: (isReordering: boolean) => void;
-
-  // Generated image cache by prompt
-  generatedImageCache: Record<string, GeneratedImage[]>;
-  setGeneratedImageCache: (prompt: string, images: GeneratedImage[]) => void;
-
-  // Image search state
-  imageSearchState: {
-    mode: "unsplash" | "pixabay";
-    unsplashQuery: string;
-    pixabayQuery: string;
+export type PresentationState =
+  SlidesState &
+  GenerationState &
+  UIState &
+  SettingsState & {
+    resetForNewGeneration: () => void;
+    resetPresentationState: () => void;
   };
-  setImageSearchState: (
-    state: Partial<{
-      mode: "unsplash" | "pixabay";
-      unsplashQuery: string;
-      pixabayQuery: string;
-    }>,
-  ) => void;
 
-  // Slide template selection for outline
-  selectedSlideTemplates: string[]; // Array of template IDs from TEMPLATE_DEFINITIONS
-  setSelectedSlideTemplates: (templates: string[]) => void;
-  outlineTemplateOverrides: Record<string, string | null>; // Map of outline ID -> template ID | null (null = auto)
-  setOutlineTemplateOverride: (
-    outlineId: string,
-    templateId: string | null,
-  ) => void;
-  clearOutlineTemplateOverrides: () => void;
+export { useSlidesStore } from "./slides-store";
+export { useGenerationStore } from "./generation-store";
+export { useUIStore } from "./ui-store";
+export { useSettingsStore } from "./settings-store";
 
-  // Zoom state for slide scaling in edit mode
-  zoomLevel: number; // Zoom multiplier (1 = 100%, 1.4 = 140%, etc.)
-  setZoomLevel: (level: number) => void;
-  isReadOnly: boolean;
-  setIsReadOnly: (isReadOnly: boolean) => void;
+const getMergedState = (): PresentationState => ({
+  ...useSlidesStore.getState(),
+  ...useGenerationStore.getState(),
+  ...useUIStore.getState(),
+  ...useSettingsStore.getState(),
+  resetForNewGeneration,
+  resetPresentationState,
+});
+
+function resetForNewGeneration() {
+  useSlidesStore.setState({
+    slides: [],
+    rootImageGeneration: {},
+  });
+
+  useGenerationStore.setState({
+    shouldStartOutlineGeneration: false,
+    shouldStartPresentationGeneration: false,
+    shouldStartImageSlideGeneration: false,
+    isGeneratingOutline: false,
+    isGeneratingPresentation: false,
+    outline: [],
+    searchResults: [],
+  });
+
+  useUIStore.setState({
+    activeRightPanel: null,
+    pendingAgentMessage: null,
+    imageEditorInitialMode: null,
+    presentationImageEditorInitialMode: null,
+    boundUpdateElement: null,
+    generatedImageCache: {},
+    isReadOnly: false,
+  });
+
+  useSettingsStore.setState({
+    pageBackground: {},
+    selectedSlideTemplates: [],
+    outlineTemplateOverrides: {},
+    thumbnailUrl: undefined,
+  });
 }
 
-// Helper to handle history snapshots with circular dependency workaround
-const pushHistorySnapshot = (
-  type: HistoryType | undefined,
-  slideId: string | undefined,
-  changeType: "slide" | "theme" | "full" = "full",
+function resetPresentationState() {
+  useSlidesStore.setState({
+    slides: [],
+    currentSlideId: null,
+    rootImageGeneration: {},
+  });
+
+  useGenerationStore.setState({
+    shouldStartOutlineGeneration: false,
+    shouldStartPresentationGeneration: false,
+    shouldStartImageSlideGeneration: false,
+    isGeneratingOutline: false,
+    isGeneratingPresentation: false,
+    pendingCreateRequest: null,
+    outline: [],
+    searchResults: [],
+  });
+
+  useUIStore.setState({
+    activeRightPanel: null,
+    pendingAgentMessage: null,
+    imageEditorInitialMode: null,
+    presentationImageEditorInitialMode: null,
+    presentationImageElementId: null,
+    boundUpdateElement: null,
+    isSidebarCollapsed: false,
+    isRightPanelCollapsed: false,
+    selectedPresentations: [],
+    isSelecting: false,
+    savingStatus: "idle",
+    isReadOnly: false,
+    isPresenting: false,
+    isPresentingLoading: false,
+    presentingScaleLocks: {},
+    shouldShowExitHeader: false,
+  });
+
+  useSettingsStore.setState({
+    currentPresentationId: null,
+    currentPresentationTitle: null,
+    presentationInput: "",
+    pageBackground: {},
+    thumbnailUrl: undefined,
+    selectedSlideTemplates: [],
+    outlineTemplateOverrides: {},
+  });
+}
+
+const slidesKeys = new Set<keyof SlidesState>([
+  "slides",
+  "currentSlideId",
+  "rootImageGeneration",
+  "setSlides",
+  "updateSlide",
+  "setCurrentSlideId",
+  "nextSlide",
+  "previousSlide",
+  "startRootImageGeneration",
+  "completeRootImageGeneration",
+  "failRootImageGeneration",
+  "clearRootImageGeneration",
+]);
+
+const generationKeys = new Set<keyof GenerationState>([
+  "numSlides",
+  "shouldStartOutlineGeneration",
+  "shouldStartPresentationGeneration",
+  "shouldStartImageSlideGeneration",
+  "isGeneratingOutline",
+  "isGeneratingPresentation",
+  "pendingCreateRequest",
+  "outline",
+  "searchResults",
+  "webSearchEnabled",
+  "setNumSlides",
+  "setShouldStartOutlineGeneration",
+  "setShouldStartPresentationGeneration",
+  "setShouldStartImageSlideGeneration",
+  "setIsGeneratingOutline",
+  "setIsGeneratingPresentation",
+  "setPendingCreateRequest",
+  "consumePendingCreateRequest",
+  "setOutline",
+  "setSearchResults",
+  "setWebSearchEnabled",
+  "startOutlineGeneration",
+  "startPresentationGeneration",
+  "startImageSlideGeneration",
+  "resetGeneration",
+]);
+
+const uiKeys = new Set<keyof UIState>([
+  "isGridView",
+  "isSheetOpen",
+  "isSidebarCollapsed",
+  "isRightPanelCollapsed",
+  "isPresenting",
+  "isPresentingLoading",
+  "presentingScaleLocks",
+  "isThemeCreatorOpen",
+  "shouldShowExitHeader",
+  "savingStatus",
+  "isSelecting",
+  "selectedPresentations",
+  "activeRightPanel",
+  "pendingAgentMessage",
+  "imageEditorInitialMode",
+  "presentationImageEditorInitialMode",
+  "presentationImageElementId",
+  "boundUpdateElement",
+  "chartEditorData",
+  "isReorderingSlides",
+  "generatedImageCache",
+  "imageSearchState",
+  "zoomLevel",
+  "isReadOnly",
+  "openImageEditor",
+  "closeImageEditor",
+  "openChartEditor",
+  "closeChartEditor",
+  "openInfographicEditor",
+  "closeInfographicEditor",
+  "openPresentationImageEditor",
+  "closePresentationImageEditor",
+  "setIsGridView",
+  "setIsSheetOpen",
+  "setIsSidebarCollapsed",
+  "setIsRightPanelCollapsed",
+  "setIsPresenting",
+  "resetPresentMode",
+  "setIsPresentingLoading",
+  "setPresentingScaleLock",
+  "resetPresentingScaleLocks",
+  "setIsThemeCreatorOpen",
+  "setShouldShowExitHeader",
+  "setSavingStatus",
+  "toggleSelecting",
+  "selectAllPresentations",
+  "deselectAllPresentations",
+  "togglePresentationSelection",
+  "setActiveRightPanel",
+  "setPendingAgentMessage",
+  "setGeneratedImageCache",
+  "setImageSearchState",
+  "setIsReorderingSlides",
+  "setZoomLevel",
+  "setIsReadOnly",
+]);
+
+const settingsKeys = new Set<keyof SettingsState>([
+  "currentPresentationId",
+  "currentPresentationTitle",
+  "theme",
+  "customThemeData",
+  "language",
+  "pageStyle",
+  "showTemplates",
+  "presentationInput",
+  "imageModel",
+  "imageSource",
+  "stockImageProvider",
+  "presentationStyle",
+  "modelProvider",
+  "modelId",
+  "textContent",
+  "tone",
+  "audience",
+  "scenario",
+  "pageBackground",
+  "thumbnailUrl",
+  "selectedSlideTemplates",
+  "outlineTemplateOverrides",
+  "setCurrentPresentation",
+  "setTheme",
+  "setLanguage",
+  "setPageStyle",
+  "setShowTemplates",
+  "setPresentationInput",
+  "setImageModel",
+  "setImageSource",
+  "setStockImageProvider",
+  "setPresentationStyle",
+  "setModelProvider",
+  "setModelId",
+  "setTextContent",
+  "setTone",
+  "setAudience",
+  "setScenario",
+  "setPageBackground",
+  "setThumbnailUrl",
+  "setSelectedSlideTemplates",
+  "setOutlineTemplateOverride",
+  "clearOutlineTemplateOverrides",
+]);
+
+const setPartialState = (
+  patch: Partial<PresentationState>,
+  keys: Set<string>,
+  store: { setState: (partial: Partial<unknown>, replace?: boolean) => void },
+  replace: boolean,
 ) => {
-  if (type === "history") return;
+  const partialState: Record<string, unknown> = {};
+  let hasPatch = false;
 
-  // Dynamic import to avoid circular dependency
+  for (const key of Object.keys(patch)) {
+    if (keys.has(key)) {
+      partialState[key] = (patch as any)[key];
+      hasPatch = true;
+    }
+  }
 
-  const { history, pushSnapshot } = usePresentationHistoryState.getState();
-  // Only push if history is initialized
-  if (history.present !== null) {
-    pushSnapshot(slideId, changeType);
+  if (hasPatch) {
+    store.setState(partialState, replace);
   }
 };
 
-const getPresentModeResetState = () => ({
-  isPresenting: false,
-  isPresentingLoading: false,
-  presentingScaleLocks: {},
-  shouldShowExitHeader: false,
-});
+export type UsePresentationState = {
+  <T>(selector: (state: PresentationState) => T): T;
+  (): PresentationState;
+  getState: () => PresentationState;
+  setState: (
+    partial:
+      | Partial<PresentationState>
+      | ((state: PresentationState) => Partial<PresentationState>),
+    replace?: boolean,
+  ) => void;
+};
 
-export const usePresentationState = create<PresentationState>((set, get) => ({
-  currentPresentationId: null,
-  currentPresentationTitle: null,
-  isGridView: true,
-  isSheetOpen: false,
-  shouldShowExitHeader: false,
-  setShouldShowExitHeader: (update) => set({ shouldShowExitHeader: update }),
-  thumbnailUrl: undefined,
-  setThumbnailUrl: (url) => set({ thumbnailUrl: url }),
-  numSlides: 5,
-  language: "en-US",
-  pageStyle: "default",
-  showTemplates: false,
-  presentationInput: "",
-  outline: [],
-  searchResults: [],
-  webSearchEnabled: false,
-  theme: "mystique",
-  customThemeData: null,
-  imageModel: "fal-ai/flux-2/flash",
-  imageSource: "automatic",
-  stockImageProvider: "unsplash",
-  presentationStyle: "professional",
-  modelProvider: "openrouter",
-  modelId: "",
-  textContent: "ixcham",
-  tone: "auto",
-  audience: "auto",
-  scenario: "auto",
-  slides: [], // Now holds the new slide object structure
-  rootImageGeneration: {},
-  savingStatus: "idle",
-  isPresenting: false,
-  isPresentingLoading: false,
-  presentingScaleLocks: {},
-  currentSlideId: null,
-  isThemeCreatorOpen: false,
-  pageBackground: {},
-  // Typography defaults
-  fontSize: "M",
-  setFontSize: (size) => set({ fontSize: size }),
-  fontFamily: { body: "", heading: "" },
-  setFontFamily: (fonts) =>
-    set((state) => ({
-      fontFamily: {
-        body: fonts.body ?? state.fontFamily.body,
-        heading: fonts.heading ?? state.fontFamily.heading,
-      },
-    })),
-  isReorderingSlides: false,
-  setIsReorderingSlides: (isReordering) =>
-    set({ isReorderingSlides: isReordering }),
+const usePresentationState = Object.assign(
+  (
+    selector: (state: PresentationState) => unknown =
+      ((state: PresentationState) => state) as (state: PresentationState) => unknown,
+  ) => {
+    const cacheRef = useRef<{
+      slidesState: ReturnType<typeof useSlidesStore["getState"]>;
+      generationState: ReturnType<typeof useGenerationStore["getState"]>;
+      uiState: ReturnType<typeof useUIStore["getState"]>;
+      settingsState: ReturnType<typeof useSettingsStore["getState"]>;
+      mergedState: PresentationState;
+      selectedSnapshot: unknown;
+    } | null>(null);
 
-  // Generated image cache
-  generatedImageCache: {},
-  setGeneratedImageCache: (prompt, images) =>
-    set((state) => ({
-      generatedImageCache: {
-        ...state.generatedImageCache,
-        [prompt]: images,
-      },
-    })),
+    const subscribe = (callback: () => void) => {
+      const unsubscribeFns = [
+        useSlidesStore.subscribe(callback),
+        useGenerationStore.subscribe(callback),
+        useUIStore.subscribe(callback),
+        useSettingsStore.subscribe(callback),
+      ];
+      return () => unsubscribeFns.forEach((unsubscribe) => unsubscribe());
+    };
 
-  // Image search state
-  imageSearchState: {
-    mode: "unsplash",
-    unsplashQuery: "",
-    pixabayQuery: "",
-  },
-  setImageSearchState: (newState) =>
-    set((state) => ({
-      imageSearchState: { ...state.imageSearchState, ...newState },
-    })),
+    const isShallowEqual = (a: unknown, b: unknown): boolean => {
+      if (Object.is(a, b)) {
+        return true;
+      }
 
-  // Slide template selection for outline
-  selectedSlideTemplates: [],
-  setSelectedSlideTemplates: (templates) =>
-    set({ selectedSlideTemplates: templates }),
-  outlineTemplateOverrides: {},
-  setOutlineTemplateOverride: (outlineId, templateId) =>
-    set((state) => ({
-      outlineTemplateOverrides: {
-        ...state.outlineTemplateOverrides,
-        [outlineId]: templateId,
-      },
-    })),
-  clearOutlineTemplateOverrides: () => set({ outlineTemplateOverrides: {} }),
+      if (typeof a !== "object" || a === null || typeof b !== "object" || b === null) {
+        return false;
+      }
 
-  // Zoom state for slide scaling in edit mode
-  zoomLevel: 1, // Default to 100%
-  setZoomLevel: (level) => set({ zoomLevel: level }),
-  isReadOnly: false,
-  setIsReadOnly: (isReadOnly) => set({ isReadOnly }),
+      if (Array.isArray(a) && Array.isArray(b)) {
+        if (a.length !== b.length) {
+          return false;
+        }
+        for (let i = 0; i < a.length; i += 1) {
+          if (!Object.is(a[i], b[i])) {
+            return false;
+          }
+        }
+        return true;
+      }
 
-  // Sidebar states
-  isSidebarCollapsed: false,
-  setIsSidebarCollapsed: (update) => set({ isSidebarCollapsed: update }),
-  isRightPanelCollapsed: false,
-  setIsRightPanelCollapsed: (update) => set({ isRightPanelCollapsed: update }),
+      const aKeys = Object.keys(a as Record<string, unknown>);
+      const bKeys = Object.keys(b as Record<string, unknown>);
+      if (aKeys.length !== bKeys.length) {
+        return false;
+      }
+      for (const key of aKeys) {
+        if (!Object.prototype.hasOwnProperty.call(b, key)) {
+          return false;
+        }
+        if (!Object.is((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
+          return false;
+        }
+      }
+      return true;
+    };
 
-  // Generation states
-  shouldStartOutlineGeneration: false,
-  shouldStartPresentationGeneration: false,
-  shouldStartImageSlideGeneration: false,
-  isGeneratingOutline: false,
-  isGeneratingPresentation: false,
-  pendingCreateRequest: null,
+    const getMergedSnapshot = () => {
+      const slidesState = useSlidesStore.getState();
+      const generationState = useGenerationStore.getState();
+      const uiState = useUIStore.getState();
+      const settingsState = useSettingsStore.getState();
 
-  setSlides: (slides, type) => {
-    set((state) => ({
-      slides:
-        typeof slides === "function"
-          ? slides(state.slides)
-          : slides,
-    }));
+      const cached = cacheRef.current;
+      if (
+        cached &&
+        cached.slidesState === slidesState &&
+        cached.generationState === generationState &&
+        cached.uiState === uiState &&
+        cached.settingsState === settingsState
+      ) {
+        return cached;
+      }
 
-    pushHistorySnapshot(type, undefined, "full");
-  },
-  updateSlide: (slideId, updates, type) => {
-    set((state) => ({
-      slides: state.slides.map((slide) =>
-        slide.id === slideId ? { ...slide, ...updates } : slide,
-      ),
-    }));
+      const mergedState = {
+        ...slidesState,
+        ...generationState,
+        ...uiState,
+        ...settingsState,
+        resetForNewGeneration,
+        resetPresentationState,
+      } as PresentationState;
 
-    pushHistorySnapshot(type, slideId, "slide");
-  },
-  setPageBackground: (pageBackground) => set({ pageBackground }),
-
-  // Unified right panel state
-  activeRightPanel: null,
-  setActiveRightPanel: (panel) => set({ activeRightPanel: panel }),
-
-  // Pending agent message
-  pendingAgentMessage: null,
-  setPendingAgentMessage: (pending) => set({ pendingAgentMessage: pending }),
-
-  // Image editor state
-  imageEditorInitialMode: null,
-  openImageEditor: (mode = "generate") =>
-    set({
-      imageEditorInitialMode: mode,
-      activeRightPanel: "imageEditor",
-    }),
-  closeImageEditor: () =>
-    set((state) => ({
-      imageEditorInitialMode: null,
-      activeRightPanel:
-        state.activeRightPanel === "imageEditor"
-          ? null
-          : state.activeRightPanel,
-    })),
-
-  // Chart editor state
-  chartEditorData: null,
-  openChartEditor: (chartData, updateElementFn) =>
-    set({
-      activeRightPanel: "chartEditor",
-      chartEditorData: chartData ?? null,
-      boundUpdateElement: updateElementFn ?? null,
-    }),
-  closeChartEditor: () =>
-    set((state) => ({
-      activeRightPanel:
-        state.activeRightPanel === "chartEditor"
-          ? null
-          : state.activeRightPanel,
-      chartEditorData: null,
-      boundUpdateElement:
-        state.activeRightPanel === "chartEditor"
-          ? null
-          : state.boundUpdateElement,
-    })),
-
-  // Infographic editor state
-  openInfographicEditor: (updateElementFn) =>
-    set({
-      activeRightPanel: "infographicEditor",
-      boundUpdateElement: updateElementFn ?? null,
-    }),
-  closeInfographicEditor: () =>
-    set((state) => ({
-      activeRightPanel:
-        state.activeRightPanel === "infographicEditor"
-          ? null
-          : state.activeRightPanel,
-      boundUpdateElement:
-        state.activeRightPanel === "infographicEditor"
-          ? null
-          : state.boundUpdateElement,
-    })),
-
-  // Presentation image editor state (for inline TImageElement editing)
-  presentationImageElementId: null,
-  presentationImageEditorInitialMode: null,
-  boundUpdateElement: null,
-  openPresentationImageEditor: (mode = "generate", updateElementFn) =>
-    set({
-      presentationImageEditorInitialMode: mode,
-      activeRightPanel: "presentationImageEditor",
-      boundUpdateElement: updateElementFn ?? null,
-    }),
-  closePresentationImageEditor: () =>
-    set((state) => ({
-      presentationImageEditorInitialMode: null,
-      boundUpdateElement: null,
-      activeRightPanel:
-        state.activeRightPanel === "presentationImageEditor"
-          ? null
-          : state.activeRightPanel,
-    })),
-
-  startRootImageGeneration: (slideId, query) =>
-    set((state) => ({
-      rootImageGeneration: {
-        ...state.rootImageGeneration,
-        [slideId]: { query, status: "queued" },
-      },
-    })),
-  completeRootImageGeneration: (slideId, url) =>
-    set((state) => ({
-      rootImageGeneration: {
-        ...state.rootImageGeneration,
-        [slideId]: {
-          ...(state.rootImageGeneration[slideId] ?? { query: "" }),
-          status: "success",
-          url,
-        },
-      },
-    })),
-  failRootImageGeneration: (slideId, error) =>
-    set((state) => ({
-      rootImageGeneration: {
-        ...state.rootImageGeneration,
-        [slideId]: {
-          ...(state.rootImageGeneration[slideId] ?? { query: "" }),
-          status: "error",
-          error,
-        },
-      },
-    })),
-  clearRootImageGeneration: (slideId) =>
-    set((state) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [slideId]: _removed, ...rest } = state.rootImageGeneration;
-      return { rootImageGeneration: rest } as Partial<PresentationState>;
-    }),
-  setCurrentPresentation: (id, title) =>
-    set({ currentPresentationId: id, currentPresentationTitle: title }),
-  setIsGridView: (isGrid) => set({ isGridView: isGrid }),
-  setIsSheetOpen: (isOpen) => set({ isSheetOpen: isOpen }),
-  setNumSlides: (num) => set({ numSlides: num }),
-  setLanguage: (lang) => set({ language: lang }),
-  setTheme: (theme, customData = null, type) => {
-    set({
-      theme: theme,
-      customThemeData: customData,
-    });
-
-    if (theme !== null) {
-      pushHistorySnapshot(type, undefined, "theme");
-    }
-  },
-  setPageStyle: (style) => set({ pageStyle: style }),
-  setShowTemplates: (show) => set({ showTemplates: show }),
-  setPresentationInput: (input) => set({ presentationInput: input }),
-  setOutline: (topics) => set({ outline: topics }),
-  setSearchResults: (results) => set({ searchResults: results }),
-  setWebSearchEnabled: (enabled) => set({ webSearchEnabled: enabled }),
-  setImageModel: (model) => set({ imageModel: model }),
-  setImageSource: (source) => set({ imageSource: source }),
-  setStockImageProvider: (provider) => set({ stockImageProvider: provider }),
-  setPresentationStyle: (style) => set({ presentationStyle: style }),
-  setModelProvider: (provider) => set({ modelProvider: provider }),
-  setModelId: (id) => set({ modelId: id }),
-  setTextContent: (content) => set({ textContent: content }),
-  setTone: (tone) => set({ tone }),
-  setAudience: (audience) => set({ audience }),
-  setScenario: (scenario) => set({ scenario }),
-  setSavingStatus: (status) => set({ savingStatus: status }),
-  setIsPresenting: (isPresenting) =>
-    set(() =>
-      isPresenting
-        ? { isPresenting: true, shouldShowExitHeader: false }
-        : getPresentModeResetState(),
-    ),
-  resetPresentMode: () => set(getPresentModeResetState()),
-  setIsPresentingLoading: (isLoading) =>
-    set({ isPresentingLoading: isLoading }),
-  setPresentingScaleLock: (slideId, locked) =>
-    set((state) => ({
-      presentingScaleLocks: {
-        ...state.presentingScaleLocks,
-        [slideId]: locked,
-      },
-    })),
-  resetPresentingScaleLocks: () => set({ presentingScaleLocks: {} }),
-  setCurrentSlideId: (id) => set({ currentSlideId: id }),
-  nextSlide: () => {
-    set((state) => {
-      const currentIndex = state.slides.findIndex(
-        (s) => s.id === state.currentSlideId,
-      );
-      const newIndex = Math.min(
-        (currentIndex === -1 ? 0 : currentIndex) + 1,
-        state.slides.length - 1,
-      );
-      const newSlideId = state.slides[newIndex]?.id ?? null;
-      return { currentSlideId: newSlideId };
-    });
-  },
-  previousSlide: () =>
-    set((state) => {
-      const currentIndex = state.slides.findIndex(
-        (s) => s.id === state.currentSlideId,
-      );
-      const newIndex = Math.max(
-        (currentIndex === -1 ? 0 : currentIndex) - 1,
-        0,
-      );
-      const newSlideId = state.slides[newIndex]?.id ?? null;
-      return {
-        currentSlideId: newSlideId,
+      cacheRef.current = {
+        slidesState,
+        generationState,
+        uiState,
+        settingsState,
+        mergedState,
+        selectedSnapshot: undefined,
       };
-    }),
 
-  // Generation actions
-  setShouldStartOutlineGeneration: (shouldStart) =>
-    set({ shouldStartOutlineGeneration: shouldStart }),
-  setShouldStartPresentationGeneration: (shouldStart) =>
-    set({ shouldStartPresentationGeneration: shouldStart }),
-  setShouldStartImageSlideGeneration: (shouldStart) =>
-    set({ shouldStartImageSlideGeneration: shouldStart }),
-  setIsGeneratingOutline: (isGenerating) =>
-    set({ isGeneratingOutline: isGenerating }),
-  setIsGeneratingPresentation: (isGenerating) =>
-    set({ isGeneratingPresentation: isGenerating }),
-  setPendingCreateRequest: (pendingCreateRequest) =>
-    set({ pendingCreateRequest }),
-  consumePendingCreateRequest: () => {
-    const pendingCreateRequest = get().pendingCreateRequest;
-    if (!pendingCreateRequest) {
-      return null;
-    }
+      return cacheRef.current;
+    };
 
-    set({ pendingCreateRequest: null });
-    return pendingCreateRequest;
+    const getSnapshot = () => {
+      const cached = getMergedSnapshot();
+      const nextSnapshot = selector(cached.mergedState);
+      if (isShallowEqual(cached.selectedSnapshot, nextSnapshot)) {
+        return cached.selectedSnapshot;
+      }
+      cached.selectedSnapshot = nextSnapshot;
+      return nextSnapshot;
+    };
+
+    return useSyncExternalStore(subscribe, getSnapshot, getSnapshot) as unknown;
   },
-  startOutlineGeneration: () =>
-    set({
-      ...getPresentModeResetState(),
-      shouldStartOutlineGeneration: true,
-      isGeneratingOutline: true,
-      shouldStartPresentationGeneration: false,
-      isGeneratingPresentation: false,
-      outline: [],
-      searchResults: [],
-      outlineTemplateOverrides: {},
-      slides: [],
-    }),
-  startPresentationGeneration: () =>
-    set((state) =>
-      state.outline.some((item) => item.trim().length > 0)
-        ? {
-            ...getPresentModeResetState(),
-            shouldStartPresentationGeneration: true,
-            isGeneratingPresentation: true,
-            slides: [],
-          }
-        : {
-            ...getPresentModeResetState(),
-            shouldStartPresentationGeneration: false,
-            isGeneratingPresentation: false,
-          },
-    ),
-  startImageSlideGeneration: () =>
-    set((state) =>
-      state.outline.some((item) => item.trim().length > 0)
-        ? {
-            ...getPresentModeResetState(),
-            shouldStartImageSlideGeneration: true,
-            isGeneratingPresentation: true,
-            slides: [],
-          }
-        : {
-            ...getPresentModeResetState(),
-            shouldStartImageSlideGeneration: false,
-            isGeneratingPresentation: false,
-          },
-    ),
-  resetGeneration: () =>
-    set({
-      shouldStartOutlineGeneration: false,
-      shouldStartPresentationGeneration: false,
-      shouldStartImageSlideGeneration: false,
-      isGeneratingOutline: false,
-      isGeneratingPresentation: false,
-      searchResults: [],
-    }),
+  {
+    getState: getMergedState,
+    setState: (
+      partialOrUpdater:
+        | Partial<PresentationState>
+        | ((state: PresentationState) => Partial<PresentationState>),
+      replace = false,
+    ) => {
+      const currentState = getMergedState();
+      const patch =
+        typeof partialOrUpdater === "function"
+          ? partialOrUpdater(currentState)
+          : partialOrUpdater;
 
-  // Reset everything except ID and current input when starting new outline generation
-  resetForNewGeneration: () =>
-    set(() => ({
-      ...getPresentModeResetState(),
-      thumbnailUrl: undefined,
-      outline: [],
-      searchResults: [],
-      slides: [],
-      rootImageGeneration: {},
-      pageBackground: {},
-      selectedSlideTemplates: [],
-      outlineTemplateOverrides: {},
-    })),
+      setPartialState(patch, slidesKeys, useSlidesStore, replace);
+      setPartialState(patch, generationKeys, useGenerationStore, replace);
+      setPartialState(patch, uiKeys, useUIStore, replace);
+      setPartialState(patch, settingsKeys, useSettingsStore, replace);
+    },
+  },
+) as UsePresentationState;
 
-  // Comprehensive reset when navigating back to /presentations page
-  resetPresentationState: () =>
-    set(() => ({
-      ...getPresentModeResetState(),
-      // Clear presentation-specific state
-      currentPresentationId: null,
-      currentPresentationTitle: null,
-      presentationInput: "",
-      outline: [],
-      slides: [],
-      searchResults: [],
-      rootImageGeneration: {},
-      pageBackground: {},
-      thumbnailUrl: undefined,
-
-      // Reset generation flags
-      shouldStartOutlineGeneration: false,
-      shouldStartPresentationGeneration: false,
-      isGeneratingOutline: false,
-      isGeneratingPresentation: false,
-      pendingCreateRequest: null,
-
-      // Reset UI state
-      activeRightPanel: null,
-      pendingAgentMessage: null,
-      imageEditorInitialMode: null,
-      presentationImageElementId: null,
-      presentationImageEditorInitialMode: null,
-      boundUpdateElement: null,
-      isSidebarCollapsed: false,
-      isRightPanelCollapsed: false,
-      currentSlideId: null,
-      savingStatus: "idle",
-      generatedImageCache: {},
-      selectedSlideTemplates: [],
-      outlineTemplateOverrides: {},
-      isReadOnly: false,
-    })),
-
-  setIsThemeCreatorOpen: (update) => set({ isThemeCreatorOpen: update }),
-  // Selection state
-  isSelecting: false,
-  selectedPresentations: [],
-  toggleSelecting: () =>
-    set((state) => ({
-      isSelecting: !state.isSelecting,
-      selectedPresentations: [],
-    })),
-  selectAllPresentations: (ids) => set({ selectedPresentations: ids }),
-  deselectAllPresentations: () => set({ selectedPresentations: [] }),
-  togglePresentationSelection: (id) =>
-    set((state) => ({
-      selectedPresentations: state.selectedPresentations.includes(id)
-        ? state.selectedPresentations.filter((p) => p !== id)
-        : [...state.selectedPresentations, id],
-    })),
-}));
+export { usePresentationState };

@@ -1,4 +1,4 @@
-import { createUIMessageStreamResponse } from "ai";
+import { streamText } from "ai";
 import {
   assertModelIsConfigured,
   DEFAULT_MODEL_PROVIDER,
@@ -7,11 +7,9 @@ import {
   modelPicker,
 } from "@/lib/modelPicker";
 import { createLogger } from "@/lib/observability/logger";
-import { toUIMessageStream } from "@ai-sdk/langchain";
 import { guardAiRoute } from "@/lib/api-guards";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { RunnableSequence } from "@langchain/core/runnables";
 import { NextResponse } from "next/server";
+import { fillTemplate } from "@/lib/ai/fillTemplate";
 
 interface ImageSlidesRequest {
   title: string;
@@ -130,7 +128,6 @@ export async function POST(req: Request) {
 
     const totalSlides = outline.length;
 
-    const prompt = PromptTemplate.fromTemplate(IMAGE_SLIDES_TEMPLATE);
     routeLogger.info("Validated image slide generation request", {
       requestId,
       title,
@@ -184,7 +181,6 @@ export async function POST(req: Request) {
       );
     }
     const model = modelPicker(modelProvider, modelId);
-    const chain = RunnableSequence.from([prompt, model]);
 
     routeLogger.info("Image slide generation started", {
       requestId,
@@ -193,12 +189,18 @@ export async function POST(req: Request) {
       modelProvider,
       modelId: modelId || DEFAULT_OPENROUTER_MODEL,
     });
-    const stream = await chain.stream({
+
+    const filledPrompt = fillTemplate(IMAGE_SLIDES_TEMPLATE, {
       TITLE: title,
       PROMPT: userPrompt || "No specific prompt provided",
       LANGUAGE: language,
       OUTLINE_FORMATTED: outline.join("\n\n"),
-      TOTAL_SLIDES: totalSlides,
+      TOTAL_SLIDES: totalSlides.toString(),
+    });
+
+    const result = streamText({
+      model,
+      prompt: filledPrompt,
     });
 
     routeLogger.info("Image slide generation stream created", {
@@ -206,9 +208,7 @@ export async function POST(req: Request) {
       title,
       totalSlides,
     });
-    return createUIMessageStreamResponse({
-      stream: toUIMessageStream(stream),
-    });
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     routeLogger.error("Image slide generation failed", error, { requestId });
     return NextResponse.json(

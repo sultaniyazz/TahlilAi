@@ -21,6 +21,7 @@ import { FilePlus2, Globe, Loader2, Presentation, Sparkles } from "lucide-react"
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { FileUploadButton } from "./FileUploadButton";
 import { toast } from "sonner";
 
 const LANGUAGES = [
@@ -146,6 +147,10 @@ export function PresentationDashboard() {
               placeholder="Yaratmoqchi bo‘lgan taqdimotingizni ta’riflang."
               className="min-h-36 resize-none"
             />
+
+            <div className="pb-4">
+              <FileUploadButton />
+            </div>
 
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <ModelPicker />

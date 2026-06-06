@@ -1,4 +1,4 @@
-import { createUIMessageStreamResponse } from "ai";
+import { streamText } from "ai";
 import {
   assertModelIsConfigured,
   DEFAULT_MODEL_PROVIDER,
@@ -6,11 +6,9 @@ import {
   modelPicker,
 } from "@/lib/modelPicker";
 import { createLogger } from "@/lib/observability/logger";
-import { toUIMessageStream } from "@ai-sdk/langchain";
 import { guardAiRoute } from "@/lib/api-guards";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { RunnableSequence } from "@langchain/core/runnables";
 import { NextResponse } from "next/server";
+import { fillTemplate } from "@/lib/ai/fillTemplate";
 
 interface GenerateSlideRequest {
   prompt: string;
@@ -23,13 +21,14 @@ interface GenerateSlideRequest {
 }
 
 const singleSlideTemplate = `
-You are an expert presentation designer. Your task is to create a SINGLE engaging slide in XML format.
+You are a data-driven presentation designer. Create a SINGLE visually compelling slide.
 
-## SLIDE REQUIREMENTS
-1. Generate exactly ONE <SECTION> tag
-2. Use creative content based on the user's prompt
-3. Choose an appropriate layout component for the content
-4. Include an image query if relevant
+## DECISION RULE — choose layout based on content:
+- Has numbers, percentages, trends, comparisons → CHART or STATS (preferred)
+- Has a process or steps → CYCLE or ARROWS
+- Has a comparison → COLUMNS or COMPARE
+- Has key facts → ICONS or BOXES
+- Last resort only → BULLETS
 
 ## USER REQUEST
 {PROMPT}
@@ -41,40 +40,64 @@ You are an expert presentation designer. Your task is to create a SINGLE engagin
 {LANGUAGE}
 
 ## OUTPUT FORMAT
-Return ONLY the XML for a single slide. No explanation, no wrapper tags.
+Return ONLY the XML for a single slide.
 
 \`\`\`xml
-<SECTION layout="left" | "right" | "vertical">
-  <!-- Choose ONE layout component -->
-  <!-- Include an IMG tag with query if relevant -->
+<SECTION layout="left|right|vertical">
+  <!-- ONE layout component -->
 </SECTION>
 \`\`\`
 
-## AVAILABLE LAYOUTS
-Choose ONE layout component that best fits the content:
+## PRIORITY LAYOUTS (use these first):
 
-1. COLUMNS: For comparisons
+**CHART** — for ANY data, trends, comparisons:
 \`\`\`xml
-<COLUMNS>
-  <DIV><H3>First Concept</H3><P>Description</P></DIV>
-  <DIV><H3>Second Concept</H3><P>Description</P></DIV>
-</COLUMNS>
+<CHART charttype="bar|line|area|pie|donut|radar|scatter">
+  <DATA><LABEL>Category 1</LABEL><VALUE>42</VALUE></DATA>
+  <DATA><LABEL>Category 2</LABEL><VALUE>67</VALUE></DATA>
+  <DATA><LABEL>Category 3</LABEL><VALUE>55</VALUE></DATA>
+</CHART>
 \`\`\`
 
-2. BULLETS: For key points
+**STATS** — for KPIs and key metrics:
 \`\`\`xml
-<BULLETS>
-  <DIV><H3>Main Point 1</H3><P>Description</P></DIV>
-  <DIV><H3>Main Point 2</H3><P>Second point with details</P></DIV>
-</BULLETS>
+<STATS statstype="circle|plain|bar">
+  <DIV stat="94"><H3>Customer Satisfaction</H3><P>vs. 72% industry avg</P></DIV>
+  <DIV stat="38"><H3>Revenue Growth %</H3><P>Year-over-year increase</P></DIV>
+  <DIV stat="2.4"><H3>Revenue $M</H3><P>Q4 2024 performance</P></DIV>
+</STATS>
 \`\`\`
 
-3. ICONS: For concepts with symbols
+**ICONS** — for concepts with symbols:
 \`\`\`xml
 <ICONS>
   <DIV icon="rocket"><H3>Innovation</H3><P>Description</P></DIV>
   <DIV icon="shield"><H3>Security</H3><P>Description</P></DIV>
 </ICONS>
+\`\`\`
+
+**CYCLE** — for processes:
+\`\`\`xml
+<CYCLE>
+  <DIV><H3>Step 1</H3><P>Description</P></DIV>
+  <DIV><H3>Step 2</H3><P>Description</P></DIV>
+</CYCLE>
+\`\`\`
+
+**COLUMNS** — for comparisons:
+\`\`\`xml
+<COLUMNS>
+  <DIV><H3>Option A</H3><P>Description</P></DIV>
+  <DIV><H3>Option B</H3><P>Description</P></DIV>
+</COLUMNS>
+\`\`\`
+
+**BULLETS** — last resort only:
+\`\`\`xml
+<BULLETS>
+  <DIV><H3>Point 1</H3><P>Description</P></DIV>
+  <DIV><H3>Point 2</H3><P>Description</P></DIV>
+</BULLETS>
 \`\`\`
 
 4. CYCLE: For processes and workflows
@@ -317,40 +340,35 @@ export async function POST(req: Request) {
     }
 
     const isImageSlide = slideType === "image";
-    const promptTemplate = PromptTemplate.fromTemplate(
-      isImageSlide ? singleImageSlideTemplate : singleSlideTemplate,
-    );
-    const chain = RunnableSequence.from([promptTemplate, model]);
+    const promptTemplate = isImageSlide
+      ? singleImageSlideTemplate
+      : singleSlideTemplate;
 
-    const input = isImageSlide
-      ? {
-          PROMPT: prompt,
-          CURRENT_SLIDE: currentSlide || "No current slide context provided.",
-          LANGUAGE: language || "en-US",
-          IMAGE_STYLE: imageStyle || "3D",
-          IMAGE_STYLE_GUIDANCE: getImageStyleGuidance(imageStyle),
-          TEXT_DENSITY: textDensity || "Balanced",
-          TEXT_DENSITY_GUIDANCE: getTextDensityGuidance(textDensity),
-        }
-      : {
-          PROMPT: prompt,
-          CURRENT_SLIDE: currentSlide || "No current slide context provided.",
-          LANGUAGE: language || "en-US",
-        };
+    const filledPrompt = fillTemplate(promptTemplate, {
+      PROMPT: prompt,
+      CURRENT_SLIDE: currentSlide || "No current slide context provided.",
+      LANGUAGE: language || "en-US",
+      IMAGE_STYLE: imageStyle || "3D",
+      IMAGE_STYLE_GUIDANCE: getImageStyleGuidance(imageStyle),
+      TEXT_DENSITY: textDensity || "Balanced",
+      TEXT_DENSITY_GUIDANCE: getTextDensityGuidance(textDensity),
+    });
+
     routeLogger.info("Single slide generation started", {
       requestId,
       slideType: isImageSlide ? "image" : "standard",
     });
-    // @ts-expect-error types are incorrectly inferred
-    const stream = await chain.stream(input);
+
+    const result = streamText({
+      model,
+      prompt: filledPrompt,
+    });
 
     routeLogger.info("Single slide generation stream created", {
       requestId,
       slideType: isImageSlide ? "image" : "standard",
     });
-    return createUIMessageStreamResponse({
-      stream: toUIMessageStream(stream),
-    });
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     routeLogger.error("Single slide generation failed", error, { requestId });
     return NextResponse.json(

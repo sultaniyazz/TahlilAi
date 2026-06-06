@@ -30,8 +30,8 @@ export function useLandingCreate() {
     resetPresentationState,
   } = usePresentationState();
 
-  const createPresentation = async () => {
-    const prompt = presentationInput.trim();
+  const createPresentation = async (analysisPrompt?: string) => {
+    const prompt = analysisPrompt?.trim() || presentationInput.trim() || "";
     if (!prompt) {
       return;
     }

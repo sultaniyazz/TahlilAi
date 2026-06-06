@@ -197,9 +197,7 @@ ${
   });
 
   return createAgent({
-    model: modelPicker(modelProvider, modelId).withConfig({
-      parallel_tool_calls: false,
-    }),
+    model: modelPicker(modelProvider, modelId) as unknown as any,
     tools: [...presentationTools],
     name: "presentation_agent",
     middleware: [

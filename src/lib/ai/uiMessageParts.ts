@@ -18,6 +18,13 @@ export function getLatestUserMessage(messages: UIMessage[]) {
   return [...messages].reverse().find((message) => message.role === "user");
 }
 
+export function toModelMessages(messages: UIMessage[]) {
+  return messages.map((message) => ({
+    role: message.role,
+    content: getMessageText(message),
+  }));
+}
+
 export function isToolPart(part: UIMessage["parts"][number]): part is UIToolPart {
   return part.type === "dynamic-tool" || part.type.startsWith("tool-");
 }

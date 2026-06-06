@@ -24,9 +24,9 @@ import Link from "next/link";
 import { fadeIn } from "./landing-motion";
 
 const NAV_ITEMS = [
-  { label: "Features", href: "#features" },
+  { label: "Xususiyatlari", href: "#features" },
   { label: "Demo", href: "#demo" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Narxlar", href: "#pricing" },
 ] as const;
 
 function HeaderThemeToggle() {
@@ -75,7 +75,7 @@ export function LandingHeader() {
       variants={fadeIn}
       className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl"
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 w-full max-w-[75vw] items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           href="/presentation"
           className="flex items-center gap-3 rounded-full transition duration-500 ease-out hover:text-foreground"

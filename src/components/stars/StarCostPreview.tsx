@@ -20,13 +20,13 @@ export function StarCostPreview({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm dark:border-amber-800 dark:bg-amber-950">
+      <div className="flex items-center gap-2 rounded-lg border border-amber-200 px-4 py-2 text-sm dark:border-amber-800 ">
         <Star className="h-4 w-4 text-amber-500" />
         <span>
-          This presentation will use <strong>{cost} stars</strong>
+          Ushbu taqdimot <strong>{cost} ta yulduzcha</strong> foydalanadi
         </span>
         {userStars !== null && (
-          <span className="text-muted-foreground">({userStars} remaining)</span>
+          <span className="text-muted-foreground">({userStars} qolgan)</span>
         )}
       </div>
       {insufficient && (

@@ -120,8 +120,42 @@ export function ChartRenderer({
   const valueKey = getValueKey(dataArray);
   const config = buildChartConfigOptions(chartOptions as unknown as TChartNode);
 
-  console.log(themeConfig);
-  const primaryColor = (chartOptions.color as string) ?? getChartColor(0);
+  // Use theme-aware colors
+  const themeColors = themeConfig.colors;
+  const primaryColor = (chartOptions.color as string) ?? themeColors[0] ?? getChartColor(0);
+
+  // Helper: get Nth theme color with fallback
+  const getThemeColor = (index: number): string =>
+    themeColors[index % themeColors.length] ?? getChartColor(index);
+
+  // Common AG Charts theme overrides for professional look
+  const baseTheme = {
+    baseTheme: themeConfig.theme,
+    palette: { fills: themeColors, strokes: themeColors },
+    overrides: {
+      common: {
+        padding: { top: 16, right: 16, bottom: 16, left: 16 },
+        background: { fill: "transparent" },
+        axes: {
+          category: {
+            line: { stroke: themeConfig.axisColor },
+            tick: { stroke: themeConfig.axisColor },
+            label: { color: themeConfig.labelColor, fontSize: 11 },
+            gridLine: { style: [{ stroke: themeConfig.axisColor, lineDash: [4, 4] }] },
+          },
+          number: {
+            line: { stroke: themeConfig.axisColor },
+            tick: { stroke: themeConfig.axisColor },
+            label: { color: themeConfig.labelColor, fontSize: 11 },
+            gridLine: { style: [{ stroke: themeConfig.axisColor, lineDash: [4, 4] }] },
+          },
+        },
+        legend: {
+          item: { label: { color: themeConfig.labelColor, fontSize: 12 } },
+        },
+      },
+    },
+  };
 
   const containerClass = cn(
     "h-full w-full rounded-lg border bg-card p-2 shadow-2xs",
@@ -139,9 +173,10 @@ export function ChartRenderer({
 
   switch (chartType) {
     case PIE_CHART_ELEMENT: {
-      const colors = dataArray.map((_, index) => getChartColor(index));
+      const colors = dataArray.map((_, index) => getThemeColor(index));
 
       options = {
+        theme: baseTheme,
         data: dataArray,
         series: [
           {
@@ -149,26 +184,34 @@ export function ChartRenderer({
             angleKey: valueKey,
             legendItemKey: labelKey,
             fills: colors,
-            strokes: colors,
+            strokes: colors.map(c => c + "cc"),
+            strokeWidth: 1,
+            calloutLabel: { enabled: true, color: themeConfig.labelColor, fontSize: 11 },
+            sectorLabel: { enabled: false },
+            tooltip: { renderer: ({ datum }: { datum: AnyRecord }) => ({
+              content: `${datum[labelKey]}: ${datum[valueKey]}`,
+            }) },
           },
         ],
-        legend: config.legend,
+        legend: { ...config.legend, position: "bottom" as const },
         animation: config.animation,
-        background: config.background,
+        background: { fill: "transparent" },
       };
 
       break;
     }
 
     case DONUT_CHART_ELEMENT: {
-      const colors = dataArray.map((_, index) => getChartColor(index));
+      const colors = dataArray.map((_, index) => getThemeColor(index));
       const innerLabels =
         (chartOptions.innerLabels as Record<string, unknown>[]) ?? undefined;
       const innerCircle =
         (chartOptions.innerCircle as Record<string, unknown>) ?? undefined;
-      const innerRadiusRatio = (chartOptions.innerRadiusRatio as number) ?? 0.7;
+      const innerRadiusRatio = (chartOptions.innerRadiusRatio as number) ?? 0.65;
+      const total = dataArray.reduce((sum, d) => sum + ((d as AnyRecord)[valueKey] as number || 0), 0);
 
       options = {
+        theme: baseTheme,
         data: dataArray,
         series: [
           {
@@ -176,54 +219,66 @@ export function ChartRenderer({
             calloutLabelKey: labelKey,
             angleKey: valueKey,
             fills: colors,
-            strokes: colors,
-            innerLabels,
+            strokes: colors.map(c => c + "cc"),
+            strokeWidth: 1,
+            innerLabels: innerLabels ?? [{ text: String(total), fontSize: 20, color: themeConfig.labelColor, fontWeight: "bold" }],
             innerCircle,
             innerRadiusRatio,
+            tooltip: { renderer: ({ datum }: { datum: AnyRecord }) => ({
+              content: `${datum[labelKey]}: ${datum[valueKey]} (${Math.round((datum[valueKey] as number / total) * 100)}%)`,
+            }) },
           },
         ],
-        legend: config.legend,
+        legend: { ...config.legend, position: "bottom" as const },
         animation: config.animation,
-        background: config.background,
+        background: { fill: "transparent" },
       };
       break;
     }
 
     case BAR_CHART_ELEMENT: {
       const isHorizontal = chartOptions.orientation === "horizontal";
+      const isGrouped = chartOptions.grouped === true;
+      const valueKeys = isGrouped ? getValueKeys(dataArray) : [valueKey];
 
       options = {
+        theme: baseTheme,
         data: dataArray,
-        series: [
-          {
-            type: "bar",
-            xKey: labelKey,
-            yKey: valueKey,
-            yName: keyToLabel(valueKey),
-            fill: primaryColor,
-            stroke: primaryColor,
-            direction: isHorizontal ? "horizontal" : "vertical",
-          },
-        ],
+        series: valueKeys.map((key, idx) => ({
+          type: "bar",
+          xKey: labelKey,
+          yKey: key,
+          yName: keyToLabel(key),
+          fill: getThemeColor(idx),
+          stroke: getThemeColor(idx) + "99",
+          strokeWidth: 0,
+          cornerRadius: 4,
+          direction: isHorizontal ? "horizontal" : "vertical",
+          tooltip: { renderer: ({ datum }: { datum: AnyRecord }) => ({
+            content: `${datum[labelKey]}: ${datum[key]}`,
+          }) },
+        })),
         axes: [
           {
             type: "category",
             position: isHorizontal ? "left" : "bottom",
-            label: config.xAxis.showLabel ? {} : { enabled: false },
-            gridLine: config.xAxis.showGrid ? {} : { enabled: false },
+            label: config.xAxis.showLabel ? { color: themeConfig.labelColor, fontSize: 11 } : { enabled: false },
+            gridLine: { style: [{ stroke: themeConfig.axisColor, lineDash: [4, 4] }] },
             title: config.xAxis.title,
+            line: { stroke: themeConfig.axisColor },
           },
           {
             type: "number",
             position: isHorizontal ? "bottom" : "left",
-            label: config.yAxis.showLabel ? {} : { enabled: false },
-            gridLine: config.yAxis.showGrid ? {} : { enabled: false },
+            label: config.yAxis.showLabel ? { color: themeConfig.labelColor, fontSize: 11 } : { enabled: false },
+            gridLine: { style: [{ stroke: themeConfig.axisColor, lineDash: [4, 4] }] },
             title: config.yAxis.title,
+            line: { stroke: themeConfig.axisColor },
           },
         ],
-        legend: config.legend,
+        legend: isGrouped ? config.legend : { ...config.legend, enabled: false },
         animation: config.animation,
-        background: config.background,
+        background: { fill: "transparent" },
       };
       break;
     }
@@ -232,19 +287,25 @@ export function ChartRenderer({
       const valueKeys = getValueKeys(dataArray);
 
       options = {
+        theme: baseTheme,
         data: dataArray,
         series: valueKeys.map((key, index) => ({
           type: "line",
           xKey: labelKey,
           yKey: key,
           yName: keyToLabel(key),
-          stroke: index === 0 ? primaryColor : getChartColor(index),
-          strokeWidth: 2,
+          stroke: getThemeColor(index),
+          strokeWidth: 2.5,
           marker: {
             enabled: true,
-            size: 6,
-            fill: index === 0 ? primaryColor : getChartColor(index),
+            size: 5,
+            fill: getThemeColor(index),
+            stroke: getThemeColor(index),
+            strokeWidth: 0,
           },
+          tooltip: { renderer: ({ datum }: { datum: AnyRecord }) => ({
+            content: `${datum[labelKey]}: ${datum[key]}`,
+          }) },
         })),
         axes: [
           {
@@ -273,16 +334,21 @@ export function ChartRenderer({
       const valueKeys = getValueKeys(dataArray);
 
       options = {
+        theme: baseTheme,
         data: dataArray,
         series: valueKeys.map((key, index) => ({
           type: "area",
           xKey: labelKey,
           yKey: key,
           yName: keyToLabel(key),
-          fill: index === 0 ? primaryColor : getChartColor(index),
-          stroke: index === 0 ? primaryColor : getChartColor(index),
-          fillOpacity: 0.4,
+          fill: getThemeColor(index),
+          stroke: getThemeColor(index),
+          fillOpacity: 0.25,
+          strokeWidth: 2,
           marker: { enabled: false },
+          tooltip: { renderer: ({ datum }: { datum: AnyRecord }) => ({
+            content: `${datum[labelKey]}: ${datum[key]}`,
+          }) },
         })),
         axes: [
           {
@@ -311,20 +377,25 @@ export function ChartRenderer({
       const valueKeys = getValueKeys(dataArray);
 
       options = {
+        theme: baseTheme,
         data: dataArray,
         series: valueKeys.map((key, index) => ({
           type: "radar-area",
           angleKey: labelKey,
           radiusKey: key,
           radiusName: keyToLabel(key),
-          stroke: getChartColor(index),
-          fill: getChartColor(index),
-          fillOpacity: 0.2,
-          marker: { enabled: true, size: 4, fill: getChartColor(index) },
+          stroke: getThemeColor(index),
+          fill: getThemeColor(index),
+          fillOpacity: 0.18,
+          strokeWidth: 2,
+          marker: { enabled: true, size: 4, fill: getThemeColor(index), stroke: "none" },
+          tooltip: { renderer: ({ datum }: { datum: AnyRecord }) => ({
+            content: `${datum[labelKey]}: ${datum[key]}`,
+          }) },
         })),
         legend: config.legend,
         animation: config.animation,
-        background: config.background,
+        background: { fill: "transparent" },
       };
       break;
     }

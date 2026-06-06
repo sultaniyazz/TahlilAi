@@ -1,24 +1,14 @@
-import { createPresentationGraph } from "@/ai/agents/presentation/createAgent";
-import { ensureCheckpointerSetup } from "@/ai/lib/postgres";
-import { getLatestUserMessage } from "@/lib/ai/uiMessageParts";
 import {
   assertModelIsConfigured,
   DEFAULT_MODEL_PROVIDER,
   DEFAULT_OPENROUTER_MODEL,
   ensureModelIsReady,
+  modelPicker,
 } from "@/lib/modelPicker";
 import { createLogger } from "@/lib/observability/logger";
 import { guardAiRoute } from "@/lib/api-guards";
-import { toBaseMessages, toUIMessageStream } from "@ai-sdk/langchain";
-import { type HumanMessage } from "@langchain/core/messages";
-import { Command } from "@langchain/langgraph";
-import { createUIMessageStreamResponse, type UIMessage } from "ai";
-
-type PresentationStreamOptions = Parameters<
-  ReturnType<typeof createPresentationGraph>["stream"]
->[1] & {
-  interruptBefore?: string[];
-};
+import { streamText, type UIMessage } from "ai";
+import { toModelMessages } from "@/lib/ai/uiMessageParts";
 
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
@@ -59,7 +49,6 @@ export async function POST(req: Request) {
     }
     const { session } = guard;
 
-    await ensureCheckpointerSetup();
     try {
       assertModelIsConfigured(modelProvider ?? DEFAULT_MODEL_PROVIDER, modelId);
     } catch (error) {
@@ -99,57 +88,33 @@ export async function POST(req: Request) {
       );
     }
 
-    const graph = createPresentationGraph({
-      modelProvider,
-      modelId,
-    });
-    const streamOptions: PresentationStreamOptions = {
-      streamMode: ["values", "messages"],
-      interruptBefore: ["tools"],
-      configurable: {
-        thread_id: id,
-      },
-    };
+    const messagesArray = Array.isArray(messages) ? messages : [];
+    if (messagesArray.length === 0) {
+      routeLogger.error("Presentation agent request rejected: no messages", {
+        requestId,
+        presentationId: id,
+      });
+      return new Response("No messages provided", { status: 400 });
+    }
 
     routeLogger.info("Presentation agent generation started", {
       requestId,
       presentationId: id,
       isResume: Boolean(resumeData),
+      messageCount: messagesArray.length,
     });
-    const stream = resumeData
-      ? await graph.stream(
-          new Command({ resume: resumeData }),
-          streamOptions as Parameters<typeof graph.stream>[1],
-        )
-      : await (async () => {
-          const latestUserMessage = getLatestUserMessage(
-            Array.isArray(messages) ? messages : [],
-          );
 
-          const [lastUserMessage] = latestUserMessage
-            ? await toBaseMessages([latestUserMessage])
-            : [];
-
-          if (!lastUserMessage) {
-            throw new Error("No user message found in request");
-          }
-
-          return graph.stream(
-            {
-              messages: [lastUserMessage as HumanMessage],
-            },
-            streamOptions as Parameters<typeof graph.stream>[1],
-          );
-        })();
+    const result = streamText({
+      model: modelPicker(modelProvider ?? DEFAULT_MODEL_PROVIDER, modelId),
+      messages: toModelMessages(messagesArray),
+    });
 
     routeLogger.info("Presentation agent stream created", {
       requestId,
       presentationId: id,
       isResume: Boolean(resumeData),
     });
-    return createUIMessageStreamResponse({
-      stream: toUIMessageStream(stream),
-    });
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     routeLogger.error("Presentation agent request failed", error, {
       requestId,

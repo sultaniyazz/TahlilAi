@@ -1,12 +1,10 @@
 import { templates } from "@/constants/antv-templates";
 import { modelPicker } from "@/lib/modelPicker";
 import { guardAiRoute } from "@/lib/api-guards";
-import { toUIMessageStream } from "@ai-sdk/langchain";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { RunnableSequence } from "@langchain/core/runnables";
-import { createUIMessageStreamResponse } from "ai";
+import { streamText } from "ai";
 import { NextResponse } from "next/server";
 import "server-only";
+import { fillTemplate } from "@/lib/ai/fillTemplate";
 
 const INFOGRAPHIC_MODEL = "google/gemini-3-flash-preview";
 
@@ -173,11 +171,6 @@ relations
 
 Apply the user's requested changes to the infographic and output the complete modified syntax.`;
 
-const editDiagramChain = RunnableSequence.from([
-  PromptTemplate.fromTemplate(SYSTEM_PROMPT),
-  modelPicker("openrouter", INFOGRAPHIC_MODEL),
-]);
-
 export async function POST(req: Request) {
   try {
     const guard = await guardAiRoute();
@@ -204,16 +197,18 @@ export async function POST(req: Request) {
     }
 
     const templateList = organizeTemplates(templates);
-
-    const stream = await editDiagramChain.stream({
+    const filledPrompt = fillTemplate(SYSTEM_PROMPT, {
       currentSyntax,
       prompt,
       templateList,
     });
 
-    return createUIMessageStreamResponse({
-      stream: toUIMessageStream(stream),
+    const result = streamText({
+      model: modelPicker("openrouter", INFOGRAPHIC_MODEL),
+      prompt: filledPrompt,
     });
+
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error("Edit diagram error:", error);
     return NextResponse.json(

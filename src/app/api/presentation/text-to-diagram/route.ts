@@ -1,11 +1,9 @@
 import { templates } from "@/constants/antv-templates";
 import { modelPicker } from "@/lib/modelPicker";
 import { guardAiRoute } from "@/lib/api-guards";
-import { toUIMessageStream } from "@ai-sdk/langchain";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { RunnableSequence } from "@langchain/core/runnables";
-import { createUIMessageStreamResponse } from "ai";
+import { streamText } from "ai";
 import { NextResponse } from "next/server";
+import { fillTemplate } from "@/lib/ai/fillTemplate";
 
 const INFOGRAPHIC_MODEL = "google/gemini-3-flash-preview";
 
@@ -185,11 +183,6 @@ The following text is a selected excerpt from a presentation or document. Your t
 
 Convert the above content into an AntV infographic diagram.`;
 
-const diagramChain = RunnableSequence.from([
-  PromptTemplate.fromTemplate(SYSTEM_PROMPT),
-  modelPicker("openrouter", INFOGRAPHIC_MODEL),
-]);
-
 export async function POST(req: Request) {
   console.log("I got called");
   try {
@@ -207,15 +200,17 @@ export async function POST(req: Request) {
     }
 
     const templateList = organizeTemplates(templates);
-
-    const stream = await diagramChain.stream({
+    const filledPrompt = fillTemplate(SYSTEM_PROMPT, {
       prompt,
       templateList,
     });
 
-    return createUIMessageStreamResponse({
-      stream: toUIMessageStream(stream),
+    const result = streamText({
+      model: modelPicker("openrouter", INFOGRAPHIC_MODEL),
+      prompt: filledPrompt,
     });
+
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error("Text to diagram generation error:", error);
     return NextResponse.json(

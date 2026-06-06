@@ -269,6 +269,7 @@ export default function FileUpload({
         <div className="flex justify-end pt-4">
           <Button
             variant={isLoading ? "loading" : "default"}
+            disabled={isLoading}
             onClick={async () => onUpload?.(files)}
           >
             Upload

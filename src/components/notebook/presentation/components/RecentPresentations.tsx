@@ -90,7 +90,7 @@ function PresentationCard({
 }) {
   const router = useRouter();
   const { resolvedTheme: cardResolvedTheme } = useTheme();
-  const isDarkCard = cardResolvedTheme === "dark" || cardResolvedTheme === undefined;
+  const isDarkCard = cardResolvedTheme === "dark";
   const isFavorited = (item.favorites?.length ?? 0) > 0;
 
   if (view === "list") {
@@ -125,10 +125,10 @@ function PresentationCard({
 
         {/* Info */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-white/90">
+          <p className={cn("truncate text-sm font-medium", isDarkCard ? "text-white/90" : "text-black") }>
             {item.title || "Untitled Presentation"}
           </p>
-          <p className="text-xs text-white/40">
+          <p className={cn("text-xs", isDarkCard ? "text-white/40" : "text-gray-500")}>
             {formatDistanceToNow(new Date(item.updatedAt), { addSuffix: true })}
           </p>
         </div>
@@ -264,14 +264,31 @@ function PresentationCard({
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 function EmptyState({ onCreateNew }: { onCreateNew: () => void }) {
+  const { resolvedTheme } = useTheme();
+  const isDarkEmpty = resolvedTheme === "dark";
+
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="mb-3 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
-        <Presentation className="h-7 w-7 text-white/25" />
+      <div
+        className={cn(
+          "mb-3 rounded-lg p-4",
+          isDarkEmpty
+            ? "border border-white/[0.06] bg-white/[0.03]"
+            : "border border-gray-200 bg-white",
+        )}
+      >
+        <Presentation className={cn("h-7 w-7", isDarkEmpty ? "text-white/25" : "text-slate-500")} />
       </div>
-      <p className="mb-1 text-sm font-medium text-white/50">Hali taqdimotlar yo'q</p>
-      <p className="mb-4 text-xs text-white/25">Birinchi AI quvvatlaydigan taqdimotingizni yarating</p>
-      <Button size="sm" onClick={onCreateNew} className="gap-2 bg-white/10 text-white/80 hover:bg-white/15">
+      <p className={cn("mb-1 text-sm font-medium", isDarkEmpty ? "text-white/50" : "text-slate-950")}>Hali taqdimotlar yo'q</p>
+      <p className={cn("mb-4 text-xs", isDarkEmpty ? "text-white/25" : "text-slate-500")}>Birinchi AI quvvatlaydigan taqdimotingizni yarating</p>
+      <Button
+        size="sm"
+        onClick={onCreateNew}
+        className={cn(
+          "gap-2",
+          isDarkEmpty ? "bg-white/10 text-white/80 hover:bg-white/15" : "bg-slate-950 text-white hover:bg-slate-900",
+        )}
+      >
         <Plus className="h-4 w-4" />
         Presentatsiya yaratish
       </Button>
@@ -321,11 +338,11 @@ export function RecentPresentations({
     }
   };
 
-  const isDark = resolvedTheme === "dark" || resolvedTheme === undefined;
+  const isDark = resolvedTheme === "dark";
 
   return (
     <section className="px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto w-full max-w-[75vw]">
         <div
           className={cn(
             "rounded-2xl p-0.5 w-full",
@@ -348,8 +365,8 @@ export function RecentPresentations({
                     ? "bg-white/10 text-white shadow-sm"
                     : "text-white/40 hover:bg-white/[0.05] hover:text-white/70"
                   : activeTab === tab.id
-                  ? "bg-gray-100 text-black shadow-sm"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-black",
+                  ? "bg-gray-100 text-slate-950 shadow-sm"
+                  : "text-slate-700 hover:bg-gray-100 hover:text-slate-950",
               )}
             >
               {tab.icon}
@@ -373,7 +390,7 @@ export function RecentPresentations({
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Qidiruv..."
               className={cn(
-                "h-8 w-36 pl-8 text-xs placeholder:text-gray-400 focus-visible:ring-0",
+                "h-8 w-full pl-8 text-xs placeholder:text-gray-400 focus-visible:ring-0",
                 isDark
                   ? "border-white/[0.06] bg-white/[0.03] text-white/80 placeholder:text-white/25"
                   : "border-gray-200 bg-white text-black placeholder:text-gray-400",
@@ -395,15 +412,26 @@ export function RecentPresentations({
           </Button>
 
           {/* View toggle */}
-          <div className="flex items-center rounded-lg border border-white/[0.06] bg-white/[0.03] p-0.5">
+          <div
+            className={cn(
+              "flex items-center rounded-lg p-0.5",
+              isDark
+                ? "border border-white/[0.06] bg-white/[0.03]"
+                : "border border-gray-200 bg-white",
+            )}
+          >
             <button
               type="button"
               onClick={() => setView("grid")}
               className={cn(
                 "rounded-md p-1.5 transition-all",
-                view === "grid"
-                  ? "bg-white/10 text-white"
-                  : "text-white/30 hover:text-white/60",
+                isDark
+                  ? view === "grid"
+                    ? "bg-white/10 text-white"
+                    : "text-white/30 hover:text-white/60"
+                  : view === "grid"
+                  ? "bg-slate-950/10 text-slate-950"
+                  : "text-slate-700 hover:text-slate-950 hover:bg-gray-100",
               )}
             >
               <Grid3X3 className="h-3.5 w-3.5" />
@@ -413,9 +441,13 @@ export function RecentPresentations({
               onClick={() => setView("list")}
               className={cn(
                 "rounded-md p-1.5 transition-all",
-                view === "list"
-                  ? "bg-white/10 text-white"
-                  : "text-white/30 hover:text-white/60",
+                isDark
+                  ? view === "list"
+                    ? "bg-white/10 text-white"
+                    : "text-white/30 hover:text-white/60"
+                  : view === "list"
+                  ? "bg-slate-950/10 text-slate-950"
+                  : "text-slate-700 hover:text-slate-950 hover:bg-gray-100",
               )}
             >
               <LayoutList className="h-3.5 w-3.5" />

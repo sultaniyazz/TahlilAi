@@ -17,11 +17,12 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Globe, Loader2, Shuffle, Wand2 } from "lucide-react";
+import { Globe, Loader2, Shuffle, Wand2, FileText, Paperclip } from "lucide-react";
+import { useFileAnalysis } from "@/hooks/presentation/useFileAnalysis";
+import { useRef, useState, type ChangeEvent } from "react";
+import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { useReducedMotion } from "motion/react";
-import { useState } from "react";
-import { EXAMPLE_PROMPTS } from "./example-prompts";
 import {
   fadeInUp,
   reducedFadeInUp,
@@ -46,18 +47,52 @@ const LANGUAGES = [
 
 const SLIDES_OPTIONS = Array.from({ length: 12 }, (_, index) => `${index + 1}`);
 
-function shuffle<T>(items: readonly T[]): T[] {
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const current = copy[i];
-    const swap = copy[j];
-    if (current !== undefined && swap !== undefined) {
-      copy[i] = swap;
-      copy[j] = current;
-    }
-  }
-  return copy;
+function FileUploadCard({
+  fileName,
+  isAnalyzing,
+  onRemove,
+}: {
+  fileName: string;
+  isAnalyzing: boolean;
+  onRemove: () => void;
+}) {
+  const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
+  const isPdf = ext === "pdf";
+  const isDocx = ext === "docx" || ext === "doc";
+  const isImg = ["jpg", "jpeg", "png", "webp", "gif"].includes(ext);
+
+  const iconBg = isPdf
+    ? "bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400"
+    : isDocx
+    ? "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+    : isImg
+    ? "bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400"
+    : "bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400";
+
+  return (
+    <div className="rounded-2xl border border-border/60 bg-background/90 px-4 py-4 text-sm text-foreground shadow-sm">
+      <div className="flex items-start gap-3">
+        <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${iconBg}`}>
+          <FileText className="h-5 w-5" aria-hidden="true" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium">{fileName}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {isAnalyzing
+              ? "Tahlil qilinmoqda..."
+              : "Tahlil tugadi — taqdimot uchun tayyor."}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onRemove}
+          className="rounded-full border border-border/60 bg-muted px-3 py-1 text-xs font-medium text-foreground transition hover:bg-muted/90"
+        >
+          O'chirish
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // Word-by-word hero headline
@@ -154,9 +189,32 @@ export function LandingHero() {
     setWebSearchEnabled,
     isCreating,
     createPresentation,
-    applyExample,
     maxPromptLength,
   } = useLandingCreate();
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const { analyzeFiles, isAnalyzing, analysisResult, clearAnalysis } = useFileAnalysis();
+
+  const handleUploadFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files ? (Array.from(event.target.files) as File[]) : [];
+    if (files.length === 0) return;
+
+    setUploadedFileName(files[0]?.name ?? null);
+    setPresentationInput("");
+
+    const data = await analyzeFiles(files);
+    if (!data) {
+      setUploadedFileName(null);
+    }
+
+    event.target.value = "";
+  };
+
+  const removeUploadedFile = () => {
+    clearAnalysis();
+    setUploadedFileName(null);
+  };
 
   const userStars = starsData?.stars ?? null;
   const starCost = calculateStarCost({ slides: numSlides, textContent });
@@ -164,8 +222,6 @@ export function LandingHero() {
     status === "authenticated" &&
     userStars !== null &&
     userStars < starCost;
-
-  const [examples, setExamples] = useState(EXAMPLE_PROMPTS);
 
   const enterVariant = shouldReduceMotion ? reducedFadeInUp : fadeInUp;
   const cardHover = shouldReduceMotion ? reducedHoverLift : hoverLift;
@@ -176,6 +232,15 @@ export function LandingHero() {
     return lang ? lang[1] : langCode;
   };
 
+  const fileTypeLabel = (fileName: string | null) => {
+    const extension = fileName?.split(".").pop()?.toLowerCase() ?? "";
+
+    if (extension === "pdf") return "PDF";
+    if (extension === "docx" || extension === "doc") return "Word";
+    if (extension === "txt") return "Text";
+    return "Fayl";
+  };
+
   return (
     <section className="relative overflow-hidden px-4 pb-20 pt-16 sm:px-6 sm:pt-20">
       <div
@@ -184,7 +249,7 @@ export function LandingHero() {
       />
 
       <motion.div
-        className="mx-auto max-w-4xl text-center"
+        className="mx-auto w-full max-w-[75vw] text-center"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
@@ -208,16 +273,70 @@ export function LandingHero() {
           variants={enterVariant}
           className="mx-auto mt-10 max-w-3xl rounded-2xl border border-border/60 bg-card/80 p-4 shadow-lg backdrop-blur-sm transition-shadow duration-500 hover:shadow-xl sm:p-6"
         >
-          <Textarea
-            value={presentationInput}
-            onChange={(event) => setPresentationInput(event.target.value)}
-            placeholder="Taqdimot mavzusini ta'riflang yoki kontentingizni shu yerga joylang. AI uni mukammal taqdimot shakliga keltirib beradi."
-            className="min-h-32 resize-none border-0 bg-transparent text-base shadow-none focus-visible:ring-0"
-            aria-label="Taqdimot mavzusi yoki kontenti"
+          <AnimatePresence mode="wait">
+            {!uploadedFileName ? (
+              <motion.div
+                key="textarea"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <div className="relative">
+                  <Textarea
+                    value={presentationInput}
+                    onChange={(event) => setPresentationInput(event.target.value)}
+                    placeholder={
+                      analysisResult?.prompt
+                        ? "Fayl tahlil qilindi. So‘rov faqat fayldan olinadi."
+                        : "Taqdimot mavzusini ta'riflang yoki kontentingizni shu yerga joylang. AI uni mukammal taqdimot shakliga keltirib beradi."
+                    }
+                    className="min-h-[8rem] resize-none border-0 bg-transparent text-base shadow-none focus-visible:ring-0 pr-12"
+                    aria-label="Taqdimot mavzusi yoki kontenti"
+                    disabled={Boolean(analysisResult?.prompt)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute right-3 bottom-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/90 text-muted-foreground shadow-sm transition-colors hover:bg-muted/80 hover:text-foreground"
+                    aria-label="Fayl yuklash"
+                  >
+                    <Paperclip className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="file-card"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <FileUploadCard
+                  fileName={uploadedFileName ?? "Fayl"}
+                  isAnalyzing={isAnalyzing}
+                  onRemove={removeUploadedFile}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.docx,.doc,.txt"
+            className="hidden"
+            onChange={handleUploadFile}
           />
+
           <div className="mt-2 text-right text-xs text-muted-foreground">
             {presentationInput.length}/{maxPromptLength} belgi
           </div>
+
+          
+
+          
 
           {status === "authenticated" && (
             <div className="mt-4 border-t border-border/50 pt-4">
@@ -289,9 +408,9 @@ export function LandingHero() {
                 type="button"
                 className="w-full gap-2 bg-foreground text-background shadow-md transition-all duration-300 hover:bg-foreground/90 hover:shadow-lg sm:w-auto"
                 disabled={
-                  isCreating || !presentationInput.trim() || insufficientStars
+                  isCreating || (!(presentationInput.trim() || analysisResult?.prompt?.trim())) || insufficientStars
                 }
-                onClick={() => void createPresentation()}
+                onClick={() => void createPresentation(analysisResult?.prompt)}
               >
                 {isCreating ? (
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -302,68 +421,6 @@ export function LandingHero() {
               </Button>
             </motion.div>
           </div>
-        </motion.div>
-
-        <motion.div
-          variants={enterVariant}
-          className="mx-auto mt-14 max-w-5xl text-left"
-        >
-          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold">Namunalarni sinab ko'ring</h2>
-              <p className="text-sm text-muted-foreground">
-                Boshlash uchun istalgan namunani bosing
-              </p>
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="gap-2 transition-all duration-300 hover:border-primary/40 hover:bg-muted/60"
-              onClick={() => setExamples(shuffle(EXAMPLE_PROMPTS))}
-              aria-label="Namunalarni aralashtirish"
-            >
-              <Shuffle className="h-4 w-4" aria-hidden="true" />
-              Aralashtirish
-            </Button>
-          </div>
-
-          <motion.div
-            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
-          >
-            {examples.map((example) => (
-              <motion.button
-                key={example.id}
-                type="button"
-                variants={enterVariant}
-                whileHover={cardHover}
-                whileTap={tapScale}
-                onClick={() =>
-                  applyExample(example.prompt, example.slides, example.language)
-                }
-                className={cn(
-                  "group flex flex-col rounded-xl border border-border/60 bg-card/60 p-4 text-left",
-                  "shadow-sm transition-[border-color,box-shadow,background-color] duration-300",
-                  "hover:border-primary/30 hover:bg-card hover:shadow-md",
-                )}
-                aria-label={`Namunadan foydalanish: ${example.title}`}
-              >
-                <span className="text-2xl transition-transform duration-300 group-hover:scale-110" aria-hidden="true">
-                  {example.icon}
-                </span>
-                <span className="mt-3 line-clamp-2 font-medium leading-snug">
-                  {example.title}
-                </span>
-                <span className="mt-3 text-xs text-muted-foreground">
-                  {example.slides} ta slayd | {getLanguageLabel(example.language)}
-                </span>
-              </motion.button>
-            ))}
-          </motion.div>
         </motion.div>
       </motion.div>
     </section>
