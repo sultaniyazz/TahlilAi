@@ -81,6 +81,7 @@ function PresentationCard({
   item: {
     id: string;
     title: string;
+    createdAt: Date;
     updatedAt: Date;
     thumbnailUrl?: string | null;
     favorites?: { id: string }[];
@@ -317,10 +318,18 @@ export function RecentPresentations({
   const allItems = data?.items ?? [];
 
   // Filter by tab
+  const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+
   const tabFiltered = allItems.filter((item) => {
+    if (activeTab === "recent") {
+      const createdAt = new Date(item.createdAt ?? item.updatedAt).getTime();
+      return createdAt >= twentyFourHoursAgo;
+    }
+
     if (activeTab === "favorites")
       return (item.favorites?.length ?? 0) > 0;
-    return true; // all & recent show everything (you can add "viewed" tracking later)
+
+    return true;
   });
 
   // Filter by search
@@ -460,7 +469,7 @@ export function RecentPresentations({
       <div className="mx-2 my-2 h-px bg-white/[0.04]" />
 
       {/* ── Content ── */}
-      <div className="px-3 pb-3">
+      <div className="px-3 pb-3 max-h-[55vh] overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-5 w-5 animate-spin text-white/30" />

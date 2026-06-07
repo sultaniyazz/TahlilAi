@@ -20,7 +20,7 @@ interface SlidesRequest {
   modelId?: string;
   modelProvider?: "openai" | "ollama" | "lmstudio" | "openrouter";
   searchResults?: Array<{ query: string; results: unknown[] }>;
-  textContent?: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
+  textContent?: "minimal" | "ixcham" | "batafsil" | "kengaytirilgan";
   audience?: string;
   scenario?: string;
   imageSource?: "automatic" | "ai" | "stock";
@@ -140,14 +140,19 @@ Choose ONE different layout for each slide (use these exact XML tags so our pars
 12. PROS-CONS: For trade-offs
 \`\`\`xml
 <PROS-CONS>
-15. SIDELINE: For highlighted single-column facts with a vertical accent line
+  <PROS><H3>Pros</H3><LI>Pro 1</LI><LI>Pro 2</LI></PROS>
+  <CONS><H3>Cons</H3><LI>Con 1</LI><LI>Con 2</LI></CONS>
+</PROS-CONS>
+\`\`\`
+
+13. SIDELINE: For highlighted single-column facts with a vertical accent line
 \`\`\`xml
 <SIDELINE>
   <DIV><H3>Key Insight</H3><P>Short explanation of the insight with context and implication.</P></DIV>
 </SIDELINE>
 \`\`\`
 
-16. ARROW-BULLETS: For step lists with arrow markers and short explanations
+14. ARROW-BULLETS: For step lists with arrow markers and short explanations
 \`\`\`xml
 <ARROW-BULLETS>
   <LI><H3>Step 1</H3><P>What happens and why it matters.</P></LI>
@@ -155,18 +160,14 @@ Choose ONE different layout for each slide (use these exact XML tags so our pars
 </ARROW-BULLETS>
 \`\`\`
 
-17. SIDE-QUOTE: For callouts or testimonials with an icon and attribution
+15. SIDE-QUOTE: For callouts or testimonials with an icon and attribution
 \`\`\`xml
 <SIDE-QUOTE icon="quote">
   <DIV><H3>"Concise impactful quote or user testimonial"</H3><P>— Author, Role</P></DIV>
 </SIDE-QUOTE>
 \`\`\`
-  <PROS><H3>Pros</H3><LI>Pros 1</LI><LI>Pros 2</LI></PROS>
-  <CONS><H3>Cons</H3><LI>Cons 1</LI><LI>Cons 2</LI></CONS>
-</PROS-CONS>
-\`\`\`
 
-13. TABLE: For tabular data
+16. TABLE: For tabular data
 \`\`\`xml
 <TABLE>
   <TR><TH>Header 1</TH><TH>Header 2</TH></TR>
@@ -174,7 +175,7 @@ Choose ONE different layout for each slide (use these exact XML tags so our pars
 </TABLE>
 \`\`\`
 
-14. CHARTS: For data visualization — USE THESE FREQUENTLY for any topic with numbers, trends, or comparisons
+17. CHARTS: For data visualization — USE THESE FREQUENTLY for any topic with numbers, trends, or comparisons
 \`\`\`xml
 <CHART charttype="bar">
   <DATA><LABEL>Q1</LABEL><VALUE>24</VALUE></DATA>
@@ -243,7 +244,7 @@ Choose ONE different layout for each slide (use these exact XML tags so our pars
 - Sequential gains/losses → waterfall
 - Always use REALISTIC numbers relevant to the topic
 
-15. STATS: For metrics and KPIs
+18. STATS: For metrics and KPIs
 \`\`\`xml
 <STATS statstype="plain|circle|circle-bold|star|bar|dot-grid|dot-line">
   <DIV stat="85"><H3>Customer Satisfaction</H3><P>Based on Q4 surveys</P></DIV>
@@ -300,10 +301,28 @@ const SLIDES_TEMPLATE = `You are a world-class data-driven presentation designer
 - \`layout="vertical"\` - Image at top (good for STATS/CHART-heavy slides)
 
 ---
+**VISUAL POLICY**
+- Every content slide MUST use one of the available layout tags: ICONS, BOXES, SIDELINE, SIDE-QUOTE, ARROWS, ARROW-VERTICAL, COLUMNS, COMPARE, PYRAMID, STAIRCASE, CHART, or STATS.
+- Do NOT generate plain text slides using only raw paragraph text outside of these layouts.
+- If a slide is not CHART or STATS, it MUST include exactly one \`<IMG query="..." />\` tag inside the slide section.
+- For BOXES and ICONS slides, use \`icon="..."\` attributes when relevant.
+- For quote-style callouts, use \`<SIDE-QUOTE icon="quote">\` and include a strong quote headline plus attribution.
+- Every image query should be a detailed English stock/AI prompt that matches the slide topic.
 
+**EXAMPLE SLIDE**
+\`\`\`xml
+<SECTION layout="left">
+  <BOXES boxType="icon">
+    <DIV icon="structure"><H3>Anime Story Arc</H3><P>Each season follows a clear three-act structure with character growth, conflict, and climax.</P></DIV>
+  </BOXES>
+  <IMG query="colorful anime series structure infographic with story arc, character development, and key plot points" />
+</SECTION>
+\`\`\`
+
+---
 **MANDATORY SLIDES**
 - Slide 1: Introduction — title, 1-sentence summary, author name, strong image
-- Last slide: Conclusion — key takeaways, next steps, image
+- Last slide: Conclusion — key takeaways, next steps or call to action, image
 {AVAILABLE_LAYOUTS}
 
 ---
@@ -322,7 +341,7 @@ const SLIDES_TEMPLATE = `You are a world-class data-driven presentation designer
 - minimal: 1-2 short sentences per point
 - ixcham: 2-3 sentences per point
 - batafsil: 3-4 sentences per point
-- keng qamrovli: 4-5+ sentences per point
+- kengaytirilgan: 4-5+ sentences per point
 
 ## Slide Visual Balance:
 - Every slide must feel balanced — same text density, consistent structure
@@ -344,7 +363,7 @@ const SLIDES_TEMPLATE = `You are a world-class data-driven presentation designer
 
 ### MANDATORY DISTRIBUTION (strict — no exceptions):
 For a presentation of N slides (excluding intro/conclusion):
-- **≥ 40% of content slides MUST use CHART layout** — that means 2 out of 5, 3 out of 7, etc.
+- **≥ 70% of content slides MUST use CHART layout** — that means 3 out of 5, 4 out of 6, 5 out of 7, etc.
 - **≥ 20% of content slides MUST use STATS layout** — key numbers, KPIs, metrics
 - **≤ 20% of content slides may use BULLETS or COLUMNS** — only for concepts that cannot be charted
 
@@ -476,9 +495,14 @@ function buildAvailableLayouts(
   selectedTemplateCount: number,
   totalSlides: number,
 ): string {
-  // No templates selected - use all default layouts
+  // No templates selected - use all default layouts and choose them automatically
   if (!templateContext) {
-    return DEFAULT_LAYOUTS;
+    return `${DEFAULT_LAYOUTS}
+
+> **AUTOMATIC TEMPLATE SELECTION**
+> The user did not choose specific slide templates. You must automatically choose the most appropriate layout from the AVAILABLE LAYOUTS for each slide.
+> Use the available templates aggressively and do not fall back to plain BULLETS unless absolutely necessary.
+> Treat this as a required instruction: choose the right layout for every slide without asking the user.`;
   }
 
   // Fewer templates selected than slides - show both selected templates AND default layouts
@@ -561,44 +585,49 @@ function buildCriticalRules(
   // No templates - default rules
   if (!templateContext) {
     return `1. Generate **EXACTLY {TOTAL_SLIDES} slides** — no more, no less
-2. **CHART QUOTA**: ≥40% of content slides MUST be CHART layout. Count your slides and enforce this.
+2. **CHART QUOTA**: ≥70% of content slides MUST be CHART layout. Count your slides and enforce this.
 3. **STATS QUOTA**: ≥20% of content slides MUST be STATS layout for KPIs and metrics.
 4. **TEXT MAXIMUM**: ≤20% of content slides may use BULLETS or COLUMNS — use only for concepts that cannot be charted.
-5. **NEVER 2 consecutive text slides**: After any BULLETS or COLUMNS slide, the NEXT slide MUST be CHART, STATS, ICONS, CYCLE, or ARROWS.
-6. **INSIGHT TITLES**: Every CHART slide heading must state the insight, not just describe the data. Example: "Revenue Grew 3x in 4 Years" not "Revenue Chart".
-7. **REALISTIC DATA**: All chart values must be realistic domain-appropriate numbers — never 1,2,3 placeholders.
-8. **STATS CONTEXT**: Every STATS item must include a P tag with context ("vs. industry avg 72%", "up 18% YoY").
-9. Vary SECTION layout="left/right/vertical" throughout for visual variety.
-10. Use ONLY layout tags from AVAILABLE LAYOUTS — unlisted tags cause parsing failures.
-11. Expand all outline points with real-world data, examples, and industry benchmarks.
+5. **LAST SLIDE MUST BE A CONCLUSION**: The final slide must be a conclusion slide with key takeaways, next steps or call to action, and an image.
+6. **NO TWO CONSECUTIVE TEXT SLIDES**: After any BULLETS or COLUMNS slide, the next slide MUST be CHART, STATS, ICONS, CYCLE, ARROWS, SIDELINE, or SIDE-QUOTE.
+7. **INSIGHT TITLES**: Every CHART slide heading must state the insight, not just describe the data. Example: "Revenue Grew 3x in 4 Years, Driven by Digital Sales" not "Revenue Chart".
+8. **REALISTIC DATA**: All chart values must be realistic domain-appropriate numbers — never 1,2,3 placeholders.
+9. **STATS CONTEXT**: Every STATS item must include a P tag with context ("vs. industry avg 72%", "up 18% YoY").
+10. Vary SECTION layout="left/right/vertical" throughout for visual variety.
+11. Use ONLY layout tags from AVAILABLE LAYOUTS — unlisted tags cause parsing failures.
+12. Expand all outline points with real-world data, examples, and industry benchmarks.
+13. **AUTOMATIC TEMPLATE SELECTION**: The user did not choose templates. Choose the best layout from AVAILABLE LAYOUTS for every slide automatically.
+14. **VISUAL RICHNESS**: Use BOXES, ICONS, SIDELINE, SIDE-QUOTE, ARROWS, COMPARE, PYRAMID, or STAIRCASE for non-chart slides. Do not return plain text-only layouts.
 
-IMAGE REQUIREMENT (NEW - STRICT): Every content slide MUST include exactly ONE <IMG query="..." /> tag placed appropriately for the slide layout (left/right/vertical). Exception: slides that use <CHART> or <STATS> layouts do NOT require an <IMG> tag — instead they must include a detailed chart interpretation paragraph. Use English keywords for stock searches per IMAGE QUERY rules or a batafsil prompt for AI generation.
+IMAGE REQUIREMENT: Every non-CHART/STATS content slide MUST include exactly ONE <IMG query="..." /> tag placed appropriately for the slide layout. CHART or STATS slides do not require an image but MUST include a detailed chart interpretation paragraph.
 
-TEXT DEPTH (NEW - STRICT): For batafsil or keng qamrovli content levels, EACH main point (a <DIV> with <H3> and <P>) MUST have 3–6 sentences in the <P> explaining the concept, implications, and an example or metric. For ixcham use 2–3 sentences, and minimal 1–2 sentences.
+TEXT DEPTH: For batafsil or kengaytirilgan content levels, EACH main point (a <DIV> with <H3> and <P>) MUST have 3–6 sentences in the <P> explaining the concept, implications, and an example or metric. For ixcham use 2–3 sentences, and minimal 1–2 sentences.
 `;
   }
 
   // Partial template selection
   if (selectedTemplateCount < totalSlides) {
-    return `1. Generate **EXACTLY {TOTAL_SLIDES} slides** - no more, no less
-  2. **MUST USE ALL SELECTED TEMPLATES**: You have ${selectedTemplateCount} selected template(s) - each MUST appear at least once
-  3. **REMAINING SLIDES**: Fill the other ${totalSlides - selectedTemplateCount} slides using layouts from ADDITIONAL LAYOUTS
-  4. Expand outline content - do NOT copy verbatim
-  5. IMAGE REQUIREMENT: Every non-CHART/STATS content slide MUST include exactly ONE <IMG query="..." /> tag placed to match the slide layout. CHART/STATS slides do not require an image but must include a detailed interpretation paragraph.
-  6. TEXT DEPTH: For batafsil/keng qamrovli, each <P> must be 3–6 sentences. For ixcham use 2–3 sentences, minimal 1–2 sentences.
-  7. Vary SECTION layout attribute (left/right/vertical) throughout
-  8. For per-slide assignments: use the EXACT template specified`;
+    return `1. Generate **EXACTLY {TOTAL_SLIDES} slides** — no more, no less
+2. **MUST USE ALL SELECTED TEMPLATES**: You have ${selectedTemplateCount} selected template(s) — each MUST appear at least once
+3. **REMAINING SLIDES**: Fill the other ${totalSlides - selectedTemplateCount} slides using layouts from ADDITIONAL LAYOUTS
+4. Expand outline content — do NOT copy verbatim
+5. IMAGE REQUIREMENT: Every non-CHART/STATS content slide MUST include exactly ONE <IMG query="..." /> tag placed to match the slide layout. CHART/STATS slides do not require an image but must include a detailed interpretation paragraph.
+6. TEXT DEPTH: For batafsil/kengaytirilgan, each <P> must be 3–6 sentences. For ixcham use 2–3 sentences, minimal 1–2 sentences.
+7. Vary SECTION layout attribute (left/right/vertical) throughout
+8. For per-slide assignments: use the EXACT template specified
+`;
   }
 
   // Full template constraint
-  return `1. Generate **EXACTLY {TOTAL_SLIDES} slides** - no more, no less
+  return `1. Generate **EXACTLY {TOTAL_SLIDES} slides** — no more, no less
 2. **TEMPLATE CONSTRAINT**: Use ONLY layouts from AVAILABLE LAYOUTS. Any other tag = parsing failure
-3. Expand outline content - do NOT copy verbatim
+3. Expand outline content — do NOT copy verbatim
 4. IMAGE REQUIREMENT: You may add ONE <IMG query="..." /> tag per slide when allowed by the template. If a selected template is a CHART/STATS type, omit the image and instead include a detailed chart interpretation paragraph.
-5. TEXT DEPTH: For batafsil/keng qamrovli, each <P> must be 3–6 sentences. For ixcham use 2–3 sentences, minimal 1–2 sentences.
+5. TEXT DEPTH: For batafsil/kengaytirilgan, each <P> must be 3–6 sentences. For ixcham use 2–3 sentences, minimal 1–2 sentences.
 6. Vary SECTION layout attribute (left/right/vertical) throughout
-7. For per-slide assignments: use the EXACT template specified with NO structural changes`;
-}
+7. For per-slide assignments: use the EXACT template specified with NO structural changes
+`;
+    }
 
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID();
@@ -606,7 +635,7 @@ export async function POST(req: Request) {
 
   try {
     routeLogger.info("Presentation generation request received", { requestId });
-    const guard = await guardAiRoute({ checkStars: true });
+    const guard = await guardAiRoute();
     if (guard.error) {
       routeLogger.warn("Presentation generation request rejected", { requestId });
       return guard.error;

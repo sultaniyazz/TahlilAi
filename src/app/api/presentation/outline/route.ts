@@ -26,7 +26,7 @@ interface OutlineMessageMetadata {
   modelId?: string;
   modelProvider?: "openai" | "ollama" | "lmstudio" | "openrouter";
   webSearch?: boolean;
-  textContent?: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
+  textContent?: "minimal" | "ixcham" | "batafsil" | "kengaytirilgan";
   tone?: string;
   audience?: string;
   scenario?: string;

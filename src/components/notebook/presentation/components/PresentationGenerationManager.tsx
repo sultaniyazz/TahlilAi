@@ -37,7 +37,7 @@ interface PresentationOutlineMessageMetadata {
   modelProvider: "openai" | "ollama" | "lmstudio" | "openrouter";
   webSearch: boolean;
   presentationId: string | null;
-  textContent: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
+  textContent: "minimal" | "ixcham" | "batafsil" | "kengaytirilgan";
   tone:
     | "auto"
     | "general"

@@ -13,7 +13,7 @@ export type TextContentLevel =
   | "extensive"
   | "ixcham"
   | "batafsil"
-  | "keng qamrovli";
+  | "kengaytirilgan";
 
 function normalizeTextContent(
   textContent: TextContentLevel,
@@ -23,7 +23,7 @@ function normalizeTextContent(
       return "concise";
     case "batafsil":
       return "detailed";
-    case "keng qamrovli":
+    case "kengaytirilgan":
       return "extensive";
     default:
       return textContent;

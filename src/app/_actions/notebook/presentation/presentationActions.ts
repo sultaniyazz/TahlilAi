@@ -3,6 +3,7 @@
 import { type PlateSlide } from "@/components/notebook/presentation/utils/parser";
 import { type PresentationCustomization } from "@/lib/presentation/customization";
 import { getPresentationThumbnailUrl } from "@/lib/presentation/thumbnail";
+import { calculateStarCost, type TextContentLevel } from "@/config/stars";
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
 import { canEditDocument, canReadDocument } from "@/server/share/authorization";
@@ -79,17 +80,86 @@ export async function createEmptyPresentation({
   title,
   theme = "mystique",
   language = "en-US",
+  slides = 5,
+  textContent = "minimal",
 }: {
   title: string;
   theme?: string;
   language?: string;
+  slides?: number;
+  textContent?: TextContentLevel;
 }) {
-  return createPresentation({
-    content: { slides: [] },
-    title,
-    theme,
-    language,
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const cost = calculateStarCost({ slides, textContent });
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { stars: true },
   });
+
+  if (!user || user.stars < cost) {
+    return {
+      success: false,
+      message: "Sizda yetarli yulduzlar mavjud emas",
+    };
+  }
+
+  try {
+    const presentation = await db.$transaction(async (tx) => {
+      const createdPresentation = await tx.baseDocument.create({
+        data: {
+          type: "PRESENTATION",
+          documentType: "presentation",
+          title: title || "Untitled Presentation",
+          userId: session.user.id,
+          presentation: {
+            create: {
+              content: { slides: [] } as unknown as InputJsonValue,
+              theme,
+              language,
+            },
+          },
+        },
+        include: {
+          presentation: true,
+        },
+      });
+
+      await tx.user.update({
+        where: { id: session.user.id },
+        data: {
+          stars: { decrement: cost },
+          totalStarsUsed: { increment: cost },
+        },
+      });
+
+      await tx.starLog.create({
+        data: {
+          userId: session.user.id,
+          delta: -cost,
+          reason: "presentation_created",
+          presentationId: createdPresentation.id,
+        },
+      });
+
+      return createdPresentation;
+    });
+
+    return {
+      success: true,
+      message: "Presentation created successfully",
+      presentation,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Failed to create presentation",
+    };
+  }
 }
 
 export async function createBlankPresentation(

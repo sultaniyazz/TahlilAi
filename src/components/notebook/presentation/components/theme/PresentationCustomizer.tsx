@@ -26,7 +26,7 @@ export function PresentationCustomizer() {
     { id: "minimal", label: "Minimal", lines: 2 },
     { id: "ixcham", label: "ixcham", lines: 3 },
     { id: "batafsil", label: "batafsil", lines: 3 },
-    { id: "keng qamrovli", label: "keng qamrovli", lines: 3 },
+    { id: "kengaytirilgan", label: "kengaytirilgan", lines: 3 },
   ] as const;
 
   const toneOptions = [

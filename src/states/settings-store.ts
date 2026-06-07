@@ -19,7 +19,7 @@ export interface SettingsState {
   presentationStyle: string;
   modelProvider: "openai" | "ollama" | "lmstudio" | "openrouter";
   modelId: string;
-  textContent: "minimal" | "ixcham" | "batafsil" | "keng qamrovli";
+  textContent: "minimal" | "ixcham" | "batafsil" | "kengaytirilgan";
   tone:
     | "auto"
     | "general"
@@ -62,7 +62,7 @@ export interface SettingsState {
   setModelProvider: (provider: "openai" | "ollama" | "lmstudio" | "openrouter") => void;
   setModelId: (id: string) => void;
   setTextContent: (
-    content: "minimal" | "ixcham" | "batafsil" | "keng qamrovli",
+    content: "minimal" | "ixcham" | "batafsil" | "kengaytirilgan",
   ) => void;
   setTone: (
     tone:

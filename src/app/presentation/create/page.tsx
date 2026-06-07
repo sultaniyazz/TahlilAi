@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 // ... getSlideCount funksiyasi o'zgarishsiz ...
 
@@ -41,7 +42,10 @@ export default function Page() {
     setWebSearchEnabled,
     setTheme: setPresentationTheme,
     consumePendingCreateRequest,
+    textContent,
   } = usePresentationState();
+
+  const queryClient = useQueryClient();
 
   const handleDirectGeneration = async (promptText: string, lang: string) => {
     try {
@@ -52,9 +56,16 @@ export default function Page() {
         title: promptText.substring(0, 50) || "Nomsiz taqdimot",
         theme: createTheme,
         language: lang,
+        slides: noOfSlides,
+        textContent,
       });
 
       if (result.success && result.presentation) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["user-stars"] }),
+          queryClient.invalidateQueries({ queryKey: ["presentations"] }),
+        ]);
+
         setCurrentPresentation(
           result.presentation.id,
           result.presentation.title,

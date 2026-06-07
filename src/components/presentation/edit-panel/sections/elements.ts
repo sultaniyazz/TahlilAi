@@ -806,7 +806,7 @@ export const paletteItems: PaletteItem[] = [
         ),
         createBoxItem(
           "User Experience",
-          "Intuitive interface with less than 5-minute learning curve, keng qamrovli keyboard shortcuts, and seamless real-time collaboration",
+          "Intuitive interface with less than 5-minute learning curve, kengaytirilgan keyboard shortcuts, and seamless real-time collaboration",
         ),
         createBoxItem(
           "Scalability",
