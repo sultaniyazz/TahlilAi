@@ -81,23 +81,22 @@ export function ExportButton() {
         currentPresentationTitle ?? "presentation",
       );
 
+      // Auto-download the generated PPTX immediately
+      if (exportResultRef.current) {
+        try {
+          downloadBlob(
+            exportResultRef.current.blob,
+            exportResultRef.current.fileName,
+          );
+        } catch (err) {
+          console.error("Auto-download failed:", err);
+        }
+      }
+
       update({
         title: t("errors.exportComplete"),
-        description: (
-          <Button
-            size="sm"
-            variant="outline"
-            className="mt-2"
-            onClick={() => {
-              handleDownload();
-              dismiss();
-            }}
-          >
-            <Download className="mr-1 h-4 w-4" />
-            {t("common.download")} PowerPoint
-          </Button>
-        ),
-        duration: 15000,
+        description: t("presentation.exportCompletedToast") || t("errors.exportComplete"),
+        duration: 8000,
       });
 
       setIsExportDialogOpen(false);
@@ -118,19 +117,18 @@ export function ExportButton() {
 
   return (
     <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild>   
         <Button
           variant="ghost"
           size="sm"
           className="relative h-9 w-9 px-0 text-muted-foreground hover:text-foreground sm:h-9 sm:w-auto sm:gap-1.5 sm:px-3"
           aria-label={t("presentation.exportPresentation")}
         >
-          <SaveStatus className="absolute top-1 right-1 sm:static" />
           <Download className="h-4 w-4 sm:mr-1" />
           <span className="hidden sm:inline">{t("presentation.export")}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="mx-4 sm:mx-0 sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t("presentation.exportPresentation")}</DialogTitle>
           <DialogDescription>

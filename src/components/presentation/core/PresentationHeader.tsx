@@ -1,6 +1,6 @@
 "use client";
 import { t } from "@/lib/translations";
-import { Brain } from "@/components/ui/icons";
+import { AppLogo } from "@/components/ui/icons";
 import { usePresentationState } from "@/states/presentation-state";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { updatePresentationTitle } from "@/app/_actions/notebook/presentation/presentationActions";
 import { PresentButton } from "@/components/presentation/buttons/PresentButton";
 import { ShareButton } from "@/components/presentation/buttons/ShareButton";
+import { ExportButton } from "@/components/presentation/buttons/ExportButton";
 import { PresentationMenu } from "@/components/presentation/controls/PresentationMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,12 +64,11 @@ export default function PresentationHeader({ title }: PresentationHeaderProps) {
         translate="no"
       >
         <div className="flex min-w-0 items-center gap-2">
-          {/* This component is suppose to be logo but for now its is actually hamburger menu */}
-
-          <Link href="/presentation">
-            <Button size={"icon"} className="rounded-full" variant={"ghost"}>
-              <Brain></Brain>
-            </Button>
+          <Link
+            href="/presentation"
+            className="inline-flex items-center gap-2 rounded-full px-2 py-1 transition-colors hover:bg-muted"
+          >
+            <AppLogo />
           </Link>
 
           <motion.div
@@ -76,11 +76,7 @@ export default function PresentationHeader({ title }: PresentationHeaderProps) {
             layout="position"
             transition={{ duration: 1 }}
           >
-            <Link href="/" className="h-max">
-              <span className="text-lg font-bold tracking-tight text-foreground transition-transform duration-100 active:scale-95">
-                TahlilAi
-              </span>
-            </Link>
+            
           </motion.div>
         </div>
 
@@ -97,9 +93,9 @@ export default function PresentationHeader({ title }: PresentationHeaderProps) {
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <Link
           href="/presentation"
-          className="text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
         >
-          <Brain className="h-5 w-5"></Brain>
+          <AppLogo textClassName="text-xs sm:text-sm" />
         </Link>
         {isPresentationPage && <PresentationMenu readOnly={isReadOnly} />}
         <Input
@@ -149,7 +145,9 @@ export default function PresentationHeader({ title }: PresentationHeaderProps) {
           </Button>
         )}
 
-        {/* Export button - Only in presentation page, not outline or present mode */}
+        {/* Export (Yuklash) button - Only in presentation page, not outline or present mode */}
+        {isPresentationPage && !isPresenting && !isReadOnly && <ExportButton />}
+
         {/* Share button - Only in presentation page, not outline */}
         {isPresentationPage && !isPresenting && !isReadOnly && <ShareButton />}
 

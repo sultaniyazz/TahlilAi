@@ -249,7 +249,7 @@ export function LandingHero() {
       />
 
       <motion.div
-        className="mx-auto w-full max-w-[75vw] text-center"
+        className="mx-auto w-full landing-container text-center"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
@@ -263,7 +263,7 @@ export function LandingHero() {
 
         <motion.p
           variants={enterVariant}
-          className="mx-auto mt-5 max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg"
+          className="mx-auto mt-5 max-w-2xl text-pretty hidden sm:block text-sm text-muted-foreground sm:text-base"
         >
           G‘oyalaringizni zudlik bilan professional taqdimotlarga aylantiring. 
           Shunchaki mavzuni ta’riflang va qolganini sun’iy intellektga qo‘yib bering.
@@ -289,9 +289,9 @@ export function LandingHero() {
                     placeholder={
                       analysisResult?.prompt
                         ? "Fayl tahlil qilindi. So‘rov faqat fayldan olinadi."
-                        : "Taqdimot mavzusini ta'riflang yoki kontentingizni shu yerga joylang. AI uni mukammal taqdimot shakliga keltirib beradi."
+                        : "G‘oyani yozing, biz uni mukammal taqdimotga aylantiramiz."
                     }
-                    className="min-h-[8rem] resize-none border-0 bg-transparent text-base shadow-none focus-visible:ring-0 pr-12"
+                    className="min-h-[8rem] resize-none border-0 bg-transparent text-sm sm:text-base shadow-none focus-visible:ring-0 pr-12 placeholder:text-muted-foreground"
                     aria-label="Taqdimot mavzusi yoki kontenti"
                     disabled={Boolean(analysisResult?.prompt)}
                   />
@@ -348,78 +348,111 @@ export function LandingHero() {
             </div>
           )}
 
-          <div className="mt-4 flex flex-col gap-4 border-t border-border/50 pt-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex flex-wrap items-center gap-3">
-              <Select
-                value={String(numSlides)}
-                onValueChange={(value) => setNumSlides(Number(value))}
-              >
-                <SelectTrigger
-                  className="w-[130px] bg-background transition-colors duration-300 hover:bg-muted/50"
-                  aria-label="Slaydlar soni"
+          <div className="mt-4 border-t border-border/50 pt-4 sm:flex sm:items-center sm:justify-between sm:gap-3">
+            <div className="flex  mt-1 min-w-0   flex-nowrap items-center p-1 gap-3 overflow-x-auto pb-1">
+              <div className="min-w-[120px] flex-none">
+                <Select
+                  value={String(numSlides)}
+                  onValueChange={(value) => setNumSlides(Number(value))}
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SLIDES_OPTIONS.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option} ta slayd
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  <SelectTrigger
+                    className="w-[130px] text-sm bg-background transition-colors duration-300 hover:bg-muted/50 focus:outline-none focus-visible:ring-0 focus:border-transparent focus:ring-0 data-[state=open]:ring-0 data-[state=open]:outline-none data-[state=open]:shadow-none"
+                    aria-label="Slaydlar soni"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SLIDES_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option} ta slayd
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger
-                  className="w-[130px] bg-background transition-colors duration-300 hover:bg-muted/50"
-                  aria-label="Taqdimot tili"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LANGUAGES.map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="min-w-[120px] flex-none">
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger
+                    className="w-[130px] text-sm bg-background transition-colors duration-300 hover:bg-muted/50 focus:outline-none focus-visible:ring-0 focus:border-transparent focus:ring-0 data-[state=open]:ring-0 data-[state=open]:outline-none data-[state=open]:shadow-none"
+                    aria-label="Taqdimot tili"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LANGUAGES.map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <div className="flex h-10 items-center gap-2 rounded-md border bg-background px-3 transition-colors duration-300 hover:bg-muted/50">
-                <Globe className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                <span className="text-sm text-muted-foreground">
-                  {webSearchEnabled ? "Yoqilgan" : "O‘chirilgan"}
-                </span>
-                <Switch
-                  checked={webSearchEnabled}
-                  onCheckedChange={setWebSearchEnabled}
-                  aria-label="Web qidiruvni yoqish/o‘chirish"
-                />
+              <div className="min-w-[160px] flex-none">
+                {/* Desktop / tablet: show icon + label + Switch */}
+                <div className="hidden sm:flex h-10 items-center gap-2 rounded-md border bg-background px-3 text-sm transition-colors duration-300 hover:bg-muted/50">
+                  <Globe className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <span className="text-sm text-muted-foreground">Qidiruv</span>
+                  <div className="ml-2" />
+                  <Switch
+                    checked={webSearchEnabled}
+                    onCheckedChange={setWebSearchEnabled}
+                    aria-label="Web qidiruvni yoqish/o'chirish"
+                  />
+                </div>
+
+                {/* Mobile: compact label + visual toggle (keeps Switch for accessibility) */}
+                <div className="flex sm:hidden items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                    aria-pressed={webSearchEnabled}
+                    aria-label={webSearchEnabled ? "Qidiruv yoqilgan" : "Qidiruv o'chirilgan"}
+                    className={cn(
+                      "flex items-center gap-3 rounded-md border bg-background px-3 py-2 text-sm",
+                      webSearchEnabled ? "ring-1 ring-emerald-300" : ""
+                    )}
+                  >
+                    <span className="font-medium">Qidiruv</span>
+                    <span className={cn("ml-2 inline-flex h-5 w-9 items-center rounded-full p-1", webSearchEnabled ? "bg-emerald-400/30" : "bg-gray-200")}> 
+                      <span className={cn("block h-3 w-3 rounded-full bg-white shadow-sm transform transition-transform", webSearchEnabled ? "translate-x-3 bg-emerald-500" : "translate-x-0 bg-gray-400")} />
+                    </span>
+                  </button>
+                  <Switch
+                    checked={webSearchEnabled}
+                    onCheckedChange={setWebSearchEnabled}
+                    className="sr-only"
+                    aria-hidden
+                  />
+                </div>
               </div>
             </div>
 
-            <motion.div
-              whileHover={btnHover}
-              whileTap={tapScale}
-              transition={SPRING_BUTTON}
-            >
-              <Button
-                size="lg"
-                type="button"
-                className="w-full gap-2 bg-foreground text-background shadow-md transition-all duration-300 hover:bg-foreground/90 hover:shadow-lg sm:w-auto"
-                disabled={
-                  isCreating || (!(presentationInput.trim() || analysisResult?.prompt?.trim())) || insufficientStars
-                }
-                onClick={() => void createPresentation(analysisResult?.prompt)}
+            <div className="mt-4 sm:mt-0 sm:flex sm:justify-end">
+              <motion.div
+                whileHover={btnHover}
+                whileTap={tapScale}
+                transition={SPRING_BUTTON}
               >
-                {isCreating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                ) : (
-                  <Wand2 className="h-4 w-4" aria-hidden="true" />
-                )}
-                Taqdimot yaratish
-              </Button>
-            </motion.div>
+                <Button
+                  size="lg"
+                  type="button"
+                  className="w-full gap-2 bg-foreground text-background shadow-md transition-all duration-300 hover:bg-foreground/90 hover:shadow-lg sm:w-auto focus:outline-none focus-visible:ring-0"
+                  disabled={
+                    isCreating || (!(presentationInput.trim() || analysisResult?.prompt?.trim())) || insufficientStars
+                  }
+                  onClick={() => void createPresentation(analysisResult?.prompt)}
+                >
+                  {isCreating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Wand2 className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  Taqdimot yaratish
+                </Button>
+              </motion.div>
+            </div>
           </div>
         </motion.div>
       </motion.div>

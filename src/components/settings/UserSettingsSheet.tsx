@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -34,6 +35,7 @@ import {
   Sparkles,
   Star,
   User,
+  X,
   Zap,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
@@ -153,6 +155,10 @@ export function UserSettingsSheet() {
               </div>
             </div>
           </div>
+          <SheetClose className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-md bg-white/5 text-muted-foreground hover:bg-white/10">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Yopish</span>
+          </SheetClose>
         </div>
 
         {/* Tabs */}

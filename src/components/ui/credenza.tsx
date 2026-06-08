@@ -68,11 +68,22 @@ const CredenzaClose = ({ children, ...props }: CredenzaCloseProps) => {
   return <CloseComponent {...props}>{children}</CloseComponent>;
 };
 
-const CredenzaContent = ({ children, ...props }: CredenzaContentProps) => {
+const CredenzaContent = ({ children, shouldHaveClose, ...props }: CredenzaContentProps) => {
   const isDesktop = useMediaQuery(desktop);
   const ContentComponent = isDesktop ? DialogContent : DrawerContent;
 
-  return <ContentComponent {...props}>{children}</ContentComponent>;
+  // Only pass `shouldHaveClose` to DialogContent (desktop). When rendering
+  // DrawerContent (mobile), strip the prop so it isn't forwarded to a DOM
+  // element which would trigger React's unknown prop warning.
+  if (isDesktop) {
+    return (
+      <DialogContent shouldHaveClose={shouldHaveClose} {...(props as any)}>
+        {children}
+      </DialogContent>
+    );
+  }
+
+  return <DrawerContent {...props}>{children}</DrawerContent>;
 };
 
 const CredenzaDescription = ({

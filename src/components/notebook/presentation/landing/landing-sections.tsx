@@ -116,7 +116,7 @@ export function LandingFeatures() {
       />
 
       <motion.div
-        className="mx-auto w-full max-w-[75vw] mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        className="mx-auto w-full landing-container mt-14 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-40px" }}
@@ -128,15 +128,15 @@ export function LandingFeatures() {
             variants={cardVariant}
             whileHover={cardHover}
             className={cn(
-              "group rounded-2xl border border-border/50 bg-card/50 p-6",
+              "group rounded-2xl border border-border/50 bg-card/50 p-4 sm:p-6",
               "transition-[box-shadow,border-color] duration-300 hover:border-primary/25 hover:shadow-lg",
             )}
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted transition-colors duration-300 group-hover:bg-primary/10">
-              <feature.icon className="h-5 w-5 text-foreground" aria-hidden="true" />
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-muted transition-colors duration-300 group-hover:bg-primary/10">
+              <feature.icon className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" aria-hidden="true" />
             </div>
-            <h3 className="mt-4 font-semibold">{feature.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            <h3 className="mt-4 text-sm font-semibold sm:text-base">{feature.title}</h3>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
               {feature.description}
             </p>
           </motion.article>
@@ -179,7 +179,7 @@ export function LandingOpenSource() {
       <SectionHeading eyebrow="Ochiq kodli" title="Nega ochiq kodli loyihamiz?" />
 
       <motion.div
-        className="mx-auto w-full max-w-[75vw] mt-14 grid gap-8 sm:grid-cols-2"
+        className="mx-auto w-full landing-container mt-14 grid gap-8 sm:grid-cols-2"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -244,7 +244,7 @@ export function LandingDemo() {
       <SectionHeading eyebrow="Amalda ko'ring" title="Qanday ishlashini tomosha qiling" />
 
       <motion.div
-        className="mx-auto w-full max-w-[70vw] mt-12"
+        className="mx-auto w-full landing-container max-w-5xl mt-12"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -342,7 +342,7 @@ export function LandingPricing() {
       </motion.p>
 
       <motion.div
-        className="mx-auto w-full max-w-[75vw] mt-14 grid gap-6 lg:grid-cols-3"
+        className="mx-auto w-full landing-container mt-14 grid gap-6 lg:grid-cols-3"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -507,7 +507,7 @@ export function LandingCommunity() {
 export function LandingFooter() {
   return (
     <footer className="border-t border-border/50 px-4 py-12 text-sm text-muted-foreground transition-colors duration-300 dark:border-border/30 sm:px-6">
-      <div className="mx-auto w-full max-w-[75vw] text-center">
+      <div className="mx-auto w-full landing-container text-center">
         <p>© {new Date().getFullYear()} TahlilAi. Barcha huquqlar himoyalangan.</p>
       </div>
     </footer>

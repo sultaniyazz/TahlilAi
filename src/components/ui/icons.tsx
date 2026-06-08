@@ -23,6 +23,7 @@ import {
   Plane,
   Puzzle,
   Shirt,
+  Sparkles,
   Square,
   Star,
   Terminal,
@@ -129,6 +130,31 @@ export function GoogleLogo(props: { className?: string }) {
         />
       </g>
     </svg>
+  );
+}
+
+export function AppLogo(props: { className?: string; textClassName?: string }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-2",
+        props.className,
+      )}
+    >
+      <Sparkles className="h-6 w-6 flex-none text-cyan-400 sm:h-7 sm:w-7" />
+      <span
+        style={{
+          backgroundImage:
+            "linear-gradient(135deg, #22d3ee 0%, #6366f1 50%, #8b5cf6 100%)",
+        }}
+        className={cn(
+          "landing-logo-text font-semibold leading-none tracking-tight text-transparent bg-clip-text sm:text-2xl md:text-3xl",
+          props.textClassName,
+        )}
+      >
+        TahlilAi
+      </span>
+    </span>
   );
 }
 

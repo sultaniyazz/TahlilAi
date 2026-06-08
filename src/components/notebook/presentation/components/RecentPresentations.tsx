@@ -351,7 +351,7 @@ export function RecentPresentations({
 
   return (
     <section className="px-4 py-8 sm:px-6">
-      <div className="mx-auto w-full max-w-[75vw]">
+      <div className="mx-auto w-full landing-container">
         <div
           className={cn(
             "rounded-2xl p-0.5 w-full",

@@ -20,17 +20,17 @@ export function StarCostPreview({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 rounded-lg border border-amber-200 px-4 py-2 text-sm dark:border-amber-800 ">
-        <Star className="h-4 w-4 text-amber-500" />
-        <span>
-          Ushbu taqdimot <strong>{cost} ta yulduzcha</strong> foydalanadi
+      <div className="flex items-center gap-2 rounded-lg border border-amber-200 px-3 py-2 text-xs sm:text-sm md:text-base dark:border-amber-800">
+        <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-amber-500" />
+        <span className="text-xs sm:text-sm md:text-base">
+          Ushbu taqdimot <strong className="font-semibold">{cost} ta yulduzcha</strong> foydalanadi
         </span>
         {userStars !== null && (
-          <span className="text-muted-foreground">({userStars} qolgan)</span>
+          <span className="text-muted-foreground text-xs sm:text-sm md:text-base">({userStars} qolgan)</span>
         )}
       </div>
       {insufficient && (
-        <p className="text-sm text-destructive">
+        <p className="text-xs sm:text-sm text-destructive">
           Not enough stars. You need {cost} stars but only have {userStars}.
         </p>
       )}
@@ -41,8 +41,8 @@ export function StarCostPreview({
 export function StarBalanceBadge({ stars }: { stars: number }) {
   return (
     <div className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300">
-      <Star className="h-3.5 w-3.5 fill-current" />
-      <span>{stars} stars</span>
+      <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-current" />
+      <span className="text-xs sm:text-sm">{stars} stars</span>
     </div>
   );
 }
