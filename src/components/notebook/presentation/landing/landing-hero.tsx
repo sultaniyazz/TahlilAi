@@ -200,11 +200,19 @@ export function LandingHero() {
     const files = event.target.files ? (Array.from(event.target.files) as File[]) : [];
     if (files.length === 0) return;
 
+    const selectedFile = files[0] as File;
+    setUploadedFileName(selectedFile.name);
     setPresentationInput("");
 
     const data = await analyzeFiles(files);
     if (!data) {
       setUploadedFileName(null);
+      setPresentationInput("");
+    } else {
+      // populate prompt if returned
+      if (data.prompt) {
+        setPresentationInput(data.prompt);
+      }
     }
 
     event.target.value = "";
@@ -213,6 +221,7 @@ export function LandingHero() {
   const removeUploadedFile = () => {
     clearAnalysis();
     setUploadedFileName(null);
+    setPresentationInput("");
   };
 
   const userStars = starsData?.stars ?? null;
@@ -296,11 +305,19 @@ export function LandingHero() {
                   />
                   <button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => {
+                      if (!isAnalyzing) fileInputRef.current?.click();
+                    }}
                     className="absolute right-3 bottom-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/90 text-muted-foreground shadow-sm transition-colors hover:bg-muted/80 hover:text-foreground"
                     aria-label="Fayl yuklash"
+                    title={isAnalyzing ? "Yuklanmoqda..." : "Fayl yuklash"}
+                    aria-busy={isAnalyzing}
                   >
-                    <Paperclip className="h-4 w-4" aria-hidden="true" />
+                    {isAnalyzing ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Paperclip className="h-4 w-4" aria-hidden="true" />
+                    )}
                   </button>
                 </div>
               </motion.div>
