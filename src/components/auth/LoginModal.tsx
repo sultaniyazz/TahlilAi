@@ -73,10 +73,10 @@ export function LoginModal() {
             </div>
 
             <DialogHeader className="space-y-2 text-left">
-              <DialogTitle className="text-2xl font-bold leading-tight text-white">
+              <DialogTitle className="text-xl font-bold leading-tight text-white sm:text-2xl">
                 Ajoyib prezentatsiyalar yarating
               </DialogTitle>
-              <DialogDescription className="text-sm text-slate-400">
+                <DialogDescription className="text-xs text-slate-400 sm:text-sm">
                 Kirish qiling va daqiqalar ichida professional slidlar tayyorlang.
               </DialogDescription>
             </DialogHeader>
@@ -105,7 +105,7 @@ export function LoginModal() {
           <Button
             type="button"
             variant="outline"
-            className="h-11 w-full gap-3 border text-sm font-medium shadow-sm hover:bg-muted/50 transition-all"
+            className="h-12 w-full gap-3 border text-sm font-medium shadow-sm hover:bg-muted/50 transition-all"
             onClick={handleGoogleSignIn}
           >
             <GoogleIcon />

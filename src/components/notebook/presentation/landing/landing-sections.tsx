@@ -56,13 +56,13 @@ function SectionHeading({
     >
       <motion.p
         variants={enter}
-        className="text-sm font-semibold text-muted-foreground"
+        className="text-xs font-semibold text-muted-foreground sm:text-sm"
       >
         {eyebrow}
       </motion.p>
       <motion.h2
         variants={enter}
-        className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl"
+        className="mt-3 text-balance text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl"
       >
         {title}
       </motion.h2>
@@ -136,7 +136,7 @@ export function LandingFeatures() {
               <feature.icon className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" aria-hidden="true" />
             </div>
             <h3 className="mt-4 text-sm font-semibold sm:text-base">{feature.title}</h3>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:text-sm">
               {feature.description}
             </p>
           </motion.article>
@@ -362,12 +362,12 @@ export function LandingPricing() {
                   : "border-border/60 bg-card/50 hover:shadow-lg",
               )}
             >
-              <h3 className="text-xl font-bold">{plan.name}</h3>
+              <h3 className="text-lg font-bold sm:text-xl">{plan.name}</h3>
               <p className="mt-2 text-sm text-muted-foreground">
                 {plan.description}
               </p>
 
-              <ul className="mt-6 flex-1 space-y-2 text-sm">
+              <ul className="mt-4 flex-1 space-y-1.5 text-xs sm:mt-6 sm:space-y-2 sm:text-sm">
                 {plan.features.slice(0, 3).map((feature) => (
                   <li key={feature} className="flex gap-2">
                     <span className="text-primary" aria-hidden="true">✓</span>
@@ -410,7 +410,7 @@ export function LandingPricing() {
               )}
 
               <div className="mt-8">
-                <span className="text-4xl font-bold">{plan.price}</span>
+                <span className="text-3xl font-bold sm:text-4xl">{plan.price}</span>
                 {"period" in plan && plan.period ? (
                   <span className="text-muted-foreground"> {plan.period}</span>
                 ) : null}
@@ -433,7 +433,6 @@ export function LandingPricing() {
     </section>
   );
 }
-
 export function LandingCommunity() {
   const shouldReduceMotion = useReducedMotion();
   const enter = shouldReduceMotion ? reducedFadeInUp : fadeInUp;
@@ -448,7 +447,7 @@ export function LandingCommunity() {
         viewport={{ once: true }}
         variants={staggerContainer}
       >
-        <motion.h2 variants={enter} className="text-3xl font-bold sm:text-4xl">
+        <motion.h2 variants={enter} className="text-2xl font-bold sm:text-3xl md:text-4xl">
           Jamiyatimizga qo'shiling
         </motion.h2>
         <motion.p

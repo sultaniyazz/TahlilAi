@@ -148,7 +148,7 @@ export function AppLogo(props: { className?: string; textClassName?: string }) {
             "linear-gradient(135deg, #22d3ee 0%, #6366f1 50%, #8b5cf6 100%)",
         }}
         className={cn(
-          "landing-logo-text font-semibold leading-none tracking-tight text-transparent bg-clip-text sm:text-2xl md:text-3xl",
+          "landing-logo-text font-semibold leading-none tracking-tight text-transparent bg-clip-text text-base sm:text-lg",
           props.textClassName,
         )}
       >

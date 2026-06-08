@@ -139,7 +139,7 @@ export function UserSettingsSheet() {
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <p className="truncate text-base font-semibold text-white">
+                <p className="truncate text-sm font-semibold text-white sm:text-base">
                   {user?.name ?? "Foydalanuvchi"}
                 </p>
                 <PlanBadge label={planLabel} />
@@ -288,7 +288,7 @@ export function UserSettingsSheet() {
                   <div className="relative shrink-0">
                     <StarRing percentage={percentage} />
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xl font-bold tabular-nums">{stars}</span>
+                      <span className="text-lg font-bold tabular-nums sm:text-xl">{stars}</span>
                       <span className="text-xs text-muted-foreground">stars</span>
                     </div>
                   </div>

@@ -107,7 +107,7 @@ function AnimatedHeadline({
 
   if (shouldReduceMotion) {
     return (
-      <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+      <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
         {line1}
         <span className="block text-muted-foreground">{line2}</span>
       </h1>
@@ -119,7 +119,7 @@ function AnimatedHeadline({
   const totalWords1 = words1.length;
 
   return (
-    <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+    <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
       <span
         style={{ display: "flex", flexWrap: "wrap", rowGap: "0.1em", justifyContent: "center" }}
         aria-label={line1}
@@ -200,7 +200,6 @@ export function LandingHero() {
     const files = event.target.files ? (Array.from(event.target.files) as File[]) : [];
     if (files.length === 0) return;
 
-    setUploadedFileName(files[0]?.name ?? null);
     setPresentationInput("");
 
     const data = await analyzeFiles(files);
@@ -263,7 +262,7 @@ export function LandingHero() {
 
         <motion.p
           variants={enterVariant}
-          className="mx-auto mt-5 max-w-2xl text-pretty hidden sm:block text-sm text-muted-foreground sm:text-base"
+          className="mx-auto mt-3 max-w-2xl text-pretty text-sm text-muted-foreground sm:mt-5 sm:text-base md:text-lg"
         >
           G‘oyalaringizni zudlik bilan professional taqdimotlarga aylantiring. 
           Shunchaki mavzuni ta’riflang va qolganini sun’iy intellektga qo‘yib bering.

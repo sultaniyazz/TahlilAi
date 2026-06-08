@@ -89,7 +89,7 @@ export function LandingHeader() {
               whileHover={{ y: -3 }}
               transition={{ duration: 0.55, ease: "easeOut" }}
               className={cn(
-                "text-sm font-medium text-muted-foreground transition-all duration-500 ease-out transform",
+                "text-xs font-medium text-muted-foreground transition-all duration-500 ease-out transform sm:text-sm",
                 "hover:text-foreground hover:tracking-wide",
               )}
             >

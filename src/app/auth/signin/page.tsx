@@ -56,7 +56,7 @@ export default function SignIn() {
         </Link>
 
         <div className="space-y-6">
-          <h2 className="text-3xl font-bold leading-tight">
+          <h2 className="text-3xl font-bold leading-tight xl:text-4xl">
             Presentations that
             <br />
             impress instantly
@@ -80,10 +80,10 @@ export default function SignIn() {
       <div className="flex flex-1 flex-col items-center justify-center bg-background px-6 py-12">
         <div className="w-full max-w-sm space-y-8">
           <div className="space-y-2 text-center lg:text-left">
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
               {isNewUser ? "Get started free" : "Welcome back"}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Sign in with your Google account to continue
             </p>
           </div>
