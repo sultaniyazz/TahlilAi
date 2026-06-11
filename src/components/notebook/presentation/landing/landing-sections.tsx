@@ -288,7 +288,7 @@ export function LandingOpenSource() {
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-background to-transparent" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-background to-transparent" />
         <div className="flex gap-4 overflow-hidden">
-          <div className="flex gap-4 animate-marquee-left" style={{ animationDuration: "38s" }}>
+          <div className="flex gap-4 animate-marquee-left" style={{ animationDuration: "100s" }}>
             {[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
               <TestimonialCard key={`r1-${i}`} t={t} />
             ))}
@@ -297,11 +297,11 @@ export function LandingOpenSource() {
       </div>
 
       {/* Row 2 — o'ng tomonga */}
-      <div className="relative mt-4">
+      <div className="relative mt-8">
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-background to-transparent" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-background to-transparent" />
         <div className="flex gap-4 overflow-hidden">
-          <div className="flex gap-4 animate-marquee-right" style={{ animationDuration: "44s" }}>
+          <div className="flex gap-4 animate-marquee-right" style={{ animationDuration: "100s" }}>
             {[...[...TESTIMONIALS].reverse(), ...[...TESTIMONIALS].reverse()].map((t, i) => (
               <TestimonialCard key={`r2-${i}`} t={t} />
             ))}
@@ -337,7 +337,7 @@ export function LandingPartners() {
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-background to-transparent" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-background to-transparent" />
         <div className="flex gap-4 overflow-hidden">
-          <div className="flex gap-4 animate-marquee-left" style={{ animationDuration: "22s" }}>
+          <div className="flex gap-4 animate-marquee-left" style={{ animationDuration: "100s" }}>
             {[...PARTNERS, ...PARTNERS, ...PARTNERS].map((p, i) => (
               <div key={i} className="flex shrink-0 items-center gap-3 rounded-2xl border bg-card px-5 py-3 shadow-sm">
                 <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${p.color} text-xs font-bold text-white`}>
