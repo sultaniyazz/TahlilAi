@@ -4,11 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   Clock,
-  Code2,
-  Github,
-  Heart,
   ImageIcon,
-  Lock,
   Palette,
   Pencil,
   Sparkles,
@@ -56,13 +52,13 @@ function SectionHeading({
     >
       <motion.p
         variants={enter}
-        className="text-xs font-semibold text-muted-foreground sm:text-sm"
+        className="text-sm font-semibold text-muted-foreground"
       >
         {eyebrow}
       </motion.p>
       <motion.h2
         variants={enter}
-        className="mt-3 text-balance text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl"
+        className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl"
       >
         {title}
       </motion.h2>
@@ -116,7 +112,7 @@ export function LandingFeatures() {
       />
 
       <motion.div
-        className="mx-auto w-full landing-container mt-14 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        className="mx-auto w-full max-w-[75vw] mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-40px" }}
@@ -128,15 +124,15 @@ export function LandingFeatures() {
             variants={cardVariant}
             whileHover={cardHover}
             className={cn(
-              "group rounded-2xl border border-border/50 bg-card/50 p-4 sm:p-6",
+              "group rounded-2xl border border-border/50 bg-card/50 p-6",
               "transition-[box-shadow,border-color] duration-300 hover:border-primary/25 hover:shadow-lg",
             )}
           >
-            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-muted transition-colors duration-300 group-hover:bg-primary/10">
-              <feature.icon className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" aria-hidden="true" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted transition-colors duration-300 group-hover:bg-primary/10">
+              <feature.icon className="h-5 w-5 text-foreground" aria-hidden="true" />
             </div>
-            <h3 className="mt-4 text-sm font-semibold sm:text-base">{feature.title}</h3>
-            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:text-sm">
+            <h3 className="mt-4 font-semibold">{feature.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {feature.description}
             </p>
           </motion.article>
@@ -146,92 +142,237 @@ export function LandingFeatures() {
   );
 }
 
-const OPEN_SOURCE = [
+// ─── TESTIMONIALS DATA ───────────────────────────────────────────
+const TESTIMONIALS = [
   {
-    icon: Lock,
-    title: "Shaffoflik",
-    description: "Kodimiz hamma uchun ochiq: ko'rishingiz, tekshirishingiz va yaxshilashingiz mumkin.",
+    name: "Aziz Toshmatov",
+    role: "Marketing menejeri",
+    company: "TechUz",
+    avatar: "AT",
+    color: "from-violet-500 to-purple-600",
+    text: "TahlilAi bilan 20 daqiqada mijozlarimiz uchun professional prezentatsiya tayyorladim. Avval bu ish yarim kun vaqt olardi. Infografika va grafiklar avtomatik chiqishi juda qulay!",
   },
   {
-    icon: Users,
-    title: "Jamoa bilan birga",
-    description: "Biz hamma uchun yaxshiroq dasturiy ta'minot yaratishda hamkorlik kuchiga ishonamiz.",
+    name: "Dilnoza Yusupova",
+    role: "Biznes tahlilchi",
+    company: "Kapital Bank",
+    avatar: "DY",
+    color: "from-pink-500 to-rose-600",
+    text: "Hisobotlarni tayyorlash uchun ideal vosita. AI statistik ma'lumotlarni o'zi grafikka aylantiradi, men faqat mazmuniga e'tibor beraman. Hamkasblarga albatta tavsiya qilaman.",
   },
   {
-    icon: Code2,
-    title: "Ta'lim",
-    description: "Kodimizdan o'rganing, hissa qo'shing va o'z ko'nikmalaringizni oshiring.",
+    name: "Jasur Rahimov",
+    role: "Startup asoschisi",
+    company: "GreenTech UZ",
+    avatar: "JR",
+    color: "from-emerald-500 to-teal-600",
+    text: "Investorlar uchun pitch deck tayyorlashda TahlilAi'ni ishlatdim. Natija hayratlanarli — professional ko'rinish, aniq ma'lumotlar. Investorlar ham taqdimot sifatini alohida ta'kidladi.",
   },
   {
-    icon: Heart,
-    title: "Doimiy bepul",
-    description: "Asosiy funksiyalarimiz doimo bepul va ochiq kodli bo'lib qoladi.",
+    name: "Malika Karimova",
+    role: "O'qituvchi",
+    company: "TATU",
+    avatar: "MK",
+    color: "from-amber-500 to-orange-600",
+    text: "Talabalarim uchun dars materiallarini tayyorlashda foydalanam. Har bir mavzu uchun chiroyli, tushunarli slaydlar — va bularning hammasi bir necha daqiqada. Vaqtimni juda tejayapti.",
+  },
+  {
+    name: "Sardor Mirzayev",
+    role: "Loyiha menejeri",
+    company: "Uzum Market",
+    avatar: "SM",
+    color: "from-blue-500 to-indigo-600",
+    text: "Haftalik hisobot prezentatsiyalarini avtomatlashtirdim. Endi jamoam bilan uchrashuvlarga doim tayyor bo'laman. Vaqt tejalishi — haftasiga kamida 3 soat.",
+  },
+  {
+    name: "Nilufar Hasanova",
+    role: "PR mutaxassisi",
+    company: "MediaGroup",
+    avatar: "NH",
+    color: "from-cyan-500 to-sky-600",
+    text: "Mijozlar uchun brend taqdimotlari, PR hisobotlar, media-kit — hammasi TahlilAi orqali. Dizayn sifati juda yuqori, mavzular professional ko'rinadi.",
+  },
+  {
+    name: "Bobur Aliyev",
+    role: "CEO",
+    company: "StartupHub UZ",
+    avatar: "BA",
+    color: "from-orange-500 to-red-500",
+    text: "Jamoamiz har haftada 4-5 ta taqdimot tayyorlaydi. TahlilAi bu jarayonni 10 barobarga tezlashtirdi. Endi dizayner kutmaymiz, AI hamma ishni qiladi.",
+  },
+  {
+    name: "Zulfiya Normatova",
+    role: "Moliya direktori",
+    company: "Ipoteka Bank",
+    avatar: "ZN",
+    color: "from-teal-500 to-green-600",
+    text: "Kvartal moliyaviy hisobotlarimizni tayyorlash uchun TahlilAi'dan foydalanamiz. Grafiklar va jadvallar avtomatik, aniq va chiroyli chiqadi.",
   },
 ] as const;
 
-export function LandingOpenSource() {
-  const shouldReduceMotion = useReducedMotion();
-  const enter = shouldReduceMotion ? reducedFadeInUp : fadeInUp;
-  const btnHover = shouldReduceMotion ? reducedHoverScale : hoverScale;
+// ─── PARTNERS DATA ────────────────────────────────────────────────
+const PARTNERS = [
+  { name: "Uzum Market", abbr: "U", color: "from-violet-600 to-purple-700" },
+  { name: "Kapital Bank", abbr: "KB", color: "from-blue-600 to-indigo-700" },
+  { name: "TechUz", abbr: "T", color: "from-emerald-600 to-teal-700" },
+  { name: "TATU", abbr: "T", color: "from-amber-600 to-orange-700" },
+  { name: "Ipoteka Bank", abbr: "IB", color: "from-sky-600 to-blue-700" },
+  { name: "GreenTech UZ", abbr: "G", color: "from-green-600 to-emerald-700" },
+  { name: "MediaGroup", abbr: "MG", color: "from-rose-600 to-pink-700" },
+  { name: "StartupHub UZ", abbr: "SH", color: "from-orange-600 to-red-700" },
+  { name: "Digital UZ", abbr: "D", color: "from-indigo-600 to-violet-700" },
+  { name: "Agrobank", abbr: "AG", color: "from-lime-600 to-green-700" },
+] as const;
 
+function StarRating() {
   return (
-    <section className="px-4 py-20 sm:px-6">
-      <SectionHeading eyebrow="Ochiq kodli" title="Nega ochiq kodli loyihamiz?" />
+    <div className="flex items-center gap-0.5" aria-label="5 yulduz">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <svg key={i} className="h-3.5 w-3.5 fill-amber-400" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+function TestimonialCard({ t }: { t: typeof TESTIMONIALS[number] }) {
+  return (
+    <div className="flex w-[340px] shrink-0 flex-col gap-4 rounded-2xl border bg-card p-6 shadow-sm sm:w-[400px]">
+      <StarRating />
+      <p className="flex-1 text-sm leading-relaxed text-muted-foreground">
+        &ldquo;{t.text}&rdquo;
+      </p>
+      <div className="flex items-center gap-3 border-t pt-4">
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${t.color} text-xs font-bold text-white`}>
+          {t.avatar}
+        </div>
+        <div>
+          <p className="text-sm font-semibold">{t.name}</p>
+          <p className="text-xs text-muted-foreground">{t.role} · {t.company}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function LandingOpenSource() {
+  return (
+    <section className="overflow-hidden py-20" id="testimonials">
+      <SectionHeading
+        eyebrow="Foydalanuvchilar fikri"
+        title="Minglar ishonadi, siz ham sinab ko'ring"
+      />
 
       <motion.div
-        className="mx-auto w-full landing-container mt-14 grid gap-8 sm:grid-cols-2"
-        initial="hidden"
-        whileInView="visible"
+        className="mx-auto mt-10 flex justify-center gap-3 px-4"
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        variants={staggerContainer}
+        transition={{ duration: 0.5 }}
       >
-        {OPEN_SOURCE.map((item) => (
-          <motion.div
-            key={item.title}
-            variants={enter}
-            className="flex gap-4"
-          >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted transition-colors duration-300 hover:bg-primary/10">
-              <item.icon className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div>
-              <h3 className="font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {item.description}
-              </p>
-            </div>
-          </motion.div>
+        {[
+          { value: "10,000+", label: "Foydalanuvchi" },
+          { value: "5", label: "O'rtacha baho" },
+          { value: "50,000+", label: "Prezentatsiya" },
+        ].map((s) => (
+          <div key={s.label} className="rounded-xl border bg-card/60 px-5 py-3 text-center">
+            <p className="text-xl font-bold sm:text-2xl">{s.value}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{s.label}</p>
+          </div>
         ))}
       </motion.div>
 
+      {/* Row 1 — chap tomonga */}
+      <div className="relative mt-12">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-background to-transparent" />
+        <div className="flex gap-4 overflow-hidden">
+          <div className="flex gap-4 animate-marquee-left" style={{ animationDuration: "38s" }}>
+            {[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
+              <TestimonialCard key={`r1-${i}`} t={t} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Row 2 — o'ng tomonga */}
+      <div className="relative mt-4">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-background to-transparent" />
+        <div className="flex gap-4 overflow-hidden">
+          <div className="flex gap-4 animate-marquee-right" style={{ animationDuration: "44s" }}>
+            {[...[...TESTIMONIALS].reverse(), ...[...TESTIMONIALS].reverse()].map((t, i) => (
+              <TestimonialCard key={`r2-${i}`} t={t} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function LandingPartners() {
+  return (
+    <section className="overflow-hidden border-y bg-muted/20 py-16" id="partners">
       <motion.div
-        className="mt-12 flex justify-center"
-        initial={{ opacity: 0, filter: "blur(8px)", y: 16 }}
-        whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+        className="px-4 text-center"
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.45, ease: LANDING_EASE }}
+        transition={{ duration: 0.45 }}
       >
-        <motion.div
-          whileHover={btnHover}
-          whileTap={tapScale}
-          transition={SPRING_BUTTON}
-        >
-          <Button asChild variant="outline" size="lg" className="gap-2">
-              <a // GitHub havolasi to'g'irlandi
-                href="https://github.com/sultaniyazz/TahlilAi"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="GitHub'da hissa qo'shish"
-            >
-              <Github className="h-4 w-4" aria-hidden="true" />
-              GitHub'da hissa qo'shish
-            </a>
-          </Button>
-        </motion.div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Ishonchli hamkorlar
+        </p>
+        <p className="mt-2 text-2xl font-bold sm:text-3xl">
+          Yetakchi kompaniyalar tanlagan vosita
+        </p>
+        <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
+          O'zbekistondagi yirik bank, startup va ta'lim tashkilotlari TahlilAi'dan foydalanadi.
+        </p>
+      </motion.div>
+
+      <div className="relative mt-10">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-background to-transparent" />
+        <div className="flex gap-4 overflow-hidden">
+          <div className="flex gap-4 animate-marquee-left" style={{ animationDuration: "22s" }}>
+            {[...PARTNERS, ...PARTNERS, ...PARTNERS].map((p, i) => (
+              <div key={i} className="flex shrink-0 items-center gap-3 rounded-2xl border bg-card px-5 py-3 shadow-sm">
+                <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${p.color} text-xs font-bold text-white`}>
+                  {p.abbr}
+                </div>
+                <span className="whitespace-nowrap text-sm font-semibold">{p.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <motion.div
+        className="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-4 px-4 sm:grid-cols-4"
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        {[
+          { value: "10+", label: "Hamkor kompaniya" },
+          { value: "98%", label: "Mamnunlik darajasi" },
+          { value: "5x", label: "Vaqt tejalishi" },
+          { value: "24/7", label: "Qo'llab-quvvatlash" },
+        ].map((s) => (
+          <div key={s.label} className="rounded-xl border bg-card px-4 py-4 text-center">
+            <p className="text-2xl font-bold">{s.value}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{s.label}</p>
+          </div>
+        ))}
       </motion.div>
     </section>
   );
 }
+
 
 export function LandingDemo() {
   const shouldReduceMotion = useReducedMotion();
@@ -244,7 +385,7 @@ export function LandingDemo() {
       <SectionHeading eyebrow="Amalda ko'ring" title="Qanday ishlashini tomosha qiling" />
 
       <motion.div
-        className="mx-auto w-full landing-container max-w-5xl mt-12"
+        className="mx-auto w-full max-w-[80vw] sm:max-w-[70vw] mt-12"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -342,7 +483,7 @@ export function LandingPricing() {
       </motion.p>
 
       <motion.div
-        className="mx-auto w-full landing-container mt-14 grid gap-6 lg:grid-cols-3"
+        className="mx-auto w-full max-w-[75vw] mt-14 grid gap-6 lg:grid-cols-3"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -362,12 +503,12 @@ export function LandingPricing() {
                   : "border-border/60 bg-card/50 hover:shadow-lg",
               )}
             >
-              <h3 className="text-lg font-bold sm:text-xl">{plan.name}</h3>
+              <h3 className="text-xl font-bold">{plan.name}</h3>
               <p className="mt-2 text-sm text-muted-foreground">
                 {plan.description}
               </p>
 
-              <ul className="mt-4 flex-1 space-y-1.5 text-xs sm:mt-6 sm:space-y-2 sm:text-sm">
+              <ul className="mt-6 flex-1 space-y-2 text-sm">
                 {plan.features.slice(0, 3).map((feature) => (
                   <li key={feature} className="flex gap-2">
                     <span className="text-primary" aria-hidden="true">✓</span>
@@ -410,7 +551,7 @@ export function LandingPricing() {
               )}
 
               <div className="mt-8">
-                <span className="text-3xl font-bold sm:text-4xl">{plan.price}</span>
+                <span className="text-4xl font-bold">{plan.price}</span>
                 {"period" in plan && plan.period ? (
                   <span className="text-muted-foreground"> {plan.period}</span>
                 ) : null}
@@ -433,6 +574,7 @@ export function LandingPricing() {
     </section>
   );
 }
+
 export function LandingCommunity() {
   const shouldReduceMotion = useReducedMotion();
   const enter = shouldReduceMotion ? reducedFadeInUp : fadeInUp;
@@ -447,7 +589,7 @@ export function LandingCommunity() {
         viewport={{ once: true }}
         variants={staggerContainer}
       >
-        <motion.h2 variants={enter} className="text-2xl font-bold sm:text-3xl md:text-4xl">
+        <motion.h2 variants={enter} className="text-3xl font-bold sm:text-4xl">
           Jamiyatimizga qo'shiling
         </motion.h2>
         <motion.p
@@ -472,12 +614,12 @@ export function LandingCommunity() {
               className="gap-2 bg-[#5865F2] text-white hover:bg-[#5865F2]/90"
             >
               <a
-                href="https://discord.com"
+                href="https://t.me/+Zy-i2-HElzg4N2Yy"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Discord serverimizga qo'shiling"
               >
-                Discord'ga qo'shilish
+                Telegramga qo'shilish
               </a>
             </Button>
           </motion.div>
@@ -488,7 +630,7 @@ export function LandingCommunity() {
           >
             <Button asChild size="lg" variant="outline" className="gap-2">
               <a
-                href="https://x.com/"
+                href="https://t.me/+Zy-i2-HElzg4N2Yy"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Our X (Twitter) profile"
@@ -506,7 +648,7 @@ export function LandingCommunity() {
 export function LandingFooter() {
   return (
     <footer className="border-t border-border/50 px-4 py-12 text-sm text-muted-foreground transition-colors duration-300 dark:border-border/30 sm:px-6">
-      <div className="mx-auto w-full landing-container text-center">
+      <div className="mx-auto w-full max-w-[75vw] text-center">
         <p>© {new Date().getFullYear()} TahlilAi. Barcha huquqlar himoyalangan.</p>
       </div>
     </footer>

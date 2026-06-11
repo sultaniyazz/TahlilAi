@@ -9,6 +9,7 @@ import {
   LandingFeatures,
   LandingFooter,
   LandingOpenSource,
+  LandingPartners,
   LandingPricing,
 } from "./landing-sections";
 import { RecentPresentations } from "@/components/notebook/presentation/components/RecentPresentations";
@@ -34,6 +35,7 @@ export function PresentationLandingPage() {
       <LandingHero />
       <RecentPresentations />
       <LandingFeatures />
+      <LandingPartners />
       <LandingOpenSource />
       <LandingDemo />
       <LandingPricing />

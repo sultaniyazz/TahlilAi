@@ -1,6 +1,5 @@
 "use client";
 
-import { type ImageModelList } from "@/app/_actions/apps/image-studio/generate";
 import { getPresentation } from "@/app/_actions/notebook/presentation/presentationActions";
 import { getCustomThemeById } from "@/app/_actions/presentation/theme-actions";
 import { Header } from "@/components/notebook/presentation/components/outline/Header";
@@ -28,9 +27,6 @@ import { Wand2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useLayoutEffect, useRef } from "react";
-import { toast } from "sonner";
-import { GenerateImageSlidesButton } from "@/components/notebook/presentation/components/outline/GenerateImageSlidesButton";
-
 export default function PresentationGenerateWithIdPage() {
   const router = useRouter();
   const params = useParams();
@@ -43,10 +39,8 @@ export default function PresentationGenerateWithIdPage() {
     setPresentationInput,
     startOutlineGeneration,
     startPresentationGeneration,
-    startImageSlideGeneration,
     isGeneratingPresentation,
     isGeneratingOutline,
-    setImageModel,
     setOutline,
     setSearchResults,
     setTheme,
@@ -65,9 +59,7 @@ export default function PresentationGenerateWithIdPage() {
   } = usePresentationState();
 
   const outlineSectionRef = useRef<HTMLDivElement>(null);
-  const canGenerateImageSlides = session?.user?.isAdmin === true;
   const hasOutline = outline.some((item) => item.trim().length > 0);
-  const isOutlineUnavailable = isGeneratingOutline || !hasOutline;
   const isGeneratePresentationDisabled =
     isGeneratingPresentation || isGeneratingOutline;
 
@@ -247,21 +239,6 @@ export default function PresentationGenerateWithIdPage() {
     startPresentationGeneration();
   };
 
-  const handleGenerateImageSlides = (model: ImageModelList) => {
-    if (isGeneratingOutline || isGeneratingPresentation) {
-      return;
-    }
-
-    if (!hasOutline) {
-      toast.error("Rasm slaydlarini yaratishdan oldin reja yarating.");
-      return;
-    }
-
-    router.push(`/presentation/${id}`);
-    setImageModel(model);
-    startImageSlideGeneration();
-  };
-
   // Yuklanish holati ekrani
   if (isLoadingPresentation) {
     return (
@@ -300,15 +277,6 @@ export default function PresentationGenerateWithIdPage() {
       {/* Pastki boshqaruv paneli */}
       <div className="fixed right-0 bottom-0 left-0 border-t bg-background/80 p-4 backdrop-blur-xs">
         <div className="mx-auto flex w-full max-w-4xl flex-col justify-center gap-3 sm:w-fit sm:max-w-none sm:flex-row sm:gap-4">
-          {canGenerateImageSlides ? (
-            <div className="w-full sm:w-fit sm:flex-none">
-              <GenerateImageSlidesButton
-                isGenerating={isGeneratingPresentation}
-                disabled={isOutlineUnavailable}
-                onGenerateImageSlides={handleGenerateImageSlides}
-              />
-            </div>
-          ) : null}
           <div className="w-full sm:w-fit sm:flex-none">
             <Button
               size="lg"

@@ -39,6 +39,9 @@ export function ExportButton() {
 
   const handleExport = async () => {
     try {
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.add("pptx-exporting");
+      }
       setIsExporting(true);
       exportResultRef.current = null;
 
@@ -111,6 +114,9 @@ export function ExportButton() {
       });
       console.error("Export error:", error);
     } finally {
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.remove("pptx-exporting");
+      }
       setIsExporting(false);
     }
   };

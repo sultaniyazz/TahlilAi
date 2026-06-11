@@ -105,51 +105,23 @@
   }
 }
 
-@layer utilities {
-  .landing-container {
-    max-width: min(1120px, 100%);
-    margin-inline: auto;
-  }
-
-  .landing-header-stack {
-    gap: 0.75rem;
-  }
-
-  .landing-logo-text {
-    font-size: 1rem;
-  }
+/* ─── Marquee animations ─────────────────────────────────────── */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
-
-@media (max-width: 768px) {
-  .landing-container {
-    padding-inline: 1rem;
-  }
-
-  .landing-header-stack {
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-
-  .landing-logo-text {
-    font-size: 0.95rem;
-  }
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
 }
-
-/* Responsive base font scaling for small devices */
-@layer base {
-  html {
-    font-size: 16px;
-  }
-
-  @media (max-width: 640px) {
-    html {
-      font-size: 15px; /* Slightly smaller on phones */
-    }
-  }
-
-  @media (max-width: 420px) {
-    html {
-      font-size: 14px; /* Extra small devices */
-    }
-  }
+.animate-marquee-left {
+  animation: marquee-left linear infinite;
+}
+.animate-marquee-right {
+  animation: marquee-right linear infinite;
+}
+/* Hover da to'xtatish */
+.animate-marquee-left:hover,
+.animate-marquee-right:hover {
+  animation-play-state: paused;
 }
