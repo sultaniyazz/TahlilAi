@@ -350,8 +350,8 @@ export function RecentPresentations({
   const isDark = resolvedTheme === "dark";
 
   return (
-    <section className="px-4 py-8 sm:px-6">
-      <div className="mx-auto w-full landing-container">
+    <section className="px-4 py-8 sm:px-6 ">
+      <div className="mx-auto w-[90vw] md:w-[75vw] landing-container">
         <div
           className={cn(
             "rounded-2xl p-0.5 w-full",
@@ -387,7 +387,7 @@ export function RecentPresentations({
         {/* Right controls */}
         <div className="flex items-center gap-2">
           {/* Search */}
-          <div className="relative">
+          <div className="relative min-w-[160px] sm:min-w-[220px]">
             <Search
               className={cn(
                 "absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2",
@@ -399,7 +399,7 @@ export function RecentPresentations({
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Qidiruv..."
               className={cn(
-                "h-8 w-full pl-8 text-xs placeholder:text-gray-400 focus-visible:ring-0",
+                "h-8 w-[160px] sm:w-[220px] pl-8 text-xs placeholder:text-gray-400 focus-visible:ring-0",
                 isDark
                   ? "border-white/[0.06] bg-white/[0.03] text-white/80 placeholder:text-white/25"
                   : "border-gray-200 bg-white text-black placeholder:text-gray-400",
